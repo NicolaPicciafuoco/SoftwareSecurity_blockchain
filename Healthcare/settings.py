@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'smartcontract.apps.SmartcontractConfig',
+    "Management_User.apps.Management_UserConfig"
 ]
 
 MIDDLEWARE = [
