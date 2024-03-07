@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Prestazione
 
-# Register your models here.
+class PrestazioneAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(Prestazione, PrestazioneAdmin)
