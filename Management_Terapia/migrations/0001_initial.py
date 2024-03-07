@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Terapia',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(blank=True, null=True, upload_to='path_terapie_files/', verbose_name='Terapia')),
+                ('file', models.FileField(blank=True, null=True, upload_to='file/', verbose_name='Terapia')),
                 ('note', models.CharField(blank=True, max_length=100, null=True, verbose_name='note')),
             ],
             options={
