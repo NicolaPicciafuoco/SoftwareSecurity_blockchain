@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
+from django.conf import settings
 from .models import Terapia
+
 
 class TerapiaAdmin(admin.ModelAdmin):
     list_display = ['id', 'note', 'visualizza_file', ]
@@ -18,8 +19,11 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     @admin.action(description='Elimina il file')
     def clear_selected_files(modeladmin, request, queryset):
-        for terapia in queryset:
-            terapia.delete_file()
+        # Verifica se DEBUG è True prima di procedere
+        # Verifica se il degab è uguale a true, verificare se funziona quando viene dockerizzato.
+        if settings.DEBUG:
+            for terapia in queryset:
+                terapia.delete_file()
 
     clear_selected_files.short_description = "Elimina il file"
 
