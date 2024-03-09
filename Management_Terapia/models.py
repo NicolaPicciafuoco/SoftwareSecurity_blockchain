@@ -1,4 +1,4 @@
-
+from django.core.exceptions import ValidationError
 
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
@@ -30,6 +30,16 @@ class Terapia(models.Model):
                                      on_delete=models.SET_NULL, default=None, null=True, blank=True)
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
+
+    def clean(self):
+        super().clean()
+        if self.file:
+            paziente_id = getattr(self.utente, 'id', None)
+            new_file_path = get_upload_path(self, os.path.basename(self.file.name))
+            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapia', str(paziente_id)))
+
+            if os.path.basename(new_file_path) in existing_files:
+                raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
 
     def save(self, request=None, *args, **kwargs):
         if self.pk:
