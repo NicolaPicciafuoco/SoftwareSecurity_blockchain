@@ -73,9 +73,10 @@ services:
 
   web:
     build: .
+    command: gunicorn --chdir ./Healthcare Healthcare.wsgi:application --bind 0.0.0.0:8000
     container_name: django
-    ports:
-      - '8000:8000'
+    expose:
+      - 8000
     volumes:
       - .:/app
     environment:
@@ -88,6 +89,12 @@ services:
     depends_on:
       - my-postgres
 
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - web
 
 # Hyperledger Besu
 
