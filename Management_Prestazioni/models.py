@@ -1,7 +1,8 @@
 from Healthcare.settings import MEDIA_ROOT
-from django.contrib.auth.models import User
+from Management_User.models import HealthCareUser as User
 from django.db import models
 import os
+
 
 def upload_to_prestazione(instance, filename):
     user_id = instance.utente.id if instance.utente else 'default'
@@ -14,6 +15,7 @@ def upload_to_prestazione(instance, filename):
     full_path = os.path.join(folder_path, filename)
     return full_path
 
+
 class Prestazione(models.Model):
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
     note = models.TextField('Note', max_length=100, null=True, blank=True)
@@ -24,7 +26,6 @@ class Prestazione(models.Model):
         if self.file:
             return os.path.basename(self.file.name)
         return ''
-
 
     # Metodo per stampare a schermo le istanze create
     def __str__(self):

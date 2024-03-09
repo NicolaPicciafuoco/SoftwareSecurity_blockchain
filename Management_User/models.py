@@ -72,6 +72,9 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         'nome', 'cognome', 'sesso', 'data_nascita', 'luogo_nascita', 'indirizzo_residenza'
     ]
 
+    def __str__(self):
+        return f"{self.nome} {self.cognome} {self.SESSO_SCELTE[0][1] if self.sesso == 1 else self.SESSO_SCELTE[1][1]} {self.data_nascita}"
+
     class Meta:
         verbose_name = 'Utente'
         verbose_name_plural = 'Utenti'
