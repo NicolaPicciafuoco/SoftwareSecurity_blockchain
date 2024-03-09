@@ -1,3 +1,10 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import HealthCareUser
 
-# Register your models here.
+
+class HealthCareUserAdmin(UserAdmin):
+    pass
+
+
+admin.site.register(HealthCareUser)
