@@ -4,6 +4,8 @@ from .models import HealthCareUser
 
 
 class HealthCareUserAdmin(UserAdmin):
+    model = HealthCareUser
+
     def get_queryset(self, request):
         qs = super(HealthCareUserAdmin, self).get_queryset(request)
         return qs.filter(is_staff=True)
