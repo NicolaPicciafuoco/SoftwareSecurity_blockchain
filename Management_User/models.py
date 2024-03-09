@@ -75,3 +75,4 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Utente'
         verbose_name_plural = 'Utenti'
+        ordering = ['nome', 'cognome', 'sesso', 'data_nascita',]
