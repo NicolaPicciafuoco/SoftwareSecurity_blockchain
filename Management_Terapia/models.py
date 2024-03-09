@@ -34,12 +34,18 @@ class Terapia(models.Model):
 
     def save(self, *args, **kwargs):
         # Se è un'istanza esistente e il file è stato cambiato, elimina il vecchio file
-        if self.pk and self.file:
-            old_file = Terapia.objects.get(pk=self.pk).file
-            if old_file and old_file != self.file:
-                os.remove(old_file.path)
-
+        if self.pk:
+            try:
+                old_instance = Terapia.objects.get(pk=self.pk)
+                if old_instance.file and self.file != old_instance.file:
+                    # Elimina il file precedente se è stato modificato
+                    if os.path.isfile(old_instance.file.path):
+                        os.remove(old_instance.file.path)
+            except Terapia.DoesNotExist:
+                pass
         super().save(*args, **kwargs)
+
+
 
 
     def __str__(self):
