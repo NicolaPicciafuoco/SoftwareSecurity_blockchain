@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'smartcontract.apps.SmartcontractConfig',
     'Management_User.apps.ManagementUserConfig',
     'Management_Terapia.apps.ManagementTerapiaConfig',
+    'Management_Prestazioni.apps.ManagementPrestazioniConfig',
 ]
 
 MIDDLEWARE = [
