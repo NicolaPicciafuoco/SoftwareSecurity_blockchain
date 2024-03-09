@@ -1,7 +1,10 @@
+
+
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
 import os
+
 
 
 def get_upload_path(instance, filename):
@@ -21,20 +24,14 @@ def get_upload_path(instance, filename):
 
 
 class Terapia(models.Model):
-    utente = models.ForeignKey(User,verbose_name='paziente',related_name='terapie', on_delete=models.SET_NULL, default=None, null=True, blank=True)
-    prescrittore = models.ForeignKey(User,verbose_name='prescrittore',related_name='terapie_prescritte', on_delete=models.SET_NULL, default=None, null=True, blank=True)
+    utente = models.ForeignKey(User, verbose_name='paziente', related_name='terapie', on_delete=models.SET_NULL,
+                               default=None, null=True, blank=True)
+    prescrittore = models.ForeignKey(User, verbose_name='prescrittore', related_name='terapie_prescritte',
+                                     on_delete=models.SET_NULL, default=None, null=True, blank=True)
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
 
-    def delete_file(self):
-        # Verifica se il file esiste e lo elimina
-        if self.file:
-            path = self.file.path
-            if os.path.exists(path):
-                os.remove(path)
-            self.file.delete()
-
-    def save(self, *args, **kwargs):
+    def save(self, request=None, *args, **kwargs):
         if self.pk:
             try:
                 old_instance = Terapia.objects.get(pk=self.pk)
@@ -45,7 +42,9 @@ class Terapia(models.Model):
             except Terapia.DoesNotExist:
                 pass
 
-        super().save(*args, **kwargs)  # Esegui il salvataggio per ottenere l'ID dell'utente
+        super().save(*args, **kwargs)
+
+
 
     def __str__(self):
         return f"Terapia {self.id}: {self.note}"

@@ -1,10 +1,20 @@
+
 from django.contrib import admin
+from django.forms import ModelForm
 from django.utils.html import format_html
 from django.conf import settings
-from .models import Terapia
-from Management_User.models import HealthCareUser as User
+from django.core.exceptions import ValidationError
+from Healthcare.settings import MEDIA_ROOT
+from .models import Terapia, get_upload_path
+
+import os
+class TerapiaAdminForm(ModelForm):
+    class Meta:
+        model = Terapia
+        fields = '__all__'
 
 class TerapiaAdmin(admin.ModelAdmin):
+    form = TerapiaAdminForm
     list_display = ['note', 'visualizza_file', ]
     actions = ['clear_selected_files']
 
@@ -27,17 +37,24 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     clear_selected_files.short_description = "Elimina il file"
 
+
     def save_model(self, request, obj, form, change):
         # Imposta l'utente corrente come prescrittore
         obj.prescrittore = request.user
-        super().save_model(request, obj, form, change)
+        # Controlla il conflitto del nome del file
+        if obj.file:
+            paziente_id = getattr(obj.utente, 'id', None)
+            new_file_path = get_upload_path(obj, os.path.basename(obj.file.name))
+            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapia', str(paziente_id)))
+            if os.path.basename(new_file_path) in existing_files:
+                raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
 
+        super().save_model(request, obj, form, change)
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         # Disabilita la possibilità di scegliere il prescrittore nella form
         form.base_fields['prescrittore'].widget.attrs['disabled'] = True
         form.base_fields['prescrittore'].widget.attrs['display'] = False
         return form
-
 
 admin.site.register(Terapia, TerapiaAdmin)
