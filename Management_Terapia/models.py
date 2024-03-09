@@ -3,6 +3,7 @@ import os
 from django.contrib.auth.models import User
 
 from Healthcare.settings import MEDIA_ROOT
+
 def get_upload_path(instance, filename):
     user_id = instance.utente.id if instance.utente else 'default'
     print(f"ID dell'istanza: {user_id}")
@@ -20,7 +21,7 @@ def get_upload_path(instance, filename):
 
 
 class Terapia(models.Model):
-    utente = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    utente = models.ForeignKey(User, on_delete=models.CASCADE, default=None, null=True, blank=True)
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
 
