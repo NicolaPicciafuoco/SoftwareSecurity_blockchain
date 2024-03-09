@@ -41,7 +41,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
                                               related_name='telmed_user_permissions')
     groups = models.ManyToManyField(Group, verbose_name='groups', blank=True, related_name='telmed_user_groups')
 
-    # caregiver = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    caregiver = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     is_staff = models.BooleanField(
         "Staff",
