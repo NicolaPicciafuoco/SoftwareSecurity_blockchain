@@ -1,8 +1,8 @@
+from Management_User.models import HealthCareUser as User
+from Healthcare.settings import MEDIA_ROOT
 from django.db import models
 import os
-from django.contrib.auth.models import User
 
-from Healthcare.settings import MEDIA_ROOT
 
 def get_upload_path(instance, filename):
     user_id = instance.utente.id if instance.utente else 'default'
