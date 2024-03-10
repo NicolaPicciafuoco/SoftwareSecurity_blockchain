@@ -1,5 +1,4 @@
 from Healthcare.settings import MEDIA_ROOT
-from Management_Terapia.models import get_upload_path
 from Management_User.models import HealthCareUser as User
 from django.db import models
 import os
@@ -32,7 +31,15 @@ class Prestazione(models.Model):
     def __str__(self):
         return f"{self.id}, {self.filename()}, {self.utente}"
 
-# overwrite del metodo save per gestire i file
+# override del metodo delete nella form
+    def delete(self, *args, **kwargs):
+        # Elimina il file associato se esiste
+        if self.file:
+            if os.path.isfile(self.file.path):
+                os.remove(self.file.path)
+        super().delete(*args, **kwargs)
+
+# override del metodo save per gestire i file
     def save(self, request=None, *args, **kwargs):
 
         if self.pk:
