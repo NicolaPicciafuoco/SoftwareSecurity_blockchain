@@ -12,7 +12,7 @@ def get_upload_path(instance, filename):
     print(f"ID dell'istanza: {user_id}")
     folder_path = os.path.join(MEDIA_ROOT, 'file_terapia', str(user_id))
 
-    # Controlla se la cartella esiste
+    # Controllo se la cartella esiste
     if not os.path.exists(folder_path):
         # Crea la cartella se non esiste
         os.makedirs(folder_path, exist_ok=True)
@@ -52,14 +52,30 @@ class Terapia(models.Model):
 
     def save(self, request=None, *args, **kwargs):
         if self.pk:
+            print("hello")
             try:
                 old_instance = Terapia.objects.get(pk=self.pk)
+
                 if old_instance.file and self.file != old_instance.file:
                     # Elimina il file precedente se è stato modificato
                     if os.path.isfile(old_instance.file.path):
                         os.remove(old_instance.file.path)
             except Terapia.DoesNotExist:
                 pass
+
+            if(old_instance.utente != self.utente):
+                if old_instance.file:
+                    old_file_path = old_instance.file.path
+                    if os.path.exists(old_file_path):
+                        # Genero il nuovo percorso del file
+                        new_path = get_upload_path(self, os.path.basename(self.file.name))
+
+                        # Sposto fisicamente il file nel nuovo percorso
+                        os.rename(old_file_path, new_path)
+
+                        # Aggiorno il campo del modello con il nuovo percorso
+                        self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
+
 
         super().save(*args, **kwargs)
 
