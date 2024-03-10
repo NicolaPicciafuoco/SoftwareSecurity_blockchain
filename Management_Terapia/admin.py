@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import ModelForm, forms
+from django.forms import ModelForm
 from django.utils.html import format_html
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -20,7 +20,6 @@ class TerapiaAdmin(admin.ModelAdmin):
     actions = ['custom_delete_selected']
 
     def delete(self, *args, **kwargs):
-        print("delete1")
         # Esegui operazioni personalizzate prima dell'eliminazione
         self.delete_file()  # Chiamata a una funzione personalizzata per eliminare il file associato
 
@@ -28,16 +27,11 @@ class TerapiaAdmin(admin.ModelAdmin):
         super().delete(*args, **kwargs)
 
     def delete_file(self):
-        print("delete2")
-        # Funzione personalizzata per eliminare il file associato, ad esempio:
+        # Funzione personalizzata per eliminare il file associato
         if self.file:
-            print("delete3")
             file_path = os.path.join(settings.MEDIA_ROOT, str(self.file))
             if os.path.exists(file_path):
-                print("delete4")
                 os.remove(file_path)
-
-
 
     def delete_model(self, request, obj):
         # Chiamare il metodo delete_file per eliminare il file associato
@@ -54,10 +48,8 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     visualizza_file.short_description = "File"
 
-
-
     def save_model(self, request, obj, form, change):
-        'funzione per il salvataggio del modello'
+        """funzione per il salvataggio del modello"""
         obj.prescrittore = request.user
         if obj.file:
             paziente_id = getattr(obj.utente, 'id', None)
@@ -69,6 +61,7 @@ class TerapiaAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_form(self, request, obj=None, **kwargs):
+        """ sovrascrivere form"""
         form = super().get_form(request, obj, **kwargs)
         # Disabilita la possibilità di scegliere il prescrittore nella form
         form.base_fields['prescrittore'].widget.attrs['disabled'] = True
@@ -76,6 +69,7 @@ class TerapiaAdmin(admin.ModelAdmin):
         return form
 
     def custom_delete_selected(self, request, queryset):
+        """ funzione custom per il delate"""
         for terapia in queryset:
             # Chiamare il tuo metodo delete_file personalizzato per ogni terapia
             terapia.delete_file()
@@ -86,9 +80,10 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     # sovrascrittura per  il metodo get_actions per rimuovere l'azione di eliminazione predefinita
     def get_actions(self, request):
+        """eliminazione della funzione delete (preimpostata)"""
         actions = super().get_actions(request)
-        # Rimuovi l'azione di eliminazione predefinita
         del actions['delete_selected']
         return actions
+
 
 admin.site.register(Terapia, TerapiaAdmin)
