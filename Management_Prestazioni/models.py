@@ -1,4 +1,5 @@
 from Healthcare.settings import MEDIA_ROOT
+from Management_Terapia.models import get_upload_path
 from Management_User.models import HealthCareUser as User
 from django.db import models
 import os
@@ -32,8 +33,8 @@ class Prestazione(models.Model):
         return f"{self.id}, {self.filename()}, {self.utente}"
 
 # overwrite del metodo save per gestire i file
-    def save(self, *args, **kwargs):
-        # Controlla se il campo FileField è stato pulito e il file associato esiste
+    def save(self, request=None, *args, **kwargs):
+
         if self.pk:
             try:
                 old_instance = Prestazione.objects.get(pk=self.pk)
@@ -43,7 +44,18 @@ class Prestazione(models.Model):
                         os.remove(old_instance.file.path)
             except Prestazione.DoesNotExist:
                 pass
-        # Richiamo il metodo save della classe base per salvare la modifica
+
+            if old_instance.utente != self.utente:
+                if old_instance.file:
+                    old_file_path = old_instance.file.path
+                    if os.path.exists(old_file_path):
+                        # Genero il nuovo percorso del file
+                        new_path = upload_to_prestazione(self, os.path.basename(self.file.name))
+                        # Sposto fisicamente il file nel nuovo percorso
+                        os.rename(old_file_path, new_path)
+                        # Aggiorno il campo del modello con il nuovo percorso
+                        self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
+
         super().save(*args, **kwargs)
 
     class Meta:
