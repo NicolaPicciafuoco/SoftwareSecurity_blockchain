@@ -19,6 +19,12 @@ class TerapiaAdmin(admin.ModelAdmin):
     list_display = ['note', 'visualizza_file', ]
     actions = ['clear_selected_files']
 
+    def delete_model(self, request, obj):
+        # Chiamare il metodo delete_file per eliminare il file associato
+        obj.delete_file()
+        # Eliminare l'istanza di Terapia
+        obj.delete()
+
     def visualizza_file(self, obj):
         if obj.file:
             file_url = obj.file.url
@@ -55,7 +61,7 @@ class TerapiaAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         # Disabilita la possibilità di scegliere il prescrittore nella form
         form.base_fields['prescrittore'].widget.attrs['disabled'] = True
-        form.base_fields['prescrittore'].widget.attrs['display'] = False
+        form.base_fields['prescrittore'].widget.attrs['style'] = 'display: none;'
         return form
 
 
