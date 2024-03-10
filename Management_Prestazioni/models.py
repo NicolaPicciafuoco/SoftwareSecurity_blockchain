@@ -19,8 +19,10 @@ def upload_to_prestazione(instance, filename):
 class Prestazione(models.Model):
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
     note = models.TextField('Note', max_length=100, null=True, blank=True)
-    utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute', on_delete=models.SET_NULL, null=True, blank=True)
-    operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite', on_delete=models.SET_NULL, null=True, blank=True)
+    utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute',
+                               on_delete=models.SET_NULL, null=True, blank=True)
+    operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
+                                  on_delete=models.SET_NULL, null=True, blank=True)
 
     def filename(self):
         if self.file:
@@ -31,15 +33,16 @@ class Prestazione(models.Model):
     def __str__(self):
         return f"{self.id}, {self.filename()}, {self.utente}"
 
-# override del metodo delete nella form
-    def delete(self, *args, **kwargs):
-        # Elimina il file associato se esiste
-        if self.file:
-            if os.path.isfile(self.file.path):
-                os.remove(self.file.path)
-        super().delete(*args, **kwargs)
+    #  override del metodo delete nella form
+    #  DEPRECATA
+    #     def delete(self, *args, **kwargs):
+    #         # Elimina il file associato se esiste
+    #         if self.file:
+    #             if os.path.isfile(self.file.path):
+    #                 os.remove(self.file.path)
+    #         super().delete(*args, **kwargs)
 
-# override del metodo save per gestire i file
+    # override del metodo save per gestire i file
     def save(self, request=None, *args, **kwargs):
 
         if self.pk:
@@ -51,7 +54,6 @@ class Prestazione(models.Model):
                         os.remove(old_instance.file.path)
             except Prestazione.DoesNotExist:
                 pass
-
             if old_instance.utente != self.utente:
                 if old_instance.file:
                     old_file_path = old_instance.file.path
