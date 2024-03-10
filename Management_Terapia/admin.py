@@ -17,7 +17,27 @@ class TerapiaAdminForm(ModelForm):
 class TerapiaAdmin(admin.ModelAdmin):
     form = TerapiaAdminForm
     list_display = ['note', 'visualizza_file', ]
-    actions = ['clear_selected_files']
+    actions = ['custom_delete_selected']
+
+    def delete(self, *args, **kwargs):
+        print("delete1")
+        # Esegui operazioni personalizzate prima dell'eliminazione
+        self.delete_file()  # Chiamata a una funzione personalizzata per eliminare il file associato
+
+        # Chiamata al metodo delete della classe padre per eseguire l'eliminazione effettiva dal database
+        super().delete(*args, **kwargs)
+
+    def delete_file(self):
+        print("delete2")
+        # Funzione personalizzata per eliminare il file associato, ad esempio:
+        if self.file:
+            print("delete3")
+            file_path = os.path.join(settings.MEDIA_ROOT, str(self.file))
+            if os.path.exists(file_path):
+                print("delete4")
+                os.remove(file_path)
+
+
 
     def delete_model(self, request, obj):
         # Chiamare il metodo delete_file per eliminare il file associato
@@ -34,20 +54,11 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     visualizza_file.short_description = "File"
 
-    @admin.action(description='Elimina il file')
-    def clear_selected_files(modeladmin, request, queryset):
-        # Verifica se DEBUG è True prima di procedere
-        # Verifica se il degab è uguale a true, verificare se funziona quando viene dockerizzato.
-        if settings.DEBUG:
-            for terapia in queryset:
-                terapia.delete_file()
 
-    clear_selected_files.short_description = "Elimina il file"
 
     def save_model(self, request, obj, form, change):
-        # Imposta l'utente corrente come prescrittore
+        'funzione per il salvataggio del modello'
         obj.prescrittore = request.user
-        # Controlla il conflitto del nome del file
         if obj.file:
             paziente_id = getattr(obj.utente, 'id', None)
             new_file_path = get_upload_path(obj, os.path.basename(obj.file.name))
@@ -64,5 +75,20 @@ class TerapiaAdmin(admin.ModelAdmin):
         form.base_fields['prescrittore'].widget.attrs['style'] = 'display: none;'
         return form
 
+    def custom_delete_selected(self, request, queryset):
+        for terapia in queryset:
+            # Chiamare il tuo metodo delete_file personalizzato per ogni terapia
+            terapia.delete_file()
+            # Eliminare la terapia
+            terapia.delete()
+
+    custom_delete_selected.short_description = "Elimina terapie"
+
+    # sovrascrittura per  il metodo get_actions per rimuovere l'azione di eliminazione predefinita
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        # Rimuovi l'azione di eliminazione predefinita
+        del actions['delete_selected']
+        return actions
 
 admin.site.register(Terapia, TerapiaAdmin)
