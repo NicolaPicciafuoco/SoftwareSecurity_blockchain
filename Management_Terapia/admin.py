@@ -16,29 +16,22 @@ class TerapiaAdminForm(ModelForm):
 
 class TerapiaAdmin(admin.ModelAdmin):
     form = TerapiaAdminForm
-    list_display = ['note', 'visualizza_file', ]
-    actions = ['custom_delete_selected']
+    list_display = ['note','user_name','prescrittore_name', 'visualizza_file', ]
+    actions = ['delete_model']
 
-    def delete(self, *args, **kwargs):
-        # Esegui operazioni personalizzate prima dell'eliminazione
-        self.delete_file()  # Chiamata a una funzione personalizzata per eliminare il file associato
 
-        # Chiamata al metodo delete della classe padre per eseguire l'eliminazione effettiva dal database
-        super().delete(*args, **kwargs)
+    def user_name(self, obj):
+        if obj.utente:
+            return obj.utente.nome
+        else:
+            return "Nessun utente"
+        user_name.short_description = 'Utente'
 
-    def delete_file(self):
-        # Funzione personalizzata per eliminare il file associato
-        if self.file:
-            file_path = os.path.join(settings.MEDIA_ROOT, str(self.file))
-            if os.path.exists(file_path):
-                os.remove(file_path)
-
-    def delete_model(self, request, obj):
-        # Chiamare il metodo delete_file per eliminare il file associato
-        obj.delete_file()
-        # Eliminare l'istanza di Terapia
-        obj.delete()
-
+    def prescrittore_name(self, obj):
+        if obj.prescrittore:
+            return obj.prescrittore.nome
+        else:
+            return "Nessun operatore"
     def visualizza_file(self, obj):
         if obj.file:
             file_url = obj.file.url
@@ -68,22 +61,32 @@ class TerapiaAdmin(admin.ModelAdmin):
         form.base_fields['prescrittore'].widget.attrs['style'] = 'display: none;'
         return form
 
-    def custom_delete_selected(self, request, queryset):
-        """ funzione custom per il delate"""
-        for terapia in queryset:
-            # Chiamare il tuo metodo delete_file personalizzato per ogni terapia
-            terapia.delete_file()
-            # Eliminare la terapia
-            terapia.delete()
 
-    custom_delete_selected.short_description = "Elimina terapie"
-
-    # sovrascrittura per  il metodo get_actions per rimuovere l'azione di eliminazione predefinita
     def get_actions(self, request):
-        """eliminazione della funzione delete (preimpostata)"""
         actions = super().get_actions(request)
-        del actions['delete_selected']
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
         return actions
+    def delete_model(self, request, obj):
+        # Verifica se obj è un'istanza singola o un insieme di istanze
+        if hasattr(obj, '__iter__'):
+            # Si tratta di un insieme di istanze
+            for terapia in obj:
+                if terapia.file:
+                    if os.path.isfile(terapia.file.path):
+                        os.remove(terapia.file.path)
+                terapia.delete()
+            self.message_user(request,
+                              "Le prestazioni selezionate sono state eliminate con successo con i file associati.")
+        else:
+            # Si tratta di un'istanza singola
+            if obj.file:
+                if os.path.isfile(obj.file.path):
+                    os.remove(obj.file.path)
+            obj.delete()
+            self.message_user(request, "La prestazione è stata eliminata con successo con il file associato.")
+
+    delete_model.short_description = "Elimina le prestazioni selezionate con i file associati"
 
 
 admin.site.register(Terapia, TerapiaAdmin)

@@ -28,13 +28,6 @@ class Terapia(models.Model):
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
 
-    def delete_file(self):
-        """ Funzione per eliminare i file """
-        if self.file:
-            path = self.file.path
-            if os.path.exists(path):
-                os.remove(path)
-            self.file.delete()
 
     def clean(self):
         """ sovrascrittura del metodo clean per far uscire gli errori rossi nella form"""
