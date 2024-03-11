@@ -1,57 +1,46 @@
+import os
 from django.contrib import admin
 from django.forms import ModelForm
 from django.utils.html import format_html
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from Healthcare.settings import MEDIA_ROOT
-from .models import Terapia, get_upload_path
-import os
+
+from .models import Terapia
 
 
 class TerapiaAdminForm(ModelForm):
+    ''' serve per sovrascrive le form di base'''
+
     class Meta:
+        ''' serve per sovrascrivere le form di base'''
         model = Terapia
         fields = '__all__'
 
 
 class TerapiaAdmin(admin.ModelAdmin):
+    ''' classe per strutturare la vista admin'''
     form = TerapiaAdminForm
-    list_display = ['note','user_name','prescrittore_name', 'visualizza_file', ]
+    list_display = ['note', 'user_name', 'prescrittore_name', 'visualizza_file', ]
     actions = ['delete_model']
 
-
     def user_name(self, obj):
+        ''' funzione per restituire lo username del paziente'''
         if obj.utente:
             return obj.utente.nome
-        else:
-            return "Nessun utente"
-        user_name.short_description = 'Utente'
+        return "Nessun utente"
 
     def prescrittore_name(self, obj):
+        ''' funzione per restituire lo username dell'prescrittore'''
         if obj.prescrittore:
             return obj.prescrittore.nome
-        else:
-            return "Nessun operatore"
+        return "Nessun operatore"
+
     def visualizza_file(self, obj):
+        ''' funzione per visualizzare i file'''
         if obj.file:
             file_url = obj.file.url
             return format_html('<a href="{}" target="_blank">Visualizza</a>', file_url)
-        else:
-            return "Nessun file"
+        return "Nessun file"
 
     visualizza_file.short_description = "File"
-
-    def save_model(self, request, obj, form, change):
-        """funzione per il salvataggio del modello"""
-        obj.prescrittore = request.user
-        if obj.file:
-            paziente_id = getattr(obj.utente, 'id', None)
-            new_file_path = get_upload_path(obj, os.path.basename(obj.file.name))
-            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapia', str(paziente_id)))
-            if os.path.basename(new_file_path) in existing_files:
-                raise ValidationError({'file_id': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
-
-        super().save_model(request, obj, form, change)
 
     def get_form(self, request, obj=None, **kwargs):
         """ sovrascrivere form"""
@@ -61,13 +50,15 @@ class TerapiaAdmin(admin.ModelAdmin):
         form.base_fields['prescrittore'].widget.attrs['style'] = 'display: none;'
         return form
 
-
     def get_actions(self, request):
+        ''' sovrascrive l'azione di delate di default'''
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
     def delete_model(self, request, obj):
+        ''' funzione sovrascritta per eliminare le terapie'''
         # Verifica se obj è un'istanza singola o un insieme di istanze
         if hasattr(obj, '__iter__'):
             # Si tratta di un insieme di istanze
@@ -77,14 +68,17 @@ class TerapiaAdmin(admin.ModelAdmin):
                         os.remove(terapia.file.path)
                 terapia.delete()
             self.message_user(request,
-                              "Le prestazioni selezionate sono state eliminate con successo con i file associati.")
+                              "Le prestazioni selezionate sono"
+                              " state eliminate con successo con i file associati.")
         else:
             # Si tratta di un'istanza singola
             if obj.file:
                 if os.path.isfile(obj.file.path):
                     os.remove(obj.file.path)
             obj.delete()
-            self.message_user(request, "La prestazione è stata eliminata con successo con il file associato.")
+            self.message_user(request,
+                              "La prestazione è stata eliminata con successo "
+                              "con il file associato.")
 
     delete_model.short_description = "Elimina le prestazioni selezionate con i file associati"
 

@@ -21,6 +21,7 @@ def get_upload_path(instance, filename):
 
 
 class Terapia(models.Model):
+    ''' Crea il modello sulla tabella di terapia'''
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='terapie',
                                on_delete=models.SET_NULL, default=None, null=True, blank=True)
     prescrittore = models.ForeignKey(User, verbose_name='prescrittore', related_name='terapie_prescritte',
@@ -70,7 +71,9 @@ class Terapia(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Terapia {self.id}: {self.note}"
+        ''' il ritorno della stringa'''
+        return f"Terapia {self.pk}: {self.note}"
 
     class Meta:
+        ''' per il nome plurale'''
         verbose_name_plural = "Terapie"
