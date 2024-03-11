@@ -73,12 +73,13 @@ services:
 
   web:
     build: .
-    command: gunicorn --chdir ./Healthcare Healthcare.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn --chdir --config ./Healthcare/gunicorn_config.py
     container_name: django
     expose:
       - 8000
     volumes:
       - .:/app
+      - /var/certbot/conf:/etc/letsencrypt/:ro
     environment:
       - DJANGO_ENV=${DJANGO_ENV}
       - DATABASE_NAME=${DATABASE_NAME}
@@ -91,10 +92,24 @@ services:
 
   nginx:
     build: ./nginx
+    restart: unless-stopped
     ports:
       - 1337:80
+      - 443:443
+    volumes:
+      - /var/www/static/:/var/www/static/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
+
+  certbot:
+      image: certbot/certbot:latest
+      volumes:
+        - /var/certbot/conf:/etc/letsencrypt/:rw
+        - /var/certbot/www/:/var/www/certbot/:rw
+      depends_on:
+        - nginx
+
 
 # Hyperledger Besu
 
