@@ -1,3 +1,4 @@
+''' import'''
 import os
 from django.core.exceptions import ValidationError
 from Management_User.models import HealthCareUser as User
@@ -28,7 +29,6 @@ class Terapia(models.Model):
                                      on_delete=models.SET_NULL, default=None, null=True, blank=True)
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
-
 
     def clean(self):
         """ sovrascrittura del metodo clean per far uscire gli errori rossi nella form"""
