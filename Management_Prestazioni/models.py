@@ -1,8 +1,6 @@
 """Import"""
 import os
-
 from django.core.exceptions import ValidationError
-
 from Healthcare.settings import MEDIA_ROOT
 from Management_User.models import HealthCareUser as User
 from django.db import models
@@ -36,6 +34,7 @@ class Prestazione(models.Model):
 
     # Metodo per stampare a schermo le istanze create
     def __str__(self):
+        """ritorno della stringa"""
         return f"{self.pk}, {self.filename()}, {self.utente}"
 
     #  override del metodo delete nella form
@@ -50,7 +49,7 @@ class Prestazione(models.Model):
     # override del metodo save per gestire i file
 
     def clean(self):
-        """ sovrascrittura del metodo clean per far uscire gli errori rossi nella form"""
+        """Metodo per la gestione degli input della form"""
         super().clean()
         if self.file and self.utente:  # Assicurati che sia presente un utente
             paziente_id = getattr(self.utente, 'id', None)

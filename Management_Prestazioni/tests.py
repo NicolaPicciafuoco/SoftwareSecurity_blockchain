@@ -1,11 +1,13 @@
+"""Import"""
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from Management_User.models import HealthCareUser as User
 from Management_Prestazioni.models import Prestazione
 
 class PrestazioneSaveTestCase(TestCase):
+    """Classe di test"""
     def setUp(self):
-        # Creiamo un utente di prova
+        """Setup delle istanze per i test"""
         self.user = User.objects.create(
             email='test@example.com',
             nome='Test',
@@ -22,7 +24,7 @@ class PrestazioneSaveTestCase(TestCase):
 
 
     def test_salvataggio_prestazione(self):
-        # Creiamo una Prestazione senza file
+        """Testing della funzione di save senza """
         prestazione = Prestazione(
             utente=self.user,
             operatore=self.user,
@@ -36,7 +38,7 @@ class PrestazioneSaveTestCase(TestCase):
         self.assertIsNotNone(prestazione.id, "La Prestazione non è stata salvata correttamente nel database")
 
     def test_salvataggio_file_prestazione(self):
-        # Creiamo una Prestazione con il file di test
+        """Testing della funzione di save con il file associato"""
         prestazione = Prestazione.objects.create(
             utente=self.user,
             operatore=self.user,
