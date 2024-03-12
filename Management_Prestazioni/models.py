@@ -52,15 +52,13 @@ class Prestazione(models.Model):
     def clean(self):
         """ sovrascrittura del metodo clean per far uscire gli errori rossi nella form"""
         super().clean()
-        if self.file:
+        if self.file and self.utente:  # Assicurati che sia presente un utente
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'path_prestazione_files', str(paziente_id)))
 
             if os.path.basename(new_file_path) in existing_files:
-                raise (ValidationError
-                       ({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']}))
-
+                raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
 
     def save(self, request=None, *args, **kwargs):
         """Metodo per salvare il file nel path personalizzato per utente"""
