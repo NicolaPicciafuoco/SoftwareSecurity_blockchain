@@ -1,4 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import Group
+from core.group_name import *
 
 
 class HealthCareUserManager(BaseUserManager):
@@ -39,5 +41,7 @@ class HealthCareUserManager(BaseUserManager):
         )
 
         user.set_password(password)
+        user.save(using=self._db)
+        user.groups.add(Group.objects.get_or_create(name=GROUP_AMMINISTRATORE)[0].id)
         user.save(using=self._db)
         return user

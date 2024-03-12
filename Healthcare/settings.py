@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'smartcontract.apps.SmartcontractConfig',
     'Management_User.apps.ManagementUserConfig',
     'Management_Terapia.apps.ManagementTerapiaConfig',
     'Management_Prestazioni.apps.ManagementPrestazioniConfig',
