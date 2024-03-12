@@ -30,17 +30,39 @@ class Terapia(models.Model):
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
 
+    # def clean(self):
+    #     """ sovrascrittura del metodo clean per far uscire gli errori rossi nella form"""
+    #     super().clean()
+    #     if self.file:
+    #         paziente_id = getattr(self.utente, 'id', None)
+    #         new_file_path = get_upload_path(self, os.path.basename(self.file.name))
+    #         existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapia', str(paziente_id)))
+    #
+    #         if os.path.basename(new_file_path) in existing_files:
+    #             raise (ValidationError
+    #                    ({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']}))
+
     def clean(self):
-        """ sovrascrittura del metodo clean per far uscire gli errori rossi nella form"""
+        """Sovrascrittura del metodo clean per mostrare errori nella form"""
         super().clean()
+
+        # Verifica se è stato caricato un nuovo file
+        if self.file and self.pk:
+            old_instance = Terapia.objects.get(pk=self.pk)
+            if old_instance.file and self.file.name == old_instance.file.name:
+                # Se il nome del file non è cambiato, non eseguire la validazione
+                return
+
+        # Continua con la validazione del file
         if self.file:
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = get_upload_path(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapia', str(paziente_id)))
 
             if os.path.basename(new_file_path) in existing_files:
-                raise (ValidationError
-                       ({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']}))
+                raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
+
+
 
     def save(self, request=None, *args, **kwargs):
         """ metodo save per il salvataggio"""
