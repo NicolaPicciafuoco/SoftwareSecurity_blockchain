@@ -73,13 +73,14 @@ services:
 
   web:
     build: .
-    command: gunicorn --chdir --config ./Healthcare/gunicorn_config.py
+    command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py
     container_name: django
-    expose:
-      - 8000
+    ports:
+      - "8000:8000"
     volumes:
       - .:/app
-      - /var/certbot/conf:/etc/letsencrypt/:ro
+     # - /var/certbot/conf:/etc/letsencrypt/:ro
+      - ./static/:/app/static
     environment:
       - DJANGO_ENV=${DJANGO_ENV}
       - DATABASE_NAME=${DATABASE_NAME}
@@ -94,21 +95,22 @@ services:
     build: ./nginx
     restart: unless-stopped
     ports:
-      - 1337:80
-      - 443:443
+      - 80:80
     volumes:
-      - /var/www/static/:/var/www/static/
+      - ./static/:/app/static
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
 
-  certbot:
-      image: certbot/certbot:latest
-      volumes:
-        - /var/certbot/conf:/etc/letsencrypt/:rw
-        - /var/certbot/www/:/var/www/certbot/:rw
-      depends_on:
-        - nginx
+#  Commentata finché SSL non decide di funzionare (o mi danno un server)
+#
+ # certbot:
+ #     image: certbot/certbot:latest
+ #     volumes:
+ #       - /var/certbot/conf:/etc/letsencrypt/:rw
+ #       - /var/certbot/www/:/var/www/certbot/:rw
+ #     depends_on:
+ #       - nginx
 
 
 # Hyperledger Besu
@@ -428,6 +430,7 @@ services:
 
 volumes:
   pg_data:
+  static_volume:
   public-keys:
   prometheus:
   grafana:
