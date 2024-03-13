@@ -6,7 +6,6 @@ GROUP_PAZIENTE
     _X__ terapie
     __X_ le info del utente
     _X__ prestazioni che gli sono state fatte
-    todo da aggiungere anche la possibilità di creare una prestazione?
 
 GROUP_CAREGIVER
     è un utente svolge le prestazioni solo per un paziente che gli viene assegnato
@@ -16,7 +15,7 @@ GROUP_CAREGIVER
     _X__ le info del paziente
     XX__ prestazioni
 
-GROUP_INFERMIERE todo da eliminare?
+GROUP_INFERMIERE
     è un utente svolge le prestazioni per tutti i pazienti
     CRUD
     _X__ terapie
@@ -30,10 +29,10 @@ GROUP_DOTTORE
     _X__ le info del paziente
     XX__ prestazioni
 
-GROUP_DOTTORE_SPECIALISTA todo da eliminare?
+GROUP_DOTTORE_SPECIALISTA
     è un utente prescrive una terapia per tutti i pazienti
     CRUD
-    _X__ terapie todo gli interessa crearle o altro?
+    XX__ terapie
     _X__ le info del paziente
     XX__ prestazioni
 
