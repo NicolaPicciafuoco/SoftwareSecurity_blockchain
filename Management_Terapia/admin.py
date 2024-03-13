@@ -73,8 +73,11 @@ class TerapiaAdmin(admin.ModelAdmin):
                 form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
             else:
-                form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore), ]
-                form.base_fields['utente'].choices = [(obj.utente.id, obj.utente), ]
+                try:
+                    form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore), ]
+                    form.base_fields['utente'].choices = [(obj.utente.id, obj.utente), ]
+                except Exception:
+                    pass
 
         return form
 

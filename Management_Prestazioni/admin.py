@@ -12,6 +12,7 @@ from core.group_name import (GROUP_PAZIENTE,
                              GROUP_DOTTORE,
                              GROUP_DOTTORE_SPECIALISTA,
                              GROUP_AMMINISTRATORE)
+from core.group_get_queryset import return_queryset_prestazione
 from .models import Prestazione
 
 
@@ -22,6 +23,9 @@ class PrestazioneAdmin(admin.ModelAdmin):
     list_filter = ('note',)
     search_fields = ('note',)
     actions = ['delete_model']
+
+    def get_queryset(self, request):
+        return return_queryset_prestazione(self, request, PrestazioneAdmin)
 
     def get_form(self, request, obj=None, **kwargs):
         """ sovrascrivere form"""
