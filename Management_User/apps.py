@@ -12,7 +12,6 @@ class ManagementUserConfig(AppConfig):
             from django.contrib.auth.models import Group
             paziente, created_paziente = Group.objects.get_or_create(name=GROUP_PAZIENTE)
             caregiver, created_caregiver = Group.objects.get_or_create(name=GROUP_CAREGIVER)
-            infermiere, created_infermiere = Group.objects.get_or_create(name=GROUP_INFERMIERE)
             dottore, created_dottore = Group.objects.get_or_create(name=GROUP_DOTTORE)
             dottore_specialista, created_dottore_specialista = Group.objects.get_or_create(name=GROUP_DOTTORE_SPECIALISTA)
             amministratore, created_amministratore = Group.objects.get_or_create(name=GROUP_AMMINISTRATORE)
