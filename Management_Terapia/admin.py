@@ -9,7 +9,7 @@ import os
 
 
 class TerapiaAdmin(admin.ModelAdmin):
-    ''' classe per strutturare la vista admin'''
+    ''' Classe per strutturare la vista admin'''
     model = Terapia
     list_display = ['note', 'user_name', 'prescrittore_name', 'visualizza_file', ]
     actions = ['delete_model']
@@ -18,19 +18,19 @@ class TerapiaAdmin(admin.ModelAdmin):
         return return_queryset_terapia(self, request, TerapiaAdmin)
 
     def user_name(self, obj):
-        ''' funzione per restituire lo username del paziente'''
+        ''' Funzione per restituire lo username del paziente'''
         if obj.utente:
             return obj.utente.nome
         return "Nessun utente"
 
     def prescrittore_name(self, obj):
-        ''' funzione per restituire lo username dell'prescrittore'''
+        ''' Funzione per restituire lo username dell'prescrittore'''
         if obj.prescrittore:
             return obj.prescrittore.nome
         return "Nessun operatore"
 
     def visualizza_file(self, obj):
-        ''' funzione per visualizzare i file'''
+        ''' Funzione per visualizzare i file'''
         if obj.file:
             file_url = obj.file.url
             return format_html('<a href="{}" target="_blank">Visualizza</a>', file_url)
@@ -54,7 +54,6 @@ class TerapiaAdmin(admin.ModelAdmin):
         if obj is None:
             # la terapia non è ancora stata creata => è una CREATE
             if user_group == GROUP_AMMINISTRATORE:
-                prescrittori.exclude(id=request.user.id)
                 form.base_fields['prescrittore'].choices = [(p.id, p) for p in prescrittori] + [(request.user.id, request.user),]
                 form.base_fields['prescrittore'].initial = request.user
                 form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
@@ -68,7 +67,6 @@ class TerapiaAdmin(admin.ModelAdmin):
                 form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
         else:
             # la terapia è stata creata => è un UPDATE
-            prescrittori.exclude(id=obj.prescrittore.id)
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['prescrittore'].choices = [(p.id, p) for p in prescrittori] + [(obj.prescrittore.id, obj.prescrittore),]
                 form.base_fields['prescrittore'].initial = obj.prescrittore
@@ -81,7 +79,7 @@ class TerapiaAdmin(admin.ModelAdmin):
         return form
 
     def get_actions(self, request):
-        ''' sovrascrive l'azione di delate di default'''
+        ''' Sovrascrive l'azione di delate di default'''
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
