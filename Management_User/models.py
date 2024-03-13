@@ -27,24 +27,53 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     cognome = models.CharField('Cognome', max_length=150, null=True, blank=True)
     sesso = models.SmallIntegerField(choices=SESSO_SCELTE, default=MALE)
     data_nascita = models.DateField('Data di nascita')
+
     luogo_nascita = models.CharField('Luogo nascita', max_length=200, null=True, blank=True)
 
     telefono = models.CharField(
         'Numero di telefono',
         max_length=14, null=True, blank=True
     )
+
     codice_fiscale = models.CharField(
         'Codice fiscale',
         max_length=16, null=True, blank=True
     )
+
     indirizzo_residenza = models.CharField('Indirizzo  di residenza', max_length=255, null=True, blank=True)
+
     indirizzo_domicilio = models.CharField('Indirizzo di domicilio', max_length=255, null=True, blank=True)
 
-    user_permissions = models.ManyToManyField(Permission, verbose_name='user permissions', blank=True,
-                                              related_name='telmed_user_permissions')
-    groups = models.ManyToManyField(Group, verbose_name='groups', blank=True, related_name='telmed_user_groups')
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name='user permissions',
+        related_name='telmed_user_permissions',
+        blank=True
+    )
 
-    assistito = models.ForeignKey('self',verbose_name='Assistito', related_name='caregiver', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name='groups',
+        related_name='telmed_user_groups',
+        blank=True
+    )
+
+    assistito = models.ForeignKey(
+        'self',
+        verbose_name='Assistito',
+        related_name='caregiver',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None
+    )
+
+    in_cura_da = models.ManyToManyField(
+        'self',
+        verbose_name='In cura da',
+        related_name='pazienti_assegnati',
+        blank=True,
+    )
 
     is_staff = models.BooleanField(
         "Staff",

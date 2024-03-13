@@ -12,10 +12,11 @@ class HealthCareUserAdmin(UserAdmin):
         return return_queryset_user(self, request, HealthCareUserAdmin)
 
     def get_readonly_fields(self, request, obj=None):
-        return ['data_modifica', 'data_creazione', 'last_login', ] if request.user.groups.all().first().name == GROUP_AMMINISTRATORE else ['data_modifica', 'data_creazione', 'last_login', 'is_active', 'is_staff', 'is_superuser', 'groups', 'assistito',] #'get_assistito']
+        return ['data_modifica', 'data_creazione', 'last_login', ] if request.user.groups.all().first().name == GROUP_AMMINISTRATORE else ['data_modifica', 'data_creazione', 'last_login', 'is_active', 'is_staff', 'is_superuser', 'groups', 'assistito', 'in_cura_da']
 
     list_display = ["nome", "sesso", "email", "data_nascita"]
     ordering = ['nome', 'cognome', 'sesso', 'data_nascita', ]
+    filter_horizontal = ['in_cura_da', 'groups']
     # exclude = ['username']
     fieldsets = (
         (
@@ -27,7 +28,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': ('email', ('nome', 'cognome', 'sesso'),
                            'data_nascita', 'luogo_nascita', 'telefono', 'codice_fiscale',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', ), #'get_assistito'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da'),
             }
         ),
         (
@@ -47,7 +48,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': (('nome', 'cognome', 'sesso'),
                            ('data_nascita', 'luogo_nascita'), 'codice_fiscale', 'telefono',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da'),
             }
         ),
         (

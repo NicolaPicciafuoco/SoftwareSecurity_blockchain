@@ -2,6 +2,7 @@
 In questo file si trovano le funzioni che gestiscono i queryset
 che ogni utente può vedere nella propria pagina admin
 """
+from itertools import chain
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Group
 from core.group_name import (GROUP_INFERMIERE,
@@ -29,19 +30,24 @@ def return_queryset_user(self, request, modello_admin):
         )
 
     elif user_group.name == GROUP_INFERMIERE:
-        qs = all_qs.filter(
-            groups__in=[Group.objects.get(name=GROUP_PAZIENTE).id, ],
-        )
+        qsl = [i.id for i in all_qs.filter(
+            groups__in=[Group.objects.get(name=GROUP_PAZIENTE).id,
+                        ])] + [request.user.id]
+        qs = all_qs.filter(id__in=qsl)
 
     elif user_group.name == GROUP_DOTTORE:
-        qs = all_qs.filter(groups__in=[
+        qsl = [i.id for i in all_qs.filter(groups__in=[
             Group.objects.get(name=GROUP_PAZIENTE).id,
             Group.objects.get(name=GROUP_INFERMIERE).id,
             Group.objects.get(name=GROUP_CAREGIVER).id
-        ])
+        ])] + [request.user.id]
+        qs = all_qs.filter(id__in=qsl)
 
     elif user_group.name == GROUP_DOTTORE_SPECIALISTA:
-        qs = all_qs.filter(groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+        qsl = [i.id for i in all_qs.filter(
+            groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+               ] + [request.user.id]
+        qs = all_qs.filter(id__in=qsl)
 
     else:
         raise PermissionDenied()
