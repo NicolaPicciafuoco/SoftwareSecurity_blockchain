@@ -8,7 +8,6 @@ from django.contrib.auth.models import Group
 from Management_User.models import HealthCareUser
 from core.group_name import (GROUP_PAZIENTE,
                              GROUP_CAREGIVER,
-                             GROUP_INFERMIERE,
                              GROUP_DOTTORE,
                              GROUP_DOTTORE_SPECIALISTA,
                              GROUP_AMMINISTRATORE)

@@ -2,11 +2,9 @@
 In questo file si trovano le funzioni che gestiscono i queryset
 che ogni utente può vedere nella propria pagina admin
 """
-from itertools import chain
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Group
-from core.group_name import (GROUP_INFERMIERE,
-                             GROUP_DOTTORE,
+from core.group_name import (GROUP_DOTTORE,
                              GROUP_DOTTORE_SPECIALISTA,
                              GROUP_AMMINISTRATORE,
                              GROUP_CAREGIVER,
@@ -29,16 +27,9 @@ def return_queryset_user(self, request, modello_admin):
             id__in=[request.user.id, request.user.assistito.id if request.user.assistito else None]
         )
 
-    elif user_group.name == GROUP_INFERMIERE:
-        qsl = [i.id for i in all_qs.filter(
-            groups__in=[Group.objects.get(name=GROUP_PAZIENTE).id,
-                        ])] + [request.user.id]
-        qs = all_qs.filter(id__in=qsl)
-
     elif user_group.name == GROUP_DOTTORE:
         qsl = [i.id for i in all_qs.filter(groups__in=[
             Group.objects.get(name=GROUP_PAZIENTE).id,
-            Group.objects.get(name=GROUP_INFERMIERE).id,
             Group.objects.get(name=GROUP_CAREGIVER).id
         ])] + [request.user.id]
         qs = all_qs.filter(id__in=qsl)
@@ -74,9 +65,6 @@ def return_queryset_terapia(self, request, modello_admin):
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
 
-    elif user_group.name == GROUP_INFERMIERE:
-        qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id)
-
     elif user_group.name == GROUP_DOTTORE:
         qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id)
 
@@ -109,9 +97,6 @@ def return_queryset_prestazione(self, request, modello_admin):
             ],
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
-
-    elif user_group.name == GROUP_INFERMIERE:
-        qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id)
 
     elif user_group.name == GROUP_DOTTORE:
         qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id)

@@ -2,7 +2,11 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
 from core.group_get_queryset import return_queryset_terapia
-from core.group_name import *
+from core.group_name import (GROUP_PAZIENTE,
+                             GROUP_CAREGIVER,
+                             GROUP_DOTTORE,
+                             GROUP_DOTTORE_SPECIALISTA,
+                             GROUP_AMMINISTRATORE)
 from .models import Terapia
 from Management_User.models import HealthCareUser
 import os
@@ -58,7 +62,7 @@ class TerapiaAdmin(admin.ModelAdmin):
                 form.base_fields['prescrittore'].initial = request.user
                 form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
 
-            elif user_group in [GROUP_PAZIENTE, GROUP_CAREGIVER, GROUP_INFERMIERE]:
+            elif user_group in [GROUP_PAZIENTE, GROUP_CAREGIVER]:
                 form.base_fields['prescrittore'].widget.attrs['style'] = 'display: none;'
 
             elif user_group in [GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA]:

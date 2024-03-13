@@ -14,13 +14,6 @@ GROUP_CAREGIVER
     _X__ le info del paziente
     XX__ prestazioni
 
-GROUP_INFERMIERE
-    è un utente svolge le prestazioni per tutti i pazienti
-    CRUD
-    _X__ terapie
-    _X__ le info del paziente
-    XX__ prestazioni
-
 GROUP_DOTTORE
     è un utente prescrive una terapia per tutti i pazienti
     CRUD
@@ -46,7 +39,6 @@ GROUP_AMMINISTRATORE
 """
 GROUP_PAZIENTE: str = 'Paziente'
 GROUP_CAREGIVER: str = 'Caregiver'
-GROUP_INFERMIERE: str = 'Infermiere'
 GROUP_DOTTORE: str = 'Dottore'
 GROUP_DOTTORE_SPECIALISTA: str = 'Dottore Specialista'
 GROUP_AMMINISTRATORE: str = 'Amministratore'

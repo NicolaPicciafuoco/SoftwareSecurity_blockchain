@@ -1,7 +1,6 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from .manager import HealthCareUserManager
 from django.db import models
