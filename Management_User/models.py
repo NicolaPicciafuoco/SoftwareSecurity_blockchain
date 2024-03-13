@@ -72,6 +72,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name='In cura da',
         related_name='pazienti_assegnati',
         blank=True,
+
     )
 
     is_staff = models.BooleanField(

@@ -18,6 +18,11 @@ class TerapiaAdmin(admin.ModelAdmin):
     list_display = ['note', 'user_name', 'prescrittore_name', 'visualizza_file', ]
     actions = ['delete_model']
 
+    def has_change_permission(self, request, obj=None):
+        if obj is not None and obj.prescrittore == request.user:
+            return True
+        return super().has_change_permission(request, obj)
+
     def get_queryset(self, request):
         return return_queryset_terapia(self, request, TerapiaAdmin)
 

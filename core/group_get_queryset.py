@@ -12,7 +12,7 @@ from core.group_name import (GROUP_DOTTORE,
 
 
 def return_queryset_user(self, request, modello_admin):
-    """ Ritorna il queryset corretto per il model admin HealtCareUser"""
+    """ Ritorna il queryset corretto per il model admin HealtCareUser in base al gruppo di appartenenza"""
     user_group = request.user.groups.all().first()
     all_qs = super(modello_admin, self).get_queryset(request)
 
@@ -28,16 +28,19 @@ def return_queryset_user(self, request, modello_admin):
         )
 
     elif user_group.name == GROUP_DOTTORE:
-        qsl = [i.id for i in all_qs.filter(groups__in=[
-            Group.objects.get(name=GROUP_PAZIENTE).id,
-            Group.objects.get(name=GROUP_CAREGIVER).id
-        ])] + [request.user.id]
+        qsl = [
+            i.id for i in all_qs.filter(groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+            if i.in_cura_da.filter(id=request.user.id).exists()
+        ] if request.user.in_cura_da else []
+        qsl.append(request.user.id)
         qs = all_qs.filter(id__in=qsl)
 
     elif user_group.name == GROUP_DOTTORE_SPECIALISTA:
-        qsl = [i.id for i in all_qs.filter(
-            groups=Group.objects.get(name=GROUP_PAZIENTE).id)
-               ] + [request.user.id]
+        qsl = [
+            i.id for i in all_qs.filter(groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+            if i.in_cura_da.filter(id=request.user.id).exists()
+        ] if request.user.in_cura_da else []
+        qsl.append(request.user.id)
         qs = all_qs.filter(id__in=qsl)
 
     else:

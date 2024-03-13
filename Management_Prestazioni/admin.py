@@ -23,6 +23,11 @@ class PrestazioneAdmin(admin.ModelAdmin):
     search_fields = ('note',)
     actions = ['delete_model']
 
+    def has_change_permission(self, request, obj=None):
+        if obj is not None and obj.operatore == request.user:
+            return True
+        return super().has_change_permission(request, obj)
+
     def get_queryset(self, request):
         return return_queryset_prestazione(self, request, PrestazioneAdmin)
 
@@ -36,7 +41,6 @@ class PrestazioneAdmin(admin.ModelAdmin):
         operatori = HealthCareUser.objects.filter(
             groups__in=[
                 Group.objects.get(name=GROUP_CAREGIVER).id,
-                Group.objects.get(name=GROUP_INFERMIERE).id,
                 Group.objects.get(name=GROUP_DOTTORE).id,
                 Group.objects.get(name=GROUP_DOTTORE_SPECIALISTA).id
             ]
@@ -46,8 +50,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
             gruppi_operatori = [
                 GROUP_DOTTORE,
                 GROUP_DOTTORE_SPECIALISTA,
-                GROUP_CAREGIVER,
-                GROUP_INFERMIERE
+                GROUP_CAREGIVER
             ]
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
