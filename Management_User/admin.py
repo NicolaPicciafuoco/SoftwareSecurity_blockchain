@@ -1,20 +1,22 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from core.group_get_queryset import return_queryset_user
 from .models import HealthCareUser
+from core.group_name import *
 
 
 class HealthCareUserAdmin(UserAdmin):
     model = HealthCareUser
 
     def get_queryset(self, request):
-        qs = super(HealthCareUserAdmin, self).get_queryset(request)
-        return qs.filter(is_staff=True)
+        return return_queryset_user(self, request, HealthCareUserAdmin)
 
-    list_display = ["nome", "email", "data_nascita"]
+    def get_readonly_fields(self, request, obj=None):
+        return ['data_modifica', 'data_creazione', 'last_login', ] if request.user.groups.all().first().name == GROUP_AMMINISTRATORE else ['data_modifica', 'data_creazione', 'last_login', 'is_active', 'is_staff', 'is_superuser', 'groups', 'assistito',] #'get_assistito']
+
+    list_display = ["nome", "sesso", "email", "data_nascita"]
     ordering = ['nome', 'cognome', 'sesso', 'data_nascita', ]
     # exclude = ['username']
-    readonly_fields = ['data_modifica', 'data_creazione', 'last_login']
-    # username first_name last_name
     fieldsets = (
         (
             "Gestione Accessi", {
@@ -25,12 +27,12 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': ('email', ('nome', 'cognome', 'sesso'),
                            'data_nascita', 'luogo_nascita', 'telefono', 'codice_fiscale',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'caregiver'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', ), #'get_assistito'),
             }
         ),
         (
             "Permessi", {
-                'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')  # , 'user_permissions')
+                'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')
             }
         ),
     )
@@ -45,7 +47,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': (('nome', 'cognome', 'sesso'),
                            ('data_nascita', 'luogo_nascita'), 'codice_fiscale', 'telefono',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'caregiver'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito'),
             }
         ),
         (

@@ -1,5 +1,8 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, Permission, Group
+from django.core.exceptions import ValidationError
+from django.urls import reverse
+from django.contrib.contenttypes.models import ContentType
 from .manager import HealthCareUserManager
 from django.db import models
 
@@ -41,7 +44,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
                                               related_name='telmed_user_permissions')
     groups = models.ManyToManyField(Group, verbose_name='groups', blank=True, related_name='telmed_user_groups')
 
-    caregiver = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    assistito = models.ForeignKey('self',verbose_name='Assistito', related_name='caregiver', on_delete=models.SET_NULL, null=True, blank=True, default=None)
 
     is_staff = models.BooleanField(
         "Staff",
@@ -73,7 +76,15 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     ]
 
     def __str__(self):
-        return f"{self.nome} {self.cognome} {self.SESSO_SCELTE[0][1] if self.sesso == 1 else self.SESSO_SCELTE[1][1]} {self.data_nascita}"
+        return f"{self.nome} {self.cognome if self.cognome else ''} {self.SESSO_SCELTE[0][1] if self.sesso == 1 else self.SESSO_SCELTE[1][1]} {self.data_nascita}"
+
+    def clean(self):
+        try:
+            if self.groups and self.groups.count() > 1:
+                raise ValidationError({'groups': ['Selezionare un gruppo per utente.']})
+        except Exception:
+            pass
+        super().clean()
 
     class Meta:
         verbose_name = 'Utente'
