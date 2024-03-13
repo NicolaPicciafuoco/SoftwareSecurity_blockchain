@@ -5,7 +5,8 @@ GROUP_PAZIENTE
     CRUD
     _X__ terapie
     __X_ le info del utente
-    _X__ prestazioni che gli sono state fatte todo da aggiungere anche la possibilità di creare una prestazione?
+    _X__ prestazioni che gli sono state fatte
+    todo da aggiungere anche la possibilità di creare una prestazione?
 
 GROUP_CAREGIVER
     è un utente svolge le prestazioni solo per un paziente che gli viene assegnato
@@ -51,4 +52,3 @@ GROUP_INFERMIERE: str = 'Infermiere'
 GROUP_DOTTORE: str = 'Dottore'
 GROUP_DOTTORE_SPECIALISTA: str = 'Dottore Specialista'
 GROUP_AMMINISTRATORE: str = 'Amministratore'
-
