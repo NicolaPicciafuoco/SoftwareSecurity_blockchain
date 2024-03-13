@@ -1,5 +1,4 @@
 """
-
 GROUP_PAZIENTE
     è un utente che riceve le terapie e le prestazioni non che gli viene assegnato il caregiver
     CRUD
