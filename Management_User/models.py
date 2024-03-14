@@ -105,7 +105,11 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     ]
 
     def __str__(self):
-        return f"{self.nome} {self.cognome if self.cognome else ''} {self.SESSO_SCELTE[0][1] if self.sesso == 1 else self.SESSO_SCELTE[1][1]} {self.data_nascita}"
+        return f"{
+        self.groups.first() if self.groups.first() is not None else ''
+        }{' ' if self.groups.first() is not None else ''}{
+        self.nome} {self.cognome if self.cognome else ''} {
+        self.SESSO_SCELTE[0][1] if self.sesso == 1 else self.SESSO_SCELTE[1][1]}"
 
     def clean(self):
         try:
