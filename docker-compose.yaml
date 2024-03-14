@@ -75,8 +75,8 @@ services:
     build: .
     command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py
     container_name: django
-    ports:
-      - "8000:8000"
+    expose:
+      - 8000
     volumes:
       - .:/app
      # - /var/certbot/conf:/etc/letsencrypt/:ro
@@ -95,7 +95,7 @@ services:
     build: ./nginx
     restart: unless-stopped
     ports:
-      - 80:80
+      - 1337:80
     volumes:
       - ./static/:/app/static
       - ./nginx/conf.d/:/etc/nginx/conf.d/
