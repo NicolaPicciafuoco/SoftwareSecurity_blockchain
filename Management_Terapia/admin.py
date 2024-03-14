@@ -63,28 +63,28 @@ class TerapiaAdmin(admin.ModelAdmin):
         if obj is None:
             # la terapia non è ancora stata creata => è una CREATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['prescrittore'].choices = [(p.id, p) for p in prescrittori] + [(request.user.id, request.user),]
+                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [(request.user.id, request.user.show(request=request)),]
                 form.base_fields['prescrittore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
             elif user_group in [GROUP_PAZIENTE, GROUP_CAREGIVER]:
                 form.base_fields['prescrittore'].widget.attrs['style'] = 'display: none;'
 
             elif user_group in [GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA]:
-                form.base_fields['prescrittore'].choices = [(request.user.id, request.user), ]
+                form.base_fields['prescrittore'].choices = [(request.user.id, request.user.show(request=request)), ]
                 form.base_fields['prescrittore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
         else:
             # la terapia è stata creata => è un UPDATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['prescrittore'].choices = [(p.id, p) for p in prescrittori] + [(obj.prescrittore.id, obj.prescrittore),]
+                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [(obj.prescrittore.id, obj.prescrittore.show(request=request)),]
                 form.base_fields['prescrittore'].initial = obj.prescrittore
-                form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
             else:
                 try:
-                    form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore), ]
-                    form.base_fields['utente'].choices = [(obj.utente.id, obj.utente), ]
+                    form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore.show(request=request)), ]
+                    form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
                 except Exception:
                     pass
 

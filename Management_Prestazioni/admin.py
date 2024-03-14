@@ -54,31 +54,31 @@ class PrestazioneAdmin(admin.ModelAdmin):
             ]
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
-                                                            (p.id, p) for p in operatori
-                                                        ] + [(request.user.id, request.user),]
+                                                            (p.id, p.show(request=request)) for p in operatori
+                                                        ] + [(request.user.id, request.user.show(request=request)),]
                 form.base_fields['operatore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
             elif user_group == GROUP_PAZIENTE:
                 form.base_fields['operatore'].widget.attrs['style'] = 'display: none;'
 
             elif user_group in gruppi_operatori:
-                form.base_fields['operatore'].choices = [(request.user.id, request.user), ]
+                form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
         else:
             # la terapia è stata creata => è un UPDATE
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
-                                                            (p.id, p) for p in operatori
-                                                        ] + [(obj.operatore.id, obj.operatore),]
+                                                            (p.id, p.show(request=request)) for p in operatori
+                                                        ] + [(obj.operatore.id, obj.operatore.show(request=request)),]
                 form.base_fields['operatore'].initial = obj.operatore
-                form.base_fields['utente'].choices = [(u.id, u) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
             else:
                 try:
-                    form.base_fields['operatore'].choices = [(obj.operatore.id, obj.operatore), ]
-                    form.base_fields['utente'].choices = [(obj.utente.id, obj.utente), ]
+                    form.base_fields['operatore'].choices = [(obj.operatore.id, obj.operatore.show(request=request)), ]
+                    form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
                 except Exception:
                     pass
         return form
