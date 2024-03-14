@@ -108,7 +108,7 @@ class HealthCareUserAdmin(UserAdmin):
                     (Group.objects.get(name=GROUP_AMMINISTRATORE).id,
                      Group.objects.get(name=GROUP_AMMINISTRATORE)),
                 ]
-                form.base_fields['in_cura_da'].choices = [(p.id, p) for p in prescrittori]
+                form.base_fields['in_cura_da'].choices = [(p.id, p.show(request=request)) for p in prescrittori]
         else:
             pass
             # la terapia è stata creata => è un UPDATE
@@ -119,8 +119,7 @@ class HealthCareUserAdmin(UserAdmin):
                                                          (Group.objects.get(name=GROUP_AMMINISTRATORE).id,
                                                           Group.objects.get(name=GROUP_AMMINISTRATORE)),
                                                      ]
-                form.base_fields['in_cura_da'].choices = [(p.id, p) for p in prescrittori]
-
+                form.base_fields['in_cura_da'].choices = [(p.id, p.show(request=request)) for p in prescrittori]
 
         return form
 

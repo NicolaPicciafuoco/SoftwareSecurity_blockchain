@@ -4,6 +4,10 @@ from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from .manager import HealthCareUserManager
 from django.db import models
+from core.group_name import (GROUP_DOTTORE,
+                             GROUP_DOTTORE_SPECIALISTA,
+                             GROUP_AMMINISTRATORE,
+                             GROUP_PAZIENTE)
 
 
 class HealthCareUser(AbstractBaseUser, PermissionsMixin):
@@ -14,7 +18,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     FEMALE = 2
 
     SESSO_SCELTE = [
-        (MALE, 'Maschio'),
+        (MALE,   'Maschio'),
         (FEMALE, 'Femmina'),
     ]
     email = models.EmailField(
@@ -104,12 +108,15 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         'nome', 'cognome', 'sesso', 'data_nascita', 'luogo_nascita', 'indirizzo_residenza'
     ]
 
+    def get_sesso(self):
+        if self.groups.first() == GROUP_PAZIENTE:
+            return f" {self.SESSO_SCELTE[0][1]:>8}" if self.sesso == 1 else f" {self.SESSO_SCELTE[1][1]:>8}"
+        return ""
+
     def __str__(self):
-        return f"{
-        self.groups.first() if self.groups.first() is not None else ''
-        }{' ' if self.groups.first() is not None else ''}{
-        self.nome} {self.cognome if self.cognome else ''} {
-        self.SESSO_SCELTE[0][1] if self.sesso == 1 else self.SESSO_SCELTE[1][1]}"
+        return f"{self.nome} {self.cognome if self.cognome else ''}{self.get_sesso()}{
+        ' ' if self.groups.first() is not None else ''}{
+        self.groups.first() if self.groups.first() is not None else ''}"
 
     def clean(self):
         try:
@@ -118,6 +125,12 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         except Exception:
             pass
         super().clean()
+
+    def show(self, request):
+        lista_check = [GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA, GROUP_AMMINISTRATORE]
+        if request.user.groups.first().name in lista_check:
+            return f"{self.__str__()} {self.data_nascita if self.groups.first().name == GROUP_PAZIENTE else ''}"
+        return self.__str__()
 
     class Meta:
         verbose_name = 'Utente'
