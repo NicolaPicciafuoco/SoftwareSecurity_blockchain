@@ -2,8 +2,9 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
-from .manager import HealthCareUserManager
+from django.core.validators import RegexValidator
 from django.db import models
+from .manager import HealthCareUserManager
 from core.group_name import (GROUP_DOTTORE,
                              GROUP_DOTTORE_SPECIALISTA,
                              GROUP_AMMINISTRATORE,
@@ -21,6 +22,21 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         (MALE,   'Maschio'),
         (FEMALE, 'Femmina'),
     ]
+    telefono_validator = RegexValidator(
+        regex=r'^[\d\s-]+$',
+        message='Telefono number can only contain digits, dashes, and spaces.',
+        code='invalid_telefono'
+    )
+    codice_fiscale_validator = RegexValidator(
+        regex=r'^[a-zA-Z0-9]+$',
+        message='Codice fiscale can only contain alphanumeric characters.',
+        code='invalid_codice_fiscale'
+    )
+    indirizzo_validator = RegexValidator(
+        regex=r'^[a-zA-Z0-9\s]+$',
+        message='Indirizzo can only contain alphanumeric characters and spaces.',
+        code='invalid_indirizzo'
+    )
     email = models.EmailField(
         'indirizzo e-mail',
         unique=True,
@@ -35,17 +51,27 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
 
     telefono = models.CharField(
         'Numero di telefono',
-        max_length=14, null=True, blank=True
+        max_length=14, null=True, blank=True,
+        validators=[telefono_validator]
     )
 
     codice_fiscale = models.CharField(
         'Codice fiscale',
-        max_length=16, null=True, blank=True
+        max_length=16, null=True, blank=True,
+        validators=[codice_fiscale_validator]
     )
 
-    indirizzo_residenza = models.CharField('Indirizzo  di residenza', max_length=255, null=True, blank=True)
+    indirizzo_residenza = models.CharField(
+        'Indirizzo  di residenza',
+        max_length=255, null=True, blank=True,
+        validators=[indirizzo_validator]
+    )
 
-    indirizzo_domicilio = models.CharField('Indirizzo di domicilio', max_length=255, null=True, blank=True)
+    indirizzo_domicilio = models.CharField(
+        'Indirizzo di domicilio',
+        max_length=255, null=True, blank=True,
+        validators=[indirizzo_validator]
+    )
 
     user_permissions = models.ManyToManyField(
         Permission,
