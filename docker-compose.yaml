@@ -98,7 +98,6 @@ services:
       - 1337:80
     volumes:
       - ./static/:/app/static
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
 
