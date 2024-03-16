@@ -7,12 +7,14 @@ import os
 
 def get_upload_path(instance, filename):
     """ funzione per impostare il path"""
-    user_id = instance.utente.id if instance.utente else 'default'
-    folder_path = os.path.join(MEDIA_ROOT, 'file_terapia', str(user_id))
+    user_id = str(instance.utente.id) if instance.utente else 'default'
+
+    folder_path = os.path.join(MEDIA_ROOT, 'file_terapie', user_id)
+
     if not os.path.exists(folder_path):
         os.makedirs(folder_path, exist_ok=True)
-    full_path = os.path.join(folder_path, filename)
-    return full_path
+
+    return "file_terapie/" + str(user_id) + "/" + filename
 
 
 class Terapia(models.Model):
@@ -34,7 +36,7 @@ class Terapia(models.Model):
         if self.file:
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = get_upload_path(self, os.path.basename(self.file.name))
-            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapia', str(paziente_id)))
+            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapie', str(paziente_id)))
             if os.path.basename(new_file_path) in existing_files:
                 raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
 

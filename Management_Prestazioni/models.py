@@ -8,14 +8,14 @@ from django.db import models
 
 def upload_to_prestazione(instance, filename):
     """Metodo per aggiornare il path"""
-    user_id = instance.utente.id if instance.utente else 'default'
-    folder_path = os.path.join(MEDIA_ROOT, 'path_prestazione_files', str(user_id))
+    user_id = str(instance.utente.id) if instance.utente else 'default'
+
+    folder_path = os.path.join(MEDIA_ROOT, 'file_prestazioni', user_id)
 
     if not os.path.exists(folder_path):
         os.makedirs(folder_path, exist_ok=True)
 
-    full_path = os.path.join(folder_path, filename)
-    return full_path
+    return "file_prestazioni/" + str(user_id) + "/" + filename
 
 
 class Prestazione(models.Model):
@@ -44,7 +44,7 @@ class Prestazione(models.Model):
         if self.file and self.utente:
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
-            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'path_prestazione_files', str(paziente_id)))
+            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazioni', str(paziente_id)))
 
             if os.path.basename(new_file_path) in existing_files:
                 raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
