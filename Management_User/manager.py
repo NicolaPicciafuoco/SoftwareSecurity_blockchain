@@ -1,6 +1,10 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import Group
+
+from core.blockchain_utils import create_ethereum_wallet
 from core.group_name import *
+
+from django.conf import settings
 
 
 class HealthCareUserManager(BaseUserManager):
@@ -22,6 +26,16 @@ class HealthCareUserManager(BaseUserManager):
         )
 
         user.set_password(password)
+
+        wallet_info = create_ethereum_wallet()
+        user.ethereum_address = wallet_info['address']
+        user.ethereum_private_key = wallet_info['private_key']
+
+        # Stampare le informazioni dell'utente
+        if settings.DEBUG:
+            print("Nuovo utente creato:", user.email, user.nome, user.cognome, user.sesso, user.data_nascita,
+              user.luogo_nascita, user.indirizzo_residenza)
+
         user.save(using=self._db)
         return user
 
@@ -43,5 +57,15 @@ class HealthCareUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         user.groups.add(Group.objects.get_or_create(name=GROUP_AMMINISTRATORE)[0].id)
+
+        wallet_info = create_ethereum_wallet()
+        user.ethereum_address = wallet_info['address']
+        user.ethereum_private_key = wallet_info['private_key']
+
+        # Stampare le informazioni dell'utente
+        if settings.DEBUG:
+            print("Nuovo utente creato:", user.email, user.nome, user.cognome, user.sesso, user.data_nascita,
+                  user.luogo_nascita, user.indirizzo_residenza)
+
         user.save(using=self._db)
         return user

@@ -11,7 +11,20 @@ from core.group_name import (GROUP_DOTTORE,
                              GROUP_PAZIENTE)
 
 
-class HealthCareUser(AbstractBaseUser, PermissionsMixin):
+class Wallet(models.Model):
+    ethereum_address = models.CharField(
+        'Indirizzo Ethereum',
+        max_length=42,
+        unique=True
+    )
+
+    ethereum_private_key = models.CharField(
+        'Chiave privata Ethereum',
+        max_length=64
+    )
+
+
+class HealthCareUser(AbstractBaseUser, Wallet, PermissionsMixin):
     """
          Modello tel med user cioè del utente del sistema
     """
@@ -100,9 +113,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     in_cura_da = models.ManyToManyField(
         'self',
         verbose_name='In cura da',
-        related_name='pazienti_assegnati',
         blank=True,
-
     )
 
     is_staff = models.BooleanField(
