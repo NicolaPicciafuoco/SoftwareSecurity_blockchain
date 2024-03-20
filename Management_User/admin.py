@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from core.group_get_queryset import return_queryset_user
 from .models import HealthCareUser
 from core.group_name import *
-
+from web3 import Web3
 
 class HealthCareUserAdmin(UserAdmin):
     model = HealthCareUser
@@ -44,8 +44,8 @@ class HealthCareUserAdmin(UserAdmin):
             lista.append('in_cura_da')
         return lista
 
-    list_display = ["nome", "sesso", "email", "data_nascita"]
-    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', ]
+    list_display = ["nome", "sesso", "email", "data_nascita","wallet_address"]
+    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address"]
     filter_horizontal = ['in_cura_da', 'groups']
 
     fieldsets = (
@@ -58,7 +58,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': ('email', ('nome', 'cognome', 'sesso'),
                            'data_nascita', 'luogo_nascita', 'telefono', 'codice_fiscale',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da',"wallet_address"),
             }
         ),
         (
@@ -78,7 +78,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': (('nome', 'cognome', 'sesso'),
                            ('data_nascita', 'luogo_nascita'), 'codice_fiscale', 'telefono',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da','wallet_address'),
             }
         ),
         (
@@ -122,6 +122,22 @@ class HealthCareUserAdmin(UserAdmin):
                 form.base_fields['in_cura_da'].choices = [(p.id, p.show(request=request)) for p in prescrittori]
 
         return form
+
+    def save_model(self, request, obj, form, change):
+        # Collegamento a un nodo Ethereum locale
+        w3 = Web3(Web3.HTTPProvider('http://rpcnode:8545'))  # Utilizza l'URL del nodo Ethereum locale
+
+        # Genera un nuovo account
+        account = w3.eth.account.create()
+
+        # Ottieni l'indirizzo del portafoglio generato
+        wallet_address = account.address
+
+        # Assegna l'indirizzo generato al campo wallet_address
+        obj.wallet_address = wallet_address
+
+        # Salva l'oggetto
+        super().save_model(request, obj, form, change)
 
 
 admin.site.register(HealthCareUser, HealthCareUserAdmin)

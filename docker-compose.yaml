@@ -73,7 +73,7 @@ services:
 
   web:
     build: .
-    command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py
+    command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug
     container_name: django
     expose:
       - 8000
