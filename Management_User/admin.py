@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-
 from core.group_get_queryset import return_queryset_user
 from .models import HealthCareUser
 from core.group_name import *
 from web3 import Web3
+from web3 import Account
 
+from eth_account import account
 class HealthCareUserAdmin(UserAdmin):
     model = HealthCareUser
 
@@ -44,8 +45,8 @@ class HealthCareUserAdmin(UserAdmin):
             lista.append('in_cura_da')
         return lista
 
-    list_display = ["nome", "sesso", "email", "data_nascita","wallet_address"]
-    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address"]
+    list_display = ["nome", "sesso", "email", "data_nascita","wallet_address","private_key"]
+    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address", "private_key"]
     filter_horizontal = ['in_cura_da', 'groups']
 
     fieldsets = (
@@ -58,7 +59,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': ('email', ('nome', 'cognome', 'sesso'),
                            'data_nascita', 'luogo_nascita', 'telefono', 'codice_fiscale',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da',"wallet_address"),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da',"wallet_address",'private_key'),
             }
         ),
         (
@@ -78,7 +79,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': (('nome', 'cognome', 'sesso'),
                            ('data_nascita', 'luogo_nascita'), 'codice_fiscale', 'telefono',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da','wallet_address'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da','wallet_address','private_key'),
             }
         ),
         (
@@ -124,20 +125,29 @@ class HealthCareUserAdmin(UserAdmin):
         return form
 
     def save_model(self, request, obj, form, change):
-        # Collegamento a un nodo Ethereum locale
-        w3 = Web3(Web3.HTTPProvider('http://rpcnode:8545'))  # Utilizza l'URL del nodo Ethereum locale
+        # Verifica se l'utente ha già un portafoglio
+        if not obj.wallet_address:
+            # Genera un nuovo account se non è presente un portafoglio
+            account = Account.create()  # Crea un nuovo account usando la classe Account
 
-        # Genera un nuovo account
-        account = w3.eth.account.create()
+            # Stampa il contenuto dell'account
 
-        # Ottieni l'indirizzo del portafoglio generato
-        wallet_address = account.address
+            # Ottieni l'indirizzo del portafoglio generato
+            wallet_address = account.address
 
-        # Assegna l'indirizzo generato al campo wallet_address
+
+            # Ottieni la chiave privata dell'account
+            private_key = account._private_key.hex()
+        else:
+            # Usa il wallet esistente
+            wallet_address = obj.wallet_address
+            private_key = obj.private_key
+
+        # Assegna l'indirizzo generato e la chiave privata al campo wallet_address e private_key
         obj.wallet_address = wallet_address
+        obj.private_key = private_key
 
         # Salva l'oggetto
         super().save_model(request, obj, form, change)
-
 
 admin.site.register(HealthCareUser, HealthCareUserAdmin)

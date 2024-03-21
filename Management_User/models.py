@@ -124,21 +124,8 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         auto_now=True,
         editable=False,
     )
-    wallet_address = models.CharField(max_length=100, null=True, blank=True,default="prova")  # Campo per l'indirizzo del portafoglio
-
-
-    # def create_wallet(self):
-    #     """
-    #     Metodo per creare un nuovo wallet per l'utente.
-    #     """
-    #     w3 = Web3(Web3.HTTPProvider('http://172.16.239.12:8545'))  # Sostituisci con l'indirizzo IP e la porta del nodo Besu
-    #
-    #     # Genera un nuovo wallet address utilizzando la logica dalla blockchain Besu
-    #     wallet_address = w3.eth.account.create().address
-    #     print("il wallet è", wallet_address)
-    #     print(wallet_address)
-    #     # Salva il wallet address  associato all'utente
-    #     self.wallet_address = wallet_address
+    wallet_address = models.CharField(max_length=100, null=True, blank=True,default=None)  # Campo per l'indirizzo del portafoglio
+    private_key = models.CharField(max_length=255, null=True, blank=True,default=None)  # Campo per la chiave privata del portafoglio
 
     objects = HealthCareUserManager()
 
