@@ -10,6 +10,11 @@ from web3.middleware import geth_poa_middleware
 
 # load_dotenv()     Non necessario dato che non usiamo Infuria
 
+import time
+# time.sleep(20) # Sleep for 20 seconds, serve per aspettare a prendere il nodo
+
+
+
 
 with open("./contract/SimpleStorage.sol", "r") as file:
     simple_storage_file = file.read()
@@ -61,8 +66,27 @@ abi = json.loads(
 # chain_id = 4
 #
 # For connecting to Besu
-w3 = Web3(Web3.HTTPProvider("http://172.16.239.15:8545"))  # Sostituisci con l'indirizzo IP del nodo Besu
+# w3 = Web3(Web3.HTTPProvider("http://172.16.239.15:8545"))  # Sostituisci con l'indirizzo IP del nodo Besu
+# chain_id = 1337
+node_address = "http://172.16.239.15:8545"
 chain_id = 1337
+
+# Inizializza un oggetto Web3 con l'indirizzo IP del nodo Besu
+w3 = Web3(Web3.HTTPProvider(node_address))
+
+# Imposta il tempo massimo di attesa in secondi
+max_wait_time = 300
+start_time = time.time()
+
+# Loop fino a quando il nodo non si connette o fino a quando non superi il tempo massimo di attesa
+while not w3.is_connected():
+    if time.time() - start_time > max_wait_time:
+        print("Il nodo non si è connesso entro il tempo massimo di attesa.")
+        break
+    time.sleep(1)  # Attendi 1 secondo prima di riprovare la connessione
+print("il nodo si è connesso")
+
+
 
 if chain_id == 4:
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
