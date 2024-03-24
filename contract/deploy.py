@@ -11,9 +11,6 @@ from web3.middleware import geth_poa_middleware
 # load_dotenv()     Non necessario dato che non usiamo Infuria
 
 import time
-# time.sleep(20) # Sleep for 20 seconds, serve per aspettare a prendere il nodo
-
-
 
 
 with open("./contract/SimpleStorage.sol", "r") as file:
@@ -39,7 +36,7 @@ compiled_sol = compile_standard(
     solc_version="0.6.0",
 )
 
-with open("compiled_code.json", "w") as file:
+with open("./contract/compiled_code.json", "w") as file:
     json.dump(compiled_sol, file)
 
 # get bytecode
@@ -68,7 +65,7 @@ abi = json.loads(
 # For connecting to Besu
 # w3 = Web3(Web3.HTTPProvider("http://172.16.239.15:8545"))  # Sostituisci con l'indirizzo IP del nodo Besu
 # chain_id = 1337
-node_address = "http://172.16.239.15:8545"
+node_address = "http://rpcnode:8545"
 chain_id = 1337
 
 # Inizializza un oggetto Web3 con l'indirizzo IP del nodo Besu
