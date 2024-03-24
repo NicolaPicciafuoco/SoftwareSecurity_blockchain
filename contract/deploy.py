@@ -2,17 +2,16 @@ import json
 
 from web3 import Web3
 
-# In the video, we forget to `install_solc`
 # from solcx import compile_standard
 from solcx import compile_standard, install_solc
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from web3.middleware import geth_poa_middleware
 
-load_dotenv()
+# load_dotenv()     Non necessario dato che non usiamo Infuria
 
 
-with open("./SimpleStorage.sol", "r") as file:
+with open("./contract/SimpleStorage.sol", "r") as file:
     simple_storage_file = file.read()
 
 # We add these two lines that we forgot from the video!
