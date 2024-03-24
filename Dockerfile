@@ -7,6 +7,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir /app/static
 
-COPY . .
+COPY ./contract .
+COPY ./core .
+COPY ./Healthcare .
+COPY ./Management_Prestazioni .
+COPY ./Management_User .
+COPY db.sqlite3 .
+COPY manage.py .
 
-EXPOSE 8000

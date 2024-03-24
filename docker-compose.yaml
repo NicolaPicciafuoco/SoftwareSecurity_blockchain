@@ -59,49 +59,8 @@ x-ethsignerProxy-def:
     - 8545
 
 services:
-  my-postgres:
-    image: postgres:15
-    container_name: db
-    environment:
-     - POSTGRES_DB=${DATABASE_NAME}
-     - POSTGRES_USER=${DATABASE_USER}
-     - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-    ports:
-    - '5432:5432'
-    volumes:
-    - pg_data:/var/lib/postgresql/data
 
-  web:
-    build: .
-    command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug
-    container_name: django
-    expose:
-      - 8000
-    volumes:
-      - .:/app
-     # - /var/certbot/conf:/etc/letsencrypt/:ro
-      - ./static/:/app/static
-    environment:
-      - DJANGO_ENV=${DJANGO_ENV}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_HOST=${DATABASE_HOST}
-      - DATABASE_PORT=${DATABASE_PORT}
-    depends_on:
-      - my-postgres
-
-  nginx:
-    build: ./nginx
-    restart: unless-stopped
-    ports:
-      - 1337:80
-    volumes:
-      - ./static/:/app/static
-    depends_on:
-      - web
-
-#  Commentata finché SSL non decide di funzionare (o mi danno un server)
+  #  Commentata finché SSL non decide di funzionare (o mi danno un server)
 #
  # certbot:
  #     image: certbot/certbot:latest
@@ -113,8 +72,6 @@ services:
 
 
 # Hyperledger Besu
-
-
 
   validator1:
     << : *besu-def
@@ -195,7 +152,7 @@ services:
         ipv4_address: 172.16.239.14
 
   rpcnode:
-    << : *besu-def
+    <<: *besu-def
     container_name: rpcnode
     environment:
       - OTEL_RESOURCE_ATTRIBUTES=service.name=rpcnode,service.version=${BESU_VERSION:-latest}
@@ -371,12 +328,6 @@ services:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.31
 
-
-
-
-
-
-
   prometheus:
     image: "prom/prometheus:v2.46.0"
     volumes:
@@ -425,6 +376,55 @@ services:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.35
 
+
+# Servizi web buildati per ultimi
+
+  my-postgres:
+    image: postgres:15
+    container_name: db
+    environment:
+     - POSTGRES_DB=${DATABASE_NAME}
+     - POSTGRES_USER=${DATABASE_USER}
+     - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    ports:
+    - '5432:5432'
+    volumes:
+    - pg_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: sh -c "python3 ./contract/deploy.py && gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug"
+    container_name: django
+    expose:
+      - 8000
+    volumes:
+      - .:/app
+     # - /var/certbot/conf:/etc/letsencrypt/:ro
+      - ./static/:/app/static
+    environment:
+      - DJANGO_ENV=${DJANGO_ENV}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+    depends_on:
+      - my-postgres
+      - rpcnode
+    networks:
+      quorum-dev-quickstart:
+
+  nginx:
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - 1337:80
+    volumes:
+      - ./static/:/app/static
+    depends_on:
+      - web
+    networks:
+      quorum-dev-quickstart:
 
 
 volumes:
