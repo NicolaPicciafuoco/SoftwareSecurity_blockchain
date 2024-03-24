@@ -140,7 +140,7 @@ var _default = function _default(XRegExp) {
     var prop = isNegated ? 'a!' : 'a=';
     return unicode[slug][prop] || (unicode[slug][prop] = buildAstral(slug, isNegated));
   } // ==--------------------------==
-  // Core functionality
+  // core functionality
   // ==--------------------------==
 
   /*

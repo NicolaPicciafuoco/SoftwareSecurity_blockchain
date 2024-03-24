@@ -528,7 +528,7 @@ jQuery.extend( {
 	// A global GUID counter for objects
 	guid: 1,
 
-	// jQuery.support is not used in Core but other projects attach their
+	// jQuery.support is not used in core but other projects attach their
 	// properties to it so it needs to exist.
 	support: support
 } );
