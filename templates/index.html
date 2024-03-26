@@ -21,51 +21,64 @@
 
         .main-card {
             /*padding: 15px;  Aggiunge del padding esterno di 20px al form di login */
-            border-radius: 20px;
-            border: 0.5px solid #001d9d;
+            /*border-radius: 20px;*/
+            border: 1px solid #001d9d;
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
     <body>
         <div id="particles-js" class="bg-light top-0 start-0">
         </div>
         <div id="main-card"
-             class="position-absolute top-50 start-50 translate-middle bg-light mb-4">
+             class="rounded-2 position-absolute top-50 start-50 translate-middle bg-light mb-4">
             <div class="card border-primary">
                 <div class="card-header bg-light">
                     <h1 class="card-title">Welcome to HealtCare Project</h1>
-                    <h4 class="card-subtitle mb-2 text-body-secondary">This project is for software security exam</h4>
+                    <div class="card-subtitle text-center text-body-secondary mb-2">
+                        <h4>
+                            This project is for software security exam.
+                        </h4>
+                        <p>
+                            Try to click in the background 
+                        </p>
+                    </div>
+
                 </div>
                 <div class="">
                     <ul  class="list-group list-group-flush fw-semibold fs-3">
-                        <a class="list-group-item list-group-item-action active"
-                           aria-current="true"
-                           href="http://localhost:1337/"
-                            ><i class="bi bi-house me-3"></i>Welcome
-                        </a>
+
+                            <a
+                                class="list-group-item list-group-item-action active"
+                                aria-current="true"
+                                href="http://localhost:1337/"
+                            >
+                                <i class="bi bi-house ms-4 me-3"></i>Welcome
+                            </a>
+
+
                         <a class="text-success list-group-item list-group-item-action"
                            href="http://localhost:1337/admin"
                            target="_blank"
-                            ><i class="bi bi-gear me-3"></i>Django admin
+                            ><i class="bi bi-gear ms-4 me-3"></i>Django admin
                         </a>
                         <a class="text-info list-group-item list-group-item-action"
                            href="http://localhost:25000/explorer/nodes"
                            target="_blank"
-                            ><i class="bi bi-hdd-stack me-3"></i>Besu Nodes
+                            ><i class="bi bi-hdd-stack ms-4 me-3"></i>Besu Nodes
                         </a>
                         <a class="text-info list-group-item list-group-item-action"
                            href="http://localhost:25000/explorer/explorer"
                            target="_blank"
-                            ><i class="bi bi-search me-3"></i>Besu Explorer
+                            ><i class="bi bi-search ms-4 me-3"></i>Besu Explorer
                         </a>
                         <a class="text-info list-group-item list-group-item-action"
                            href="http://localhost:25000/explorer/contracts"
                            target="_blank"
-                            ><i class="bi bi-file-text me-3"></i>Besu Contracts
+                            ><i class="bi bi-file-text ms-4 me-3"></i>Besu Contracts
                         </a>
                     </ul>
                 </div>
