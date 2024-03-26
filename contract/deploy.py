@@ -137,3 +137,74 @@ print("Updating stored Value...")
 tx_receipt = w3.eth.wait_for_transaction_receipt(tx_greeting_hash)
 
 print(simple_storage.functions.retrieve().call())
+
+# provo il secondo
+
+with open("./contract/provahash.sol", "r") as file:
+    provahash_file = file.read()
+
+# Compila il contratto Solidity
+compiled_sol = compile_standard(
+    {
+        "language": "Solidity",
+        "sources": {"provahash.sol": {"content": provahash_file}},
+        "settings": {
+            "outputSelection": {
+                "*": {
+                    "*": ["abi", "metadata", "evm.bytecode", "evm.bytecode.sourceMap"]
+                }
+            }
+        },
+    },
+    solc_version="0.6.0",
+)
+
+# Salva i contratti compilati in un file JSON
+with open("./contract/compiled_provahash.json", "w") as file:
+    json.dump(compiled_sol, file)
+
+# Ottieni il bytecode e l'ABI del contratto
+bytecode = compiled_sol["contracts"]["provahash.sol"]["HashContract"]["evm"]["bytecode"]["object"]
+abi = json.loads(compiled_sol["contracts"]["provahash.sol"]["HashContract"]["metadata"])["output"]["abi"]
+
+# Connessione al nodo Ethereum
+
+# Attendi che il nodo si connetta
+
+# Middleware per la Proof of Authority (PoA) se necessario
+
+# Indirizzo e chiave privata dell'account che effettua il deploy
+
+
+# Creazione del contratto in Python
+ProvahashContract = w3.eth.contract(abi=abi, bytecode=bytecode)
+
+# Ottieni il nonce più recente
+nonce = w3.eth.get_transaction_count(my_address)
+
+# Costruisci la transazione per il deploy del contratto
+transaction = ProvahashContract.constructor().build_transaction({
+    "chainId": chain_id,
+    "gasPrice": w3.eth.gas_price,
+    "from": my_address,
+    "nonce": nonce,
+})
+
+# Firma la transazione
+signed_txn = w3.eth.account.sign_transaction(transaction, private_key=private_key)
+print("Deploying Contract!")
+
+# Invia la transazione
+tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+
+# Attendi che la transazione venga inclusa nel blocco e ottieni il receipt della transazione
+print("Waiting for transaction to finish...")
+tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+print(f"Done! Contract deployed to {tx_receipt.contractAddress}")
+print()
+# Lavoro con i contratti deployati
+provahash_contract = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)
+
+# Esempio di utilizzo: recupera la stringa fissa dal contratto
+print(f"Fixed String: {provahash_contract.functions.getFixedString().call()}")
+print("ciao a tutti provahash")
