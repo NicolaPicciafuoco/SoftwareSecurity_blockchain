@@ -149,7 +149,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         return f" {self.SESSO_SCELTE[0][1]:>8}" if self.sesso == 1 else f" {self.SESSO_SCELTE[1][1]:>8}"
 
     def __str__(self):
-        return f"{self.nome} {self.cognome if self.cognome else ''}{self.get_sesso()}"
+        return f"{self.nome} {self.cognome if self.cognome else ''}"
 
     def clean(self):
         try:
@@ -171,3 +171,4 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Utente'
         verbose_name_plural = 'Utenti'
         ordering = ['nome', 'cognome', 'sesso', 'data_nascita',]
+

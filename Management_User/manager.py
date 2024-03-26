@@ -26,6 +26,12 @@ class HealthCareUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
+    def add_user_to_admin_group(self, user):
+        admin_group, created = Group.objects.get_or_create(name=GROUP_AMMINISTRATORE)
+        user.groups.add(admin_group)
+        user.save()
+
     def create_superuser(self, email, nome, cognome, sesso, data_nascita, luogo_nascita, indirizzo_residenza, password,
                          **extra_fields):
         user = self.model(
@@ -43,7 +49,5 @@ class HealthCareUserManager(BaseUserManager):
         )
 
         user.set_password(password)
-        user.save(using=self._db)
-        user.groups.add(Group.objects.get_or_create(name=GROUP_AMMINISTRATORE)[0].id)
         user.save(using=self._db)
         return user

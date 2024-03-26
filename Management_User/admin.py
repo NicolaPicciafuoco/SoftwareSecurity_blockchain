@@ -45,9 +45,19 @@ class HealthCareUserAdmin(UserAdmin):
             lista.append('in_cura_da')
         return lista
 
-    list_display = ["nome", "sesso", "email", "data_nascita","wallet_address","private_key"]
+    list_display = ["nome", "str_role", "sesso", "email", "data_nascita","wallet_address","private_key"]
     ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address", "private_key"]
     filter_horizontal = ['in_cura_da', 'groups']
+
+
+    def str_role(self, obj):
+        try:
+            first_element = obj.groups.first().name  # Assuming 'elements' is the related name for the ForeignKey
+            return str(first_element)
+        except Exception:
+            return "-"
+
+    str_role.short_description = 'Ruolo'
 
     fieldsets = (
         (
@@ -94,6 +104,9 @@ class HealthCareUserAdmin(UserAdmin):
         form = super().get_form(request, obj, **kwargs)
         user_group = request.user.groups.all().first().name
         gruppi = Group.objects.exclude(name=GROUP_AMMINISTRATORE)
+        pazienti = HealthCareUser.objects.filter(
+            groups=Group.objects.get(name=GROUP_PAZIENTE).id
+        )
         prescrittori = HealthCareUser.objects.filter(
             groups__in=[
                 Group.objects.get(name=GROUP_DOTTORE).id,
@@ -109,6 +122,7 @@ class HealthCareUserAdmin(UserAdmin):
                     (Group.objects.get(name=GROUP_AMMINISTRATORE).id,
                      Group.objects.get(name=GROUP_AMMINISTRATORE)),
                 ]
+                form.base_fields['assistito'].choices = [(u.id, u.show(request=request)) for u in pazienti]
                 form.base_fields['in_cura_da'].choices = [(p.id, p.show(request=request)) for p in prescrittori]
         else:
             pass
@@ -120,6 +134,7 @@ class HealthCareUserAdmin(UserAdmin):
                                                          (Group.objects.get(name=GROUP_AMMINISTRATORE).id,
                                                           Group.objects.get(name=GROUP_AMMINISTRATORE)),
                                                      ]
+                form.base_fields['assistito'].choices = [(u.id, u.show(request=request)) for u in pazienti]
                 form.base_fields['in_cura_da'].choices = [(p.id, p.show(request=request)) for p in prescrittori]
 
         return form
