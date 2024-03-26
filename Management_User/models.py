@@ -6,9 +6,10 @@ from django.core.validators import RegexValidator
 from django.db import models
 from .manager import HealthCareUserManager
 from core.group_name import (GROUP_DOTTORE,
-                             GROUP_DOTTORE_SPECIALISTA,
-                             GROUP_AMMINISTRATORE,
-                             GROUP_PAZIENTE)
+                               GROUP_DOTTORE_SPECIALISTA,
+                               GROUP_AMMINISTRATORE,
+                               GROUP_PAZIENTE)
+from web3 import Web3
 
 
 class HealthCareUser(AbstractBaseUser, PermissionsMixin):
@@ -123,6 +124,8 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         auto_now=True,
         editable=False,
     )
+    wallet_address = models.CharField(max_length=100, null=True, blank=True,default=None)  # Campo per l'indirizzo del portafoglio
+    private_key = models.CharField(max_length=255, null=True, blank=True,default=None)  # Campo per la chiave privata del portafoglio
 
     objects = HealthCareUserManager()
 

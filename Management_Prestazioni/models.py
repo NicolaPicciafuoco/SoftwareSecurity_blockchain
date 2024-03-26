@@ -4,7 +4,8 @@ from django.core.exceptions import ValidationError
 from Healthcare.settings import MEDIA_ROOT
 from Management_User.models import HealthCareUser as User
 from django.db import models
-
+from web3 import Web3
+from web3 import Account
 
 def upload_to_prestazione(instance, filename):
     """Metodo per aggiornare il path"""
@@ -26,6 +27,28 @@ class Prestazione(models.Model):
                                on_delete=models.SET_NULL, null=True, blank=False)
     operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
                                   on_delete=models.SET_NULL, null=True, blank=False)
+
+    def deploy_contract(self):
+        # Collegamento al nodo Ethereum Besu
+        w3 = Web3(Web3.HTTPProvider('http://rpcnode:8545'))
+
+        # Carica il bytecode del contratto Solidity
+        with open('contract_bytecode.txt', 'r') as file:
+            contract_bytecode = file.read().replace('\n', '')
+
+        # Deploy del contratto sulla rete Besu
+        contract = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)
+        tx_hash = contract.constructor().transact({'from': 'your_account_address', 'gas': 5000000})
+
+        # Attendere il completamento della transazione di deploy
+        tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+
+        # Ottenere l'indirizzo del contratto deployato
+        contract_address = tx_receipt.contractAddress
+
+        # Salva l'indirizzo del contratto nell'istanza di Prestazione
+        self.contract_address = contract_address
+        self.save()
 
     def filename(self):
         """Metodo per leggere il nome del file"""

@@ -7,5 +7,8 @@ USER root
 ADD ./metricbeat.yml /usr/share/metricbeat/metricbeat.yml
 RUN chown root:metricbeat /usr/share/metricbeat/metricbeat.yml && chmod go-w /usr/share/metricbeat/metricbeat.yml
 USER metricbeat
+ENV PATH="/root/.local/bin:${PATH}"
+
+
 
 CMD ["metricbeat", "-c", "metricbeat.yml"]
