@@ -38,6 +38,9 @@ class PrestazioneAdmin(admin.ModelAdmin):
         utenti = HealthCareUser.objects.filter(
             groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
+        utenti.filter(id__in=[ i.id for i in request.user.in_cura_da.all()]
+                      
+                      )
         operatori = HealthCareUser.objects.filter(
             groups__in=[
                 Group.objects.get(name=GROUP_CAREGIVER).id,

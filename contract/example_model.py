@@ -5,7 +5,6 @@ SimpleCounter.sol deve risiedere nella directory dello script
 import random
 import string
 import time
-
 from django.db import models
 from web3 import Web3
 from solcx import compile_source
