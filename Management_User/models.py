@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import RegexValidator
 from django.db import models
 from .manager import HealthCareUserManager
+from core.blockchain_utils import create_wallet
 from core.group_name import (GROUP_DOTTORE,
                                GROUP_DOTTORE_SPECIALISTA,
                                GROUP_AMMINISTRATORE,
@@ -172,3 +173,11 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Utenti'
         ordering = ['nome', 'cognome', 'sesso', 'data_nascita',]
 
+    def save(self, *args, **kwargs):
+
+        if not self.wallet_address:
+            wallet_address, private_key = create_wallet()
+            self.wallet_address = wallet_address
+            self.private_key = private_key
+
+        super().save(*args, **kwargs)

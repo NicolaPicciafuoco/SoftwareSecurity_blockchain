@@ -17,8 +17,6 @@ class HealthCareUserManager(BaseUserManager):
             is_superuser=False,
             is_staff=True,
             is_active=True,
-            wallet_address="ciao",  # Assegna sempre "ciao" come valore predefinito
-            private_key="ciao",
             **extra_fields
         )
 

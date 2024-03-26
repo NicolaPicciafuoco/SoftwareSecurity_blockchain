@@ -139,30 +139,4 @@ class HealthCareUserAdmin(UserAdmin):
 
         return form
 
-    def save_model(self, request, obj, form, change):
-        # Verifica se l'utente ha già un portafoglio
-        if not obj.wallet_address:
-            # Genera un nuovo account se non è presente un portafoglio
-            account = Account.create()  # Crea un nuovo account usando la classe Account
-
-            # Stampa il contenuto dell'account
-
-            # Ottieni l'indirizzo del portafoglio generato
-            wallet_address = account.address
-
-
-            # Ottieni la chiave privata dell'account
-            private_key = account._private_key.hex()
-        else:
-            # Usa il wallet esistente
-            wallet_address = obj.wallet_address
-            private_key = obj.private_key
-
-        # Assegna l'indirizzo generato e la chiave privata al campo wallet_address e private_key
-        obj.wallet_address = wallet_address
-        obj.private_key = private_key
-
-        # Salva l'oggetto
-        super().save_model(request, obj, form, change)
-
 admin.site.register(HealthCareUser, HealthCareUserAdmin)
