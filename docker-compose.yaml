@@ -381,7 +381,7 @@ services:
 
   my-postgres:
     image: postgres:15
-    container_name: db
+    container_name: db_pg
     environment:
      - POSTGRES_DB=${DATABASE_NAME}
      - POSTGRES_USER=${DATABASE_USER}

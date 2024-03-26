@@ -72,7 +72,7 @@ chain_id = 1337
 w3 = Web3(Web3.HTTPProvider(node_address))
 
 # Imposta il tempo massimo di attesa in secondi
-max_wait_time = 300
+max_wait_time = 100
 start_time = time.time()
 
 # Loop fino a quando il nodo non si connette o fino a quando non superi il tempo massimo di attesa
