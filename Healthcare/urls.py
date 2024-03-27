@@ -19,10 +19,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from django.urls import path
+from django.views.generic import TemplateView
+
+
+class SimpleTemplateView(TemplateView):
+    template_name = 'index.html'
 
 
 urlpatterns = [
-    path('', lambda request: redirect('admin/', permanent=True)),
+    # path('', lambda request: redirect('admin/', permanent=True)),
+    path('', SimpleTemplateView.as_view(), name='home'),
     path('admin/', admin.site.urls),
 ]
 

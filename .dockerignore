@@ -1,2 +1,2 @@
-.env
+./besu-network/config/besu/.env
 .idea

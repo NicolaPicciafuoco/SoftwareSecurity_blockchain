@@ -101,9 +101,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     in_cura_da = models.ManyToManyField(
         'self',
         verbose_name='In cura da',
-        related_name='pazienti_assegnati',
         blank=True,
-
     )
 
     is_staff = models.BooleanField(
@@ -124,8 +122,18 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         auto_now=True,
         editable=False,
     )
-    wallet_address = models.CharField(max_length=100, null=True, blank=True,default=None)  # Campo per l'indirizzo del portafoglio
-    private_key = models.CharField(max_length=255, null=True, blank=True,default=None)  # Campo per la chiave privata del portafoglio
+    wallet_address = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        default=None
+    )
+    private_key = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        default=None
+    )
 
     objects = HealthCareUserManager()
 
@@ -138,14 +146,10 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     ]
 
     def get_sesso(self):
-        if self.groups.first() == GROUP_PAZIENTE:
-            return f" {self.SESSO_SCELTE[0][1]:>8}" if self.sesso == 1 else f" {self.SESSO_SCELTE[1][1]:>8}"
-        return ""
+        return f" {self.SESSO_SCELTE[0][1]:>8}" if self.sesso == 1 else f" {self.SESSO_SCELTE[1][1]:>8}"
 
     def __str__(self):
-        return f"{self.nome} {self.cognome if self.cognome else ''}{self.get_sesso()}{
-        ' ' if self.groups.first() is not None else ''}{
-        self.groups.first() if self.groups.first() is not None else ''}"
+        return f"{self.nome} {self.cognome if self.cognome else ''}{self.get_sesso()}"
 
     def clean(self):
         try:
@@ -157,6 +161,8 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
 
     def show(self, request):
         lista_check = [GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA, GROUP_AMMINISTRATORE]
+        if request.user.groups is None:
+            return self.__str__()
         if request.user.groups.first().name in lista_check:
             return f"{self.__str__()} {self.data_nascita if self.groups.first().name == GROUP_PAZIENTE else ''}"
         return self.__str__()
