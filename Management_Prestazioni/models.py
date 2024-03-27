@@ -63,18 +63,19 @@ class Prestazione(models.Model):
         return f"{self.pk}, {self.filename()}, {self.utente}"
 
     def clean(self):
-        """Sovrascrittura del metodo clean per mostrare errori nella form"""
+        """Metodo per la gestione degli input della form"""
         super().clean()
-        if self.file and self.pk:
-            old_instance = Prestazione.objects.get(pk=self.pk)
-            if old_instance.file and self.file.name == old_instance.file.name:
-                return
-        if self.file:
+
+        if self.file and self.utente:
             paziente_id = getattr(self.utente, 'id', None)
-            new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
-            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazione', str(paziente_id)))
-            if os.path.basename(new_file_path) in existing_files:
-                raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
+            if paziente_id is not None:
+                new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
+                existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazioni', str(paziente_id)))
+
+                if os.path.basename(new_file_path) in existing_files:
+                    raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
+            else:
+                raise ValidationError({'utente': ['L\'utente associato non è valido.']})
 
     def save(self, request=None, *args, **kwargs):
         """Metodo per salvare il file nel path personalizzato per utente"""
