@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+pragma solidity >=0.6.0 <0.9.0;
 
 // import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -25,6 +25,8 @@ contract ChainLog {
 
     event ActionStoreFailed(string message);
 
+    // event LogPrint(Action[] log);
+
     // Dummy function to process a transaction
 
     function processTransaction() public {
@@ -33,14 +35,14 @@ contract ChainLog {
 
     // Stores a creation action on the chain
 
-    function createAction(address patient, address medic, string calldata hash) public {
+    function createAction(address patient, address medic, string memory hash) public {
         Action memory newAction = Action(patient, medic, ActionType.Create, hash);
         log.push(newAction);
     }
 
     // Checks if a transaction is stored on the chain and adds a new action with the Delete type
 
-    function deleteAction(address patient, address medic, string calldata hash) public {
+    function deleteAction(address patient, address medic, string memory hash) public {
         for (uint i = 0; i < log.length; i++) {
             if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
                 if (log[i].medic != medic) {
@@ -57,7 +59,7 @@ contract ChainLog {
     // Checks if a transaction is present in the logs and whether the requester is authorized to read it
     // or it has been deleted
 
-    function readAction(address patient, address medic, string calldata hash) public {
+    function readAction(address patient, address medic, string memory hash) public {
         for (uint i = log.length; i > 0; i--) {
             if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
                 if (log[i].actionType == ActionType.Delete) {
@@ -77,7 +79,7 @@ contract ChainLog {
     // Checks if a transaction is present in the logs and whether the requester is authorized to update it
     // or it has been deleted
 
-    function updateAction(address patient, address medic, string calldata hash) public {
+    function updateAction(address patient, address medic, string memory hash) public {
         for (uint i = log.length; i > 0; i--) {
             if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
                 if (log[i].actionType == ActionType.Delete) {
@@ -93,9 +95,9 @@ contract ChainLog {
         } emit ActionStoreFailed("Not Found");
     }
 
-    function getLog() public view returns (Action[] memory) {
-        return log;
-    }
+    // function getLog() public {
+    //    emit LogPrint(log);
+    //}
 
 }
 

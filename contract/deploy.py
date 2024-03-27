@@ -12,24 +12,37 @@ import time
 
 class ContractInteractions:
 
+    node_address = "http://rpcnode:8545"
+    w3 = Web3(Web3.HTTPProvider(node_address))
+    chain_id = 1337
     ChainLog = None
+
+    def load_contract(self):
+
+        # Loads the already-compiled contract
+
+        with open("./contract/compiled_code.json", "r") as file:
+            compiled_sol = json.load(file)
+        bytecode = compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["evm"]["bytecode"]["object"]
+        abi = json.loads(compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["metadata"])["output"]["abi"]
+        self.ChainLog = self.w3.eth.contract(abi=abi, bytecode=bytecode)
+        return self.ChainLog
 
     def __init__(self):
         load_dotenv()
-        self.node_address = "http://rpcnode:8545"
-        self.chain_id = 1337
-        self.w3 = Web3(Web3.HTTPProvider(self.node_address))
         self.my_address = os.getenv("ADMIN_ADDRESS")
         self.private_key = os.getenv("ADMIN_PRIVATE_KEY")
+        self.load_contract()
 
     def deploy(self):
 
+        # Load the contract source code
         with open("./contract/ChainLog.sol", "r") as file:
             chain_log_file = file.read()
 
         # We add these two lines that we forgot from the video!
         print("Installing...")
-        install_solc("0.8.20")
+        install_solc("0.6.0")
 
         # Solidity source code
         compiled_sol = compile_standard(
@@ -44,7 +57,7 @@ class ContractInteractions:
                     }
                 },
             },
-            solc_version="0.8.20",
+            solc_version="0.6.0",
         )
 
         with open("./contract/compiled_code.json", "w") as file:
@@ -70,11 +83,11 @@ class ContractInteractions:
                 print("Il nodo non si è connesso entro il tempo massimo di attesa.")
                 break
             time.sleep(1)  # Attendi 1 secondo prima di riprovare la connessione
-        print("il nodo si è connesso")
+        print("Il nodo si è connesso")
 
         if self.chain_id == 4:
             self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
-            print(self.w3.clientVersion)
+            print(self.w3.client_version)
 
         # Added print statement to ensure connection succeeded as per
         # https://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority
@@ -83,12 +96,12 @@ class ContractInteractions:
         # private_key = "8a63f5a3608d032ba652a323d62f333f71a895d253d6aa9f5defc16a43e4d7f1"
 
         # Create the contract in Python
-        self.ChainLog = self.w3.eth.contract(abi=abi, bytecode=bytecode)
+        ChainLog = self.w3.eth.contract(abi=abi, bytecode=bytecode)
 
-        nonce = self.w3.eth.get_transaction_count(self.my_address)
+        nonce = self.w3.eth.get_transaction_count(self.my_address, 'pending')
 
         # Submit the transaction that deploys the contract
-        transaction = self.ChainLog.constructor().build_transaction(
+        transaction = ChainLog.constructor().build_transaction(
             {
                 "chainId": self.chain_id,
                 "gasPrice": self.w3.eth.gas_price,
@@ -96,6 +109,7 @@ class ContractInteractions:
                 "nonce": nonce,
             }
         )
+
         # Sign the transaction
         signed_txn = self.w3.eth.account.sign_transaction(transaction, private_key=self.private_key)
         print("Deploying Contract!")
@@ -120,7 +134,7 @@ class ContractInteractions:
                 "chainId": self.chain_id,
                 "gasPrice": self.w3.eth.gas_price,
                 "from": medic.address,
-                "patient": patient.address,
+                "to": patient.address,
                 "actionType": action_type,
                 "nonce": self.w3.eth.get_transaction_count(medic.address)
             }
