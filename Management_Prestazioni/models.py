@@ -7,6 +7,7 @@ from django.db import models
 from web3 import Web3
 from web3 import Account
 
+
 def upload_to_prestazione(instance, filename):
     """Metodo per aggiornare il path"""
     user_id = str(instance.utente.id) if instance.utente else 'default'
@@ -62,13 +63,16 @@ class Prestazione(models.Model):
         return f"{self.pk}, {self.filename()}, {self.utente}"
 
     def clean(self):
-        """Metodo per la gestione degli input della form"""
+        """Sovrascrittura del metodo clean per mostrare errori nella form"""
         super().clean()
-        if self.file and self.utente:
+        if self.file and self.pk:
+            old_instance = Prestazione.objects.get(pk=self.pk)
+            if old_instance.file and self.file.name == old_instance.file.name:
+                return
+        if self.file:
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
-            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazioni', str(paziente_id)))
-
+            existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazione', str(paziente_id)))
             if os.path.basename(new_file_path) in existing_files:
                 raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
 

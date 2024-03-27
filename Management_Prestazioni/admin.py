@@ -18,7 +18,7 @@ from .models import Prestazione
 class PrestazioneAdmin(admin.ModelAdmin):
     """Classe admin per la gestione delle prestazioni"""
     model = Prestazione
-    list_display = ('pk', 'user_name', 'operator_name', 'short_note', 'file_display')
+    list_display = ('user_name', 'user_surname', 'operator_name', 'short_note', 'file_display')
     list_filter = ('note',)
     search_fields = ('note',)
     actions = ['delete_model']
@@ -31,67 +31,74 @@ class PrestazioneAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return return_queryset_prestazione(self, request, PrestazioneAdmin)
 
-    def get_form(self, request, obj=None, **kwargs):
-        """ sovrascrivere form"""
-        form = super().get_form(request, obj, **kwargs)
-        user_group = request.user.groups.all().first().name
-        utenti = HealthCareUser.objects.filter(
-            groups=Group.objects.get(name=GROUP_PAZIENTE).id
-        )
-        utenti.filter(id__in=[ i.id for i in request.user.in_cura_da.all()]
-                      
-                      )
-        operatori = HealthCareUser.objects.filter(
-            groups__in=[
-                Group.objects.get(name=GROUP_CAREGIVER).id,
-                Group.objects.get(name=GROUP_DOTTORE).id,
-                Group.objects.get(name=GROUP_DOTTORE_SPECIALISTA).id
-            ]
-        )
-        if obj is None:
-            # la terapia non è ancora stata creata => è una CREATE
-            gruppi_operatori = [
-                GROUP_DOTTORE,
-                GROUP_DOTTORE_SPECIALISTA,
-                GROUP_CAREGIVER
-            ]
-            if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['operatore'].choices = [
-                                                            (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(request.user.id, request.user.show(request=request)),]
-                form.base_fields['operatore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
-
-            elif user_group == GROUP_PAZIENTE:
-                form.base_fields['operatore'].widget.attrs['style'] = 'display: none;'
-
-            elif user_group in gruppi_operatori:
-                form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
-                form.base_fields['operatore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
-        else:
-            # la terapia è stata creata => è un UPDATE
-            if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['operatore'].choices = [
-                                                            (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(obj.operatore.id, obj.operatore.show(request=request)),]
-                form.base_fields['operatore'].initial = obj.operatore
-                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
-                form.base_fields['utente'].initial = obj.utente
-            else:
-                try:
-                    form.base_fields['operatore'].choices = [(obj.operatore.id, obj.operatore.show(request=request)), ]
-                    form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
-                except Exception:
-                    pass
-        return form
+    # def get_form(self, request, obj=None, **kwargs):
+    #     """ sovrascrivere form"""
+    #     form = super().get_form(request, obj, **kwargs)
+    #     user_group = request.user.groups.all().first().name
+    #     utenti = HealthCareUser.objects.filter(
+    #         groups=Group.objects.get(name=GROUP_PAZIENTE).id
+    #     )
+    #     utenti.filter(id__in=[ i.id for i in request.user.in_cura_da.all()]
+    #
+    #                   )
+    #     operatori = HealthCareUser.objects.filter(
+    #         groups__in=[
+    #             Group.objects.get(name=GROUP_CAREGIVER).id,
+    #             Group.objects.get(name=GROUP_DOTTORE).id,
+    #             Group.objects.get(name=GROUP_DOTTORE_SPECIALISTA).id
+    #         ]
+    #     )
+    #     if obj is None:
+    #         # la terapia non è ancora stata creata => è una CREATE
+    #         gruppi_operatori = [
+    #             GROUP_DOTTORE,
+    #             GROUP_DOTTORE_SPECIALISTA,
+    #             GROUP_CAREGIVER
+    #         ]
+    #         if user_group == GROUP_AMMINISTRATORE:
+    #             form.base_fields['operatore'].choices = [
+    #                                                         (p.id, p.show(request=request)) for p in operatori
+    #                                                     ] + [(request.user.id, request.user.show(request=request)),]
+    #             form.base_fields['operatore'].initial = request.user
+    #             form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
+    #
+    #         elif user_group == GROUP_PAZIENTE:
+    #             form.base_fields['operatore'].widget.attrs['style'] = 'display: none;'
+    #
+    #         elif user_group in gruppi_operatori:
+    #             form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
+    #             form.base_fields['operatore'].initial = request.user
+    #             form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
+    #     else:
+    #         # la terapia è stata creata => è un UPDATE
+    #         if user_group == GROUP_AMMINISTRATORE:
+    #             form.base_fields['operatore'].choices = [
+    #                                                         (p.id, p.show(request=request)) for p in operatori
+    #                                                     ] + [(obj.operatore.id, obj.operatore.show(request=request)),]
+    #             form.base_fields['operatore'].initial = obj.operatore
+    #             form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
+    #             form.base_fields['utente'].initial = obj.utente
+    #         else:
+    #             try:
+    #                 form.base_fields['operatore'].choices = [(obj.operatore.id, obj.operatore.show(request=request)), ]
+    #                 form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
+    #             except Exception:
+    #                 pass
+    #     return form
 
     def user_name(self, obj):
         """Metodo che restituisce il nome utente"""
         if obj.utente:
             return obj.utente.nome
         return "Nessun utente"
-    user_name.short_description = 'Utente'
+    user_name.short_description = 'Nome paziente'
+
+    def user_surname(self, obj):
+        """Metodo che restituisce il cognome utente"""
+        if obj.utente:
+            return obj.utente.cognome
+        return "Nessun utente"
+    user_surname.short_description = 'Cognome paziente'
 
     def operator_name(self, obj):
         """Metodo che restituisce il nome utente dell'operatore sanitario"""
