@@ -10,7 +10,7 @@ media
 *.bak
 
 # Contract address
-./contract/contract_address.txt
+contract/contract_address.txt
 
 # If you are using PyCharm #
 # User-specific stuff
