@@ -23,10 +23,14 @@ class ContractInteractions:
 
         with open("./contract/compiled_code.json", "r") as file:
             compiled_sol = json.load(file)
-        bytecode = compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["evm"]["bytecode"]["object"]
         abi = json.loads(compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["metadata"])["output"]["abi"]
-        self.ChainLog = self.w3.eth.contract(abi=abi, bytecode=bytecode)
+        self.ChainLog = self.w3.eth.contract(abi=abi)
+        with open("./contract/contract_address.txt", "r") as file:
+            contract_address = file.read()
+        self.ChainLog = self.w3.eth.contract(address=contract_address, abi=abi)
         return self.ChainLog
+
+
 
     def __init__(self):
         load_dotenv()
@@ -123,31 +127,36 @@ class ContractInteractions:
         tx_receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
 
         print(f"Done! Contract deployed to {tx_receipt.contractAddress}")
+        with open("./contract/contract_address.txt", "w") as file:
+            file.write(tx_receipt.contractAddress)
 
     # Function to interact with the contract
 
-    def log_action(self, patient, medic, action_type):
+    def log_action(self, patient, medic, action_type,medic_key):
         # Building, signing and sending the transaction
 
         transaction = self.ChainLog.functions.processTransaction().build_transaction(
             {
                 "chainId": self.chain_id,
                 "gasPrice": self.w3.eth.gas_price,
-                "from": medic.address,
-                "to": patient.address,
-                "actionType": action_type,
-                "nonce": self.w3.eth.get_transaction_count(medic.address)
+                "from": medic,
+                # "to": patient,
+                # "actionType": action_type,
+                "nonce": self.w3.eth.get_transaction_count(medic)
             }
         )
-        signed_transaction = self.w3.eth.account.sign_transaction(transaction, private_key=medic.private_key)
+        signed_transaction = self.w3.eth.account.sign_transaction(transaction, private_key=medic_key)
         tx_hash = self.w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
+        hashProva= "hash di prova"
         tx_receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
-
+        print(tx_receipt)
         # Call the contract function based on the action type
-
+        print(self.ChainLog.address)
+        print("Calling contract function")
         if action_type == "Create":
-            self.w3.contract.functions.createAction(patient.address, medic.address, tx_hash).call()
-            return tx_receipt
+            results = self.ChainLog.functions.createAction(patient, medic, hashProva).call()
+
+            return results
         elif action_type == "Update":
             value = self.w3.contract.functions.updateAction(patient.address, medic.address, tx_hash).call()
             if value == True:

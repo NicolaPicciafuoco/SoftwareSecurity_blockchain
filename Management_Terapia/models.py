@@ -1,8 +1,11 @@
+import web3
 from django.core.exceptions import ValidationError
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
 import os
+
+from contract.deploy import ContractInteractions
 
 
 def get_upload_path(instance, filename):
@@ -57,6 +60,21 @@ class Terapia(models.Model):
                         new_path = get_upload_path(self, os.path.basename(self.file.name))
                         os.rename(old_file_path, new_path)
                         self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
+
+
+        hash="has di prova"
+        contract_interactions = ContractInteractions()
+        address_medico = self.prescrittore.wallet_address
+        address_paziente = self.utente.wallet_address
+        key_medico = self.prescrittore.private_key
+        action_type = "Create"  # Può essere "Create", "Update", "Delete", o "Read"
+        tx_receipt = contract_interactions.log_action(address_paziente,address_medico, action_type,key_medico)
+
+        if tx_receipt:
+            print("Azione eseguita con successo!")
+        else:
+            print("Si è verificato un errore durante l'esecuzione dell'azione.")
+
         super().save(*args, **kwargs)
 
     def __str__(self):
