@@ -30,8 +30,6 @@ class ContractInteractions:
         self.ChainLog = self.w3.eth.contract(address=contract_address, abi=abi)
         return self.ChainLog
 
-
-
     def __init__(self):
         load_dotenv()
         self.my_address = os.getenv("ADMIN_ADDRESS")
@@ -46,7 +44,7 @@ class ContractInteractions:
 
         # We add these two lines that we forgot from the video!
         print("Installing...")
-        install_solc("0.6.0")
+        install_solc("0.8.0")
 
         # Solidity source code
         compiled_sol = compile_standard(
@@ -61,7 +59,7 @@ class ContractInteractions:
                     }
                 },
             },
-            solc_version="0.6.0",
+            solc_version="0.8.0",
         )
 
         with open("./contract/compiled_code.json", "w") as file:
@@ -132,7 +130,7 @@ class ContractInteractions:
 
     # Function to interact with the contract
 
-    def log_action(self, patient, medic, action_type,medic_key):
+    def log_action(self, patient, medic, action_type, medic_key, encrypted_data):
         # Building, signing and sending the transaction
 
         transaction = self.ChainLog.functions.processTransaction().build_transaction(
@@ -140,43 +138,47 @@ class ContractInteractions:
                 "chainId": self.chain_id,
                 "gasPrice": self.w3.eth.gas_price,
                 "from": medic,
-                # "to": patient,
-                # "actionType": action_type,
                 "nonce": self.w3.eth.get_transaction_count(medic)
             }
         )
         signed_transaction = self.w3.eth.account.sign_transaction(transaction, private_key=medic_key)
         tx_hash = self.w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
-        hashProva= "hash di prova"
         tx_receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         print(tx_receipt)
-        # Call the contract function based on the action type
-        print(self.ChainLog.address)
-        print("Calling contract function")
-        if action_type == "Create":
-            results = self.ChainLog.functions.createAction(patient, medic, hashProva).call()
 
-            return results
+        # Decodes the transaction hash
+
+        action_hash = tx_receipt.transactionHash.hex()
+
+        if action_type == "Create":
+            self.ChainLog.functions.createAction(patient, medic, action_hash, encrypted_data).call()
+
+            return action_hash
         elif action_type == "Update":
-            value = self.w3.contract.functions.updateAction(patient.address, medic.address, tx_hash).call()
-            if value == True:
-                return tx_receipt
+            results = self.ChainLog.functions.updateAction(patient, medic, action_hash, encrypted_data).call()
+            if  results == "Found":
+                return action_hash
             else:
-                return value
+                return results
         elif action_type == "Delete":
-            value = self.w3.contract.functions.deleteAction(patient.address, medic.address, tx_hash).call()
-            if value == True:
-                return tx_receipt
+            results = self.ChainLog.functions.deleteAction(patient, medic, action_hash, encrypted_data).call()
+            if results == "Found":
+                return action_hash
             else:
-                return value
+                return results
         elif action_type == "Read":
-            value = self.w3.contract.functions.readAction(patient.address, medic.address, tx_hash).call()
-            if value == True:
-                return tx_receipt
+            results = self.ChainLog.functions.readAction(patient, medic, action_hash, encrypted_data).call()
+            if results == "Found":
+                return action_hash
             else:
-                return value
+                return results
         return False
 
+    def get_action_log(self):
+        # Returns the action log from the contract
+
+        logs = self.ChainLog.functions.getLog().call()
+        return logs
 
 ''' Commentato per ora
 simple_storage = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)

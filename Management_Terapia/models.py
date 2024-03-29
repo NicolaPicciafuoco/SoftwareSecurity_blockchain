@@ -3,6 +3,11 @@ from django.core.exceptions import ValidationError
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
+from dotenv import load_dotenv
+from cryptography import fernet
+import json
+import base64
+import logging
 import os
 
 from contract.deploy import ContractInteractions
@@ -28,7 +33,7 @@ class Terapia(models.Model):
                                      on_delete=models.SET_NULL, default=None, null=True, blank=True)
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
-    hash = models.CharField('hash', max_length=50, null=True, blank=True)
+    hash = models.CharField('hash', max_length=66, null=True, blank=True)
 
     def clean(self):
         """Sovrascrittura del metodo clean per mostrare errori nella form"""
@@ -46,7 +51,11 @@ class Terapia(models.Model):
 
     def save(self, request=None, *args, **kwargs):
         """ metodo save per il salvataggio"""
+
+        action_type = "Create"
+
         if self.pk:
+            action_type = "Update"
             try:
                 old_instance = Terapia.objects.get(pk=self.pk)
                 if old_instance.file and self.file != old_instance.file:
@@ -62,21 +71,65 @@ class Terapia(models.Model):
                         os.rename(old_file_path, new_path)
                         self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
 
+        # Part that interacts with the blockchain
 
-        hash="has di prova"
         contract_interactions = ContractInteractions()
         address_medico = self.prescrittore.wallet_address
         address_paziente = self.utente.wallet_address
         key_medico = self.prescrittore.private_key
-        action_type = "Create"  # Può essere "Create", "Update", "Delete", o "Read"
-        tx_receipt = contract_interactions.log_action(address_paziente,address_medico, action_type,key_medico)
 
-        if tx_receipt:
-            print("Azione eseguita con successo!")
-        else:
-            print("Si è verificato un errore durante l'esecuzione dell'azione.")
+        encrypted_data = self.to_encrypted_json()
+
+        self.hash = contract_interactions.log_action(address_paziente, address_medico, action_type,
+                                                     key_medico, encrypted_data)
+
+        # Log testing
+
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="actions.log", level=logging.INFO)
+        logger.info(contract_interactions.get_action_log())
 
         super().save(*args, **kwargs)
+
+    def object_to_json(self):
+        """ metodo per la conversione in json"""
+        filtered_object = {
+            'id': self.id,
+            'utente': self.utente.id,
+            'prescrittore': self.prescrittore.id,
+            'file': self.file.url if self.file else None,
+            'note': self.note,
+        }
+        return json.dumps(filtered_object)
+
+    def to_encrypted_json(self):
+        # Encrypts the json object
+
+        json_object = self.object_to_json()
+
+        load_dotenv()
+
+        key = os.getenv('FERNET_KEY')
+
+        encrypted_json = fernet.Fernet(key).encrypt(json_object.encode())
+
+        return encrypted_json
+
+    def check_json_integrity(self, encrypted_json):
+        # Decrypts the json object and checks if it's been altered
+
+        json_object = self.object_to_json()
+
+        load_dotenv()
+
+        private_key = os.getenv('ADMIN_PRIVATE_KEY').encode()
+
+        decrypted_json = fernet.Fernet(private_key).decrypt(encrypted_json).decode()
+
+        if json_object != decrypted_json:
+            raise ValidationError('Il json è stato alterato')
+
+        return json.loads(decrypted_json)
 
     def __str__(self):
         ''' il ritorno della stringa'''

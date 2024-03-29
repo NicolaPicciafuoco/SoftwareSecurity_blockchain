@@ -15,88 +15,86 @@ contract ChainLog {
         address medic;
         ActionType actionType;
         string transactionHash;
+        bytes encryptedData;
     }
 
-    Action[] public log;
-
-    event TransactionProcessed(string message);
-
-    event ActionStored(bool value);
-
-    event ActionStoreFailed(string message);
-
-    // event LogPrint(Action[] log);
+    Action[] private log;  // Array to store all the actions
 
     // Dummy function to process a transaction
 
-    function processTransaction() public {
-        emit TransactionProcessed("Transaction processed");
+    function processTransaction() public returns (bool){
+        return true;
     }
 
     // Stores a creation action on the chain
 
-    function createAction(address patient, address medic, string memory hash) public {
-        Action memory newAction = Action(patient, medic, ActionType.Create, hash);
+    function createAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public {
+        Action memory newAction = Action(patient, medic, ActionType.Create, hash, encryptedData);
         log.push(newAction);
     }
 
     // Checks if a transaction is stored on the chain and adds a new action with the Delete type
 
-    function deleteAction(address patient, address medic, string memory hash) public {
+    function deleteAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public
+                            returns (string memory) {
         for (uint i = 0; i < log.length; i++) {
             if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
                 if (log[i].medic != medic) {
-                    emit ActionStoreFailed("Unauthorized");
+                    return "Unauthorized";
                 } else {
-                    Action memory newAction = Action(patient, medic, ActionType.Delete, hash);
+                    Action memory newAction = Action(patient, medic, ActionType.Delete, hash, encryptedData);
                     log.push(newAction);
-                    emit ActionStored(true);
+                    return "Found";
                 }
             }
-        } emit ActionStoreFailed("Not Found");
+        } return "Not Found";
     }
 
     // Checks if a transaction is present in the logs and whether the requester is authorized to read it
     // or it has been deleted
 
-    function readAction(address patient, address medic, string memory hash) public {
+    function readAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public
+                            returns (string memory) {
         for (uint i = log.length; i > 0; i--) {
             if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
                 if (log[i].actionType == ActionType.Delete) {
-                    emit ActionStoreFailed("Deleted");
+                    return "Deleted";
                 } else if (log[i].medic != medic && log[i].patient != patient) {
-                    emit ActionStoreFailed("Unauthorized");
+                    return "Unauthorized";
                 } else {
-                    Action memory newAction = Action(patient, medic, ActionType.Read, hash);
+                    Action memory newAction = Action(patient, medic, ActionType.Read, hash, encryptedData);
                     log.push(newAction);
-                    emit ActionStored(true);
+                    return "Found";
                 }
             }
         }
-        emit ActionStoreFailed("Not Found");
+        return "Not Found";
     }
 
     // Checks if a transaction is present in the logs and whether the requester is authorized to update it
     // or it has been deleted
 
-    function updateAction(address patient, address medic, string memory hash) public {
+    function updateAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public
+                                returns (string memory) {
         for (uint i = log.length; i > 0; i--) {
             if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
                 if (log[i].actionType == ActionType.Delete) {
-                    emit ActionStoreFailed("Deleted");
+                    return "Deleted";
                 } else if (log[i].medic != medic) {
-                    emit ActionStoreFailed("Unauthorized");
+                    return "Unauthorized";
                 } else {
-                    Action memory newAction = Action(patient, medic, ActionType.Update, hash);
+                    Action memory newAction = Action(patient, medic, ActionType.Update, hash, encryptedData);
                     log.push(newAction);
-                    emit ActionStored(true);
+                    return "Found";
                 }
             }
-        } emit ActionStoreFailed("Not Found");
+        } return "Not Found";
     }
 
-    // function getLog() public {
-    //    emit LogPrint(log);
-    //}
+    // Getter function to retrieve the log
+
+    function getLog() public view returns(Action[] storage){
+        return log;
+    }
 
 }
