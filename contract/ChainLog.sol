@@ -93,7 +93,7 @@ contract ChainLog {
 
     // Getter function to retrieve the log
 
-    function getLog() public view returns(Action[] storage){
+    function getLog() public view returns(Action[] memory){
         return log;
     }
 
