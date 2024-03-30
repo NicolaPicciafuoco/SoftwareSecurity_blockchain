@@ -28,10 +28,18 @@ contract ChainLog {
 
     // Stores a creation action on the chain
 
+//    function createAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public {
+//        Action memory newAction = Action(patient, medic, ActionType.Create, hash, encryptedData);
+//
+//        log.push(newAction);
+//    }
     function createAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public {
         Action memory newAction = Action(patient, medic, ActionType.Create, hash, encryptedData);
+
         log.push(newAction);
-    }
+}
+
+event LogAction(address patient, address medic, ActionType actionType, string hash, bytes encryptedData);
 
     // Checks if a transaction is stored on the chain and adds a new action with the Delete type
 

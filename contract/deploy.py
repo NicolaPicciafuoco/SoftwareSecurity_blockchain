@@ -133,21 +133,29 @@ class ContractInteractions:
     def log_action(self, patient, medic, action_type, medic_key, encrypted_data):
         # Building, signing and sending the transaction
 
-        transaction = self.ChainLog.functions.processTransaction().build_transaction(
-            {
-                "chainId": self.chain_id,
-                "gasPrice": self.w3.eth.gas_price,
-                "from": medic,
-                "nonce": self.w3.eth.get_transaction_count(medic)
-            }
-        )
+        nonce = self.w3.eth.get_transaction_count(medic)
+
+        # Costruisci la transazione manualmente
+        transaction = {
+            'to': self.ChainLog.address,
+            'from': medic,
+            'nonce': nonce,
+            'gasPrice': self.w3.eth.gas_price,
+            'gas': 1000000,  # Definisci il limite di gas
+            'data': self.ChainLog.encodeABI(fn_name="createAction", args=[patient, medic, action_type, encrypted_data]),
+        }
+
+        # Firma la transazione
         signed_transaction = self.w3.eth.account.sign_transaction(transaction, private_key=medic_key)
+
+        # Invia la transazione firmata
         tx_hash = self.w3.eth.send_raw_transaction(signed_transaction.rawTransaction)
+
+        # Attendere che la ricevuta della transazione sia disponibile
         tx_receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash)
         print(tx_receipt)
 
-        # Decodes the transaction hash
-
+        # Decodifica l'hash della transazione
         action_hash = tx_receipt.transactionHash.hex()
 
         if action_type == "Create":
