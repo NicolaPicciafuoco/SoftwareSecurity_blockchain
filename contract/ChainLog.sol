@@ -8,101 +8,92 @@ pragma solidity >=0.6.0 <0.9.0;
 contract ChainLog {
     //constructor() ERC20("ChainLog", "MTK") ERC20Permit("ChainLog") {}
 
-    enum ActionType{Create, Read, Update, Delete}
+    enum ActionType{Create, Update, Delete}
 
     struct Action {
+        uint primaryKey;
         address patient;
         address medic;
-        ActionType actionType;
-        string transactionHash;
+        ActionType latestAction;
         bytes encryptedData;
     }
 
-    Action[] private log;  // Array to store all the actions
-
-    // Dummy function to process a transaction
-
-    function processTransaction() public returns (bool){
-        return true;
-    }
+    Action[] private terapieLog;             // Array to store all the actions on terapie
+    Action[] private prestazioniLog;         // Array to store all the actions on terapie
 
     // Stores a creation action on the chain
 
-//    function createAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public {
-//        Action memory newAction = Action(patient, medic, ActionType.Create, hash, encryptedData);
-//
-//        log.push(newAction);
-//    }
-    function createAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public {
-        Action memory newAction = Action(patient, medic, ActionType.Create, hash, encryptedData);
-
-        log.push(newAction);
-}
-
-event LogAction(address patient, address medic, ActionType actionType, string hash, bytes encryptedData);
-
-    // Checks if a transaction is stored on the chain and adds a new action with the Delete type
-
-    function deleteAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public
-                            returns (string memory) {
-        for (uint i = 0; i < log.length; i++) {
-            if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
-                if (log[i].medic != medic) {
-                    return "Unauthorized";
-                } else {
-                    Action memory newAction = Action(patient, medic, ActionType.Delete, hash, encryptedData);
-                    log.push(newAction);
-                    return "Found";
-                }
-            }
-        } return "Not Found";
-    }
-
-    // Checks if a transaction is present in the logs and whether the requester is authorized to read it
-    // or it has been deleted
-
-    function readAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public
-                            returns (string memory) {
-        for (uint i = log.length; i > 0; i--) {
-            if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
-                if (log[i].actionType == ActionType.Delete) {
-                    return "Deleted";
-                } else if (log[i].medic != medic && log[i].patient != patient) {
-                    return "Unauthorized";
-                } else {
-                    Action memory newAction = Action(patient, medic, ActionType.Read, hash, encryptedData);
-                    log.push(newAction);
-                    return "Found";
-                }
-            }
+    function createAction(address patient, address medic, uint pk, bytes calldata encryptedData, string calldata choice) public {
+        if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
+            terapieLog.push(Action(pk, patient, medic, ActionType.Create, encryptedData));
+        } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
+            prestazioniLog.push(Action(pk, patient, medic, ActionType.Create, encryptedData));
         }
-        return "Not Found";
     }
 
-    // Checks if a transaction is present in the logs and whether the requester is authorized to update it
-    // or it has been deleted
+    // Stores an update action on the chain
+    // TODO: rethink the update action
 
-    function updateAction(address patient, address medic, string calldata hash, bytes calldata encryptedData) public
-                                returns (string memory) {
-        for (uint i = log.length; i > 0; i--) {
-            if (keccak256(abi.encodePacked(log[i].transactionHash)) == keccak256(abi.encodePacked(hash))) {
-                if (log[i].actionType == ActionType.Delete) {
-                    return "Deleted";
-                } else if (log[i].medic != medic) {
-                    return "Unauthorized";
-                } else {
-                    Action memory newAction = Action(patient, medic, ActionType.Update, hash, encryptedData);
-                    log.push(newAction);
-                    return "Found";
+    function updateAction(address patient, address medic, uint pk, bytes calldata encryptedData, string calldata choice) public {
+        if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
+            for (uint i = 0; i < terapieLog.length; i++) {
+                if (terapieLog[i].primaryKey == pk) {
+                    terapieLog[i].latestAction = ActionType.Update;
+                    terapieLog[i].encryptedData = encryptedData;
+                    return;
+                }
+            } terapieLog.push(Action(pk, patient, medic, ActionType.Update, encryptedData));
+
+        } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
+            for (uint i = 0; i < prestazioniLog.length; i++) {
+                if (prestazioniLog[i].primaryKey == pk) {
+                    prestazioniLog[i].latestAction = ActionType.Update;
+                    prestazioniLog[i].encryptedData = encryptedData;
+                    return;
                 }
             }
-        } return "Not Found";
+            prestazioniLog.push(Action(pk, patient, medic, ActionType.Update, encryptedData));
+        }
     }
 
-    // Getter function to retrieve the log
+    // Stores a deletion action on the chain
+    // TODO: rethink the deletion mechanism
 
-    function getLog() public view returns(Action[] memory){
-        return log;
+    function deleteAction(address patient, address medic, uint pk, bytes calldata encryptedData, string calldata choice) public {
+        if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
+            terapieLog.push(Action(pk, patient, medic, ActionType.Delete, encryptedData));
+        } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
+            prestazioniLog.push(Action(pk, patient, medic, ActionType.Delete, encryptedData));
+        }
     }
 
+    // Getter functions to retrieve the logs
+
+    function getTerapieLog() public view returns (Action[] memory){
+        return terapieLog;
+    }
+
+    function getPrestazioniLog() public view returns (Action[] memory){
+        return prestazioniLog;
+    }
+
+    /* I hate Solidity so much
+
+    function getTerapiaByKey(uint pk) public view returns (Action memory){
+        for (uint i = 0; i < terapieLog.length; i++) {
+            if (terapieLog[i].primaryKey == pk) {
+                return terapieLog[i];
+            }
+        } return false;
+    }
+
+    function getPrestazioneByKey(uint pk) public view returns (Action memory){
+        for (uint i = 0; i < prestazioniLog.length; i++) {
+            if (prestazioniLog[i].primaryKey == pk) {
+                return prestazioniLog[i];
+            }
+        } return false;
+    }
+
+    */
 }

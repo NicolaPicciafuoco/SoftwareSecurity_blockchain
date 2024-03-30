@@ -73,23 +73,40 @@ class Terapia(models.Model):
 
         # Part that interacts with the blockchain
 
+        super().save(*args, **kwargs)
+
         contract_interactions = ContractInteractions()
         address_medico = self.prescrittore.wallet_address
         address_paziente = self.utente.wallet_address
         key_medico = self.prescrittore.private_key
 
+        # Encrypts the json object
+
         encrypted_data = self.to_encrypted_json()
 
-        self.hash = contract_interactions.log_action(address_paziente, address_medico, action_type,
-                                                     key_medico, encrypted_data)
+        # Checks if the data has been altered
+
+        ''' Commentato finché non decidiamo come gestire la faccenda dell'integrità dei dati
+        
+        stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")[4]
+
+        
+        
+        if not stored_data:
+            self.check_json_integrity(stored_data)
+
+        '''
+
+        self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
+                                                        key_medico, encrypted_data, "Terapia")
 
         # Log testing
 
         logger = logging.getLogger(__name__)
         logging.basicConfig(filename="actions.log", level=logging.INFO)
-        logger.info(contract_interactions.get_action_log())
+        logger.info(contract_interactions.get_action_log("Terapia"))
 
-        super().save(*args, **kwargs)
+
 
     def object_to_json(self):
         """ metodo per la conversione in json"""
@@ -122,14 +139,14 @@ class Terapia(models.Model):
 
         load_dotenv()
 
-        private_key = os.getenv('ADMIN_PRIVATE_KEY').encode()
+        key = os.getenv('FERNET_KEY')
 
-        decrypted_json = fernet.Fernet(private_key).decrypt(encrypted_json).decode()
+        decrypted_json = fernet.Fernet(key).decrypt(encrypted_json).decode()
 
         if json_object != decrypted_json:
             raise ValidationError('Il json è stato alterato')
 
-        return json.loads(decrypted_json)
+        return True
 
     def __str__(self):
         ''' il ritorno della stringa'''
