@@ -87,11 +87,11 @@ class Terapia(models.Model):
         # Checks if the data has been altered
 
         ''' Commentato finché non decidiamo come gestire la faccenda dell'integrità dei dati
-        
+
         stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")[4]
 
-        
-        
+
+
         if not stored_data:
             self.check_json_integrity(stored_data)
 
@@ -147,6 +147,18 @@ class Terapia(models.Model):
             raise ValidationError('Il json è stato alterato')
 
         return True
+    # def check_json_integrity_nicola(self):
+    #     contract_interactions = ContractInteractions()
+    #
+    #     # Decrypts the json object and checks if it's been altered
+    #     stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")
+    #     encrypted_json_local = self.to_encrypted_json()
+    #     encrypted_json = stored_data[-1]
+    #
+    #     if encrypted_json != encrypted_json_local:
+    #         raise ValidationError('Il json è stato alterato')
+    #
+    #     return True
 
     def __str__(self):
         ''' il ritorno della stringa'''
