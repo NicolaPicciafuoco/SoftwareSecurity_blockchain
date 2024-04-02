@@ -5,6 +5,7 @@ from Healthcare.settings import MEDIA_ROOT
 from django.db import models
 from dotenv import load_dotenv
 from cryptography import fernet
+import hashlib
 import json
 import base64
 import logging
@@ -82,7 +83,11 @@ class Terapia(models.Model):
 
         # Encrypts the json object
 
-        encrypted_data = self.to_encrypted_json()
+        # encrypted_data = self.to_encrypted_json()
+
+        # Hashes the data
+
+        hashed_data = self.to_hashed_json()
 
         # Checks if the data has been altered
 
@@ -98,7 +103,7 @@ class Terapia(models.Model):
         '''
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
-                                                        key_medico, encrypted_data, "Terapia")
+                                                        key_medico, hashed_data, "Terapia")
 
         # Log testing
 
@@ -108,7 +113,7 @@ class Terapia(models.Model):
 
 
 
-    def object_to_json(self):
+    def object_to_json_string(self):
         """ metodo per la conversione in json"""
         filtered_object = {
             'id': self.id,
@@ -117,8 +122,10 @@ class Terapia(models.Model):
             'file': self.file.url if self.file else None,
             'note': self.note,
         }
-        return json.dumps(filtered_object)
+        return json.dumps(filtered_object, sort_keys=True)
 
+
+    '''
     def to_encrypted_json(self):
         # Encrypts the json object
 
@@ -131,22 +138,50 @@ class Terapia(models.Model):
         encrypted_json = fernet.Fernet(key).encrypt(json_object.encode())
 
         return encrypted_json
+    '''
 
-    # def check_json_integrity(self, encrypted_json):
-    #     # Decrypts the json object and checks if it's been altered
-    #
-    #     json_object = self.object_to_json()
-    #
-    #     load_dotenv()
-    #
-    #     key = os.getenv('FERNET_KEY')
-    #
-    #     decrypted_json = fernet.Fernet(key).decrypt(encrypted_json).decode()
-    #
-    #     if json_object != decrypted_json:
-    #         raise ValidationError('Il json è stato alterato')
-    #
-    #     return True
+    def to_hashed_json(self):
+        # Makes a md5 hash of the json object
+
+        json_str = self.object_to_json_string()
+
+        hashed_json = hashlib.md5(json_str.encode()).hexdigest()
+
+        return hashed_json
+
+
+    def check_json_integrity(self):
+
+        contract_interactions = ContractInteractions()
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="integrity.log", level=logging.INFO)
+
+        # Decrypts the json object and checks if it's been altered
+        stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")
+        logger.info("ID: %s", self.id)
+        logger.info("Utente: %s", self.utente)
+        logger.info("Prescrittore: %s", self.prescrittore)
+        logger.info("File: %s", self.file)
+        logger.info("Note: %s", self.note)
+        # Verifica se stored_data non è vuoto prima di accedere all'ultimo elemento
+        if stored_data:
+            last_tuple = stored_data[-1]  # Ottieni l'ultimo elemento della lista
+            last_piece = last_tuple[-1]  # Ottieni l'ultimo elemento di quella tupla
+
+            hashed_json_local = self.to_hashed_json()
+
+            # Stampa le informazioni nel file di log
+            logger.info("Stored data: %s", stored_data)
+            logger.info("Encrypted JSON local: %s", hashed_json_local)
+            logger.info("Last piece: %s", last_piece)
+
+            if last_piece != hashed_json_local:
+                raise IntegrityError('Il json è stato alterato')
+
+            return True
+        else:
+            raise IntegrityError('Nessun dato trovato per questa terapia')
+
 
     def check_json_integrity_nicola(self):
         contract_interactions = ContractInteractions()

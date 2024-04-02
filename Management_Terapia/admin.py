@@ -64,7 +64,8 @@ class TerapiaAdmin(admin.ModelAdmin):
         obj = self.get_object(request, object_id)
         if obj:
             try:
-                obj.check_json_integrity_nicola()
+                # obj.check_json_integrity_nicola()
+                obj.check_json_integrity()
                 messages.success(request, f"Terapia {obj} verificata.")
             except IntegrityError as e:
                 messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")

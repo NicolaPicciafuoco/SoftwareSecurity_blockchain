@@ -8,14 +8,14 @@ pragma solidity >=0.6.0 <0.9.0;
 contract ChainLog {
     //constructor() ERC20("ChainLog", "MTK") ERC20Permit("ChainLog") {}
 
-    enum ActionType{Create, Update, Delete}
+    enum ActionType{Create, Update}
 
     struct Action {
         uint primaryKey;
         address patient;
         address medic;
         ActionType latestAction;
-        bytes encryptedData;
+        string hashedData;
     }
 
     Action[] private terapieLog;             // Array to store all the actions on terapie
@@ -23,47 +23,55 @@ contract ChainLog {
 
     // Stores a creation action on the chain
 
-    function createAction(address patient, address medic, uint pk, bytes calldata encryptedData, string calldata choice) public {
+    function createAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice) public {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
-            terapieLog.push(Action(pk, patient, medic, ActionType.Create, encryptedData));
+            terapieLog.push(Action(pk, patient, medic, ActionType.Create, hashedData));
         } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
-            prestazioniLog.push(Action(pk, patient, medic, ActionType.Create, encryptedData));
+            prestazioniLog.push(Action(pk, patient, medic, ActionType.Create, hashedData));
         }
     }
 
     // Stores an update action on the chain
     // TODO: rethink the update action
 
-    function updateAction(address patient, address medic, uint pk, bytes calldata encryptedData, string calldata choice) public {
+    function updateAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice) public {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
             for (uint i = 0; i < terapieLog.length; i++) {
                 if (terapieLog[i].primaryKey == pk) {
                     terapieLog[i].latestAction = ActionType.Update;
-                    terapieLog[i].encryptedData = encryptedData;
+                    terapieLog[i].hashedData = hashedData;
                     return;
                 }
-            } terapieLog.push(Action(pk, patient, medic, ActionType.Update, encryptedData));
+            }
 
         } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
             for (uint i = 0; i < prestazioniLog.length; i++) {
                 if (prestazioniLog[i].primaryKey == pk) {
                     prestazioniLog[i].latestAction = ActionType.Update;
-                    prestazioniLog[i].encryptedData = encryptedData;
+                    prestazioniLog[i].hashedData = hashedData;
                     return;
                 }
             }
-            prestazioniLog.push(Action(pk, patient, medic, ActionType.Update, encryptedData));
         }
     }
 
-    // Stores a deletion action on the chain
-    // TODO: rethink the deletion mechanism
+    // Deletes a terapia or prestazione from the chain
 
-    function deleteAction(address patient, address medic, uint pk, bytes calldata encryptedData, string calldata choice) public {
+    function deleteAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice) public {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
-            terapieLog.push(Action(pk, patient, medic, ActionType.Delete, encryptedData));
+            for (uint i = 0; i < terapieLog.length; i++) {
+                if (terapieLog[i].primaryKey == pk) {
+                    delete terapieLog[i];
+                    return;
+                }
+            }
         } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
-            prestazioniLog.push(Action(pk, patient, medic, ActionType.Delete, encryptedData));
+           for (uint i = 0; i < prestazioniLog.length; i++) {
+                if (prestazioniLog[i].primaryKey == pk) {
+                    delete prestazioniLog[i];
+                    return;
+                }
+            }
         }
     }
 
@@ -92,6 +100,22 @@ contract ChainLog {
     assembly { mstore(matchingActions, counter) }
     return matchingActions;
 }
+
+
+     function getPrestazioneByKey(uint pk) public view returns (Action[] memory) {
+    Action[] memory matchingActions = new Action[](prestazioniLog.length);  // Inizializza l'array con la dimensione di terapieLog
+    uint counter = 0;
+    for (uint i = 0; i < prestazioniLog.length; i++) {
+        if (prestazioniLog[i].primaryKey == pk) {
+            matchingActions[counter] = prestazioniLog[i];  // Aggiungi l'azione corrispondente all'array
+            counter++;
+        }
+    }
+    // Ridimensiona l'array per rimuovere gli spazi vuoti non utilizzati
+    assembly { mstore(matchingActions, counter) }
+    return matchingActions;
+}
+
   /* I hate Solidity so much
     function getPrestazioneByKey(uint pk) public view returns (Action memory){
         for (uint i = 0; i < prestazioniLog.length; i++) {
