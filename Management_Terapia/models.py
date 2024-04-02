@@ -9,7 +9,7 @@ import json
 import base64
 import logging
 import os
-
+from django.db import IntegrityError
 from contract.deploy import ContractInteractions
 
 
@@ -132,33 +132,52 @@ class Terapia(models.Model):
 
         return encrypted_json
 
-    def check_json_integrity(self, encrypted_json):
-        # Decrypts the json object and checks if it's been altered
-
-        json_object = self.object_to_json()
-
-        load_dotenv()
-
-        key = os.getenv('FERNET_KEY')
-
-        decrypted_json = fernet.Fernet(key).decrypt(encrypted_json).decode()
-
-        if json_object != decrypted_json:
-            raise ValidationError('Il json è stato alterato')
-
-        return True
-    # def check_json_integrity_nicola(self):
-    #     contract_interactions = ContractInteractions()
-    #
+    # def check_json_integrity(self, encrypted_json):
     #     # Decrypts the json object and checks if it's been altered
-    #     stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")
-    #     encrypted_json_local = self.to_encrypted_json()
-    #     encrypted_json = stored_data[-1]
     #
-    #     if encrypted_json != encrypted_json_local:
+    #     json_object = self.object_to_json()
+    #
+    #     load_dotenv()
+    #
+    #     key = os.getenv('FERNET_KEY')
+    #
+    #     decrypted_json = fernet.Fernet(key).decrypt(encrypted_json).decode()
+    #
+    #     if json_object != decrypted_json:
     #         raise ValidationError('Il json è stato alterato')
     #
     #     return True
+
+    def check_json_integrity_nicola(self):
+        contract_interactions = ContractInteractions()
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="actions_ceck.log", level=logging.INFO)
+
+        # Decrypts the json object and checks if it's been altered
+        stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")
+        logger.info("ID: %s", self.id)
+        logger.info("Utente: %s", self.utente)
+        logger.info("Prescrittore: %s", self.prescrittore)
+        logger.info("File: %s", self.file)
+        logger.info("Note: %s", self.note)
+        # Verifica se stored_data non è vuoto prima di accedere all'ultimo elemento
+        if stored_data:
+            last_tuple = stored_data[-1]  # Ottieni l'ultimo elemento della lista
+            last_piece = last_tuple[-1]  # Ottieni l'ultimo elemento di quella tupla
+
+            encrypted_json_local = self.to_encrypted_json()
+
+            # Stampa le informazioni nel file di log
+            logger.info("Stored data: %s", stored_data)
+            logger.info("Encrypted JSON local: %s", encrypted_json_local)
+            logger.info("Last piece: %s", last_piece)
+
+            if last_piece != encrypted_json_local:
+                raise IntegrityError('Il json è stato alterato')
+
+            return True
+        else:
+            raise IntegrityError('Nessun dato trovato per questa terapia')
 
     def __str__(self):
         ''' il ritorno della stringa'''

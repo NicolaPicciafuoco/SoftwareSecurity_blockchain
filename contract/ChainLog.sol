@@ -77,16 +77,22 @@ contract ChainLog {
         return prestazioniLog;
     }
 
-    /* I hate Solidity so much
 
-    function getTerapiaByKey(uint pk) public view returns (Action memory){
-        for (uint i = 0; i < terapieLog.length; i++) {
-            if (terapieLog[i].primaryKey == pk) {
-                return terapieLog[i];
-            }
-        } return false;
+
+    function getTerapiaByKey(uint pk) public view returns (Action[] memory) {
+    Action[] memory matchingActions = new Action[](terapieLog.length);  // Inizializza l'array con la dimensione di terapieLog
+    uint counter = 0;
+    for (uint i = 0; i < terapieLog.length; i++) {
+        if (terapieLog[i].primaryKey == pk) {
+            matchingActions[counter] = terapieLog[i];  // Aggiungi l'azione corrispondente all'array
+            counter++;
+        }
     }
-
+    // Ridimensiona l'array per rimuovere gli spazi vuoti non utilizzati
+    assembly { mstore(matchingActions, counter) }
+    return matchingActions;
+}
+  /* I hate Solidity so much
     function getPrestazioneByKey(uint pk) public view returns (Action memory){
         for (uint i = 0; i < prestazioniLog.length; i++) {
             if (prestazioniLog[i].primaryKey == pk) {

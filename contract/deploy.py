@@ -175,14 +175,22 @@ class ContractInteractions:
             logs = self.ChainLog.functions.getPrestazioniLog().call()
         return logs
 
+    # def get_action_by_key(self, key, choice):
+    #     # Returns the log by key
+    #     action = None
+    #     if choice == "Terapia":
+    #         action = self.ChainLog.functions.getTerapiaByKey(key).call()
+    #     elif choice == "Prestazione":
+    #         action = self.ChainLog.functions.getPrestazioneByKey(key).call()
+    #     return action
     def get_action_by_key(self, key, choice):
         # Returns the log by key
-        action = None
+        actions = []
         if choice == "Terapia":
-            action = self.ChainLog.functions.getTerapiaByKey(key).call()
+            actions = self.ChainLog.functions.getTerapiaByKey(key).call()
         elif choice == "Prestazione":
-            action = self.ChainLog.functions.getPrestazioneByKey(key).call()
-        return action
+            actions = self.ChainLog.functions.getPrestazioneByKey(key).call()
+        return actions
 
 ''' Commentato per ora
 simple_storage = w3.eth.contract(address=tx_receipt.contractAddress, abi=abi)

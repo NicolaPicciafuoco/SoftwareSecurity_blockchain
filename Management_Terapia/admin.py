@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 from core.group_get_queryset import return_queryset_terapia
 from core.group_name import (GROUP_PAZIENTE,
@@ -10,8 +12,8 @@ from core.group_name import (GROUP_PAZIENTE,
 from .models import Terapia
 from Management_User.models import HealthCareUser
 import os
-
-
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 class TerapiaAdmin(admin.ModelAdmin):
     ''' Classe per strutturare la vista admin'''
     model = Terapia
@@ -46,6 +48,30 @@ class TerapiaAdmin(admin.ModelAdmin):
         return "Nessun file"
 
     visualizza_file.short_description = "File"
+
+    # def change_view(self, request, object_id, form_url='', extra_context=None):
+    #     obj = self.get_object(request, object_id)
+    #     if obj:
+    #         try:
+    #             obj.check_json_integrity_nicola()
+    #             messages.success(request, f"Terapia {obj} verificata.")
+    #         except ValidationError as e:
+    #             messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")
+    #     return super().change_view(request, object_id, form_url, extra_context)
+
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj:
+            try:
+                obj.check_json_integrity_nicola()
+                messages.success(request, f"Terapia {obj} verificata.")
+            except IntegrityError as e:
+                messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")
+                form_url_prec= request.META.get('HTTP_REFERER')
+                return HttpResponseRedirect(form_url_prec)
+        return super().change_view(request, object_id, form_url, extra_context)
+
 
     def get_form(self, request, obj=None, **kwargs):
         """ sovrascrivere form"""
