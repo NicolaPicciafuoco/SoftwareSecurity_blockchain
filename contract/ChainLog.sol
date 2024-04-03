@@ -23,7 +23,8 @@ contract ChainLog {
 
     // Stores a creation action on the chain
 
-    function createAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice) public {
+    function createAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice)
+    public {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
             terapieLog.push(Action(pk, patient, medic, ActionType.Create, hashedData));
         } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
@@ -32,9 +33,9 @@ contract ChainLog {
     }
 
     // Stores an update action on the chain
-    // TODO: rethink the update action
 
-    function updateAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice) public {
+    function updateAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice)
+    public {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
             for (uint i = 0; i < terapieLog.length; i++) {
                 if (terapieLog[i].primaryKey == pk) {
@@ -57,7 +58,8 @@ contract ChainLog {
 
     // Deletes a terapia or prestazione from the chain
 
-    function deleteAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice) public {
+    function deleteAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice)
+    public {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
             for (uint i = 0; i < terapieLog.length; i++) {
                 if (terapieLog[i].primaryKey == pk) {
@@ -88,7 +90,7 @@ contract ChainLog {
 
 
     function getTerapiaByKey(uint pk) public view returns (Action[] memory) {
-    Action[] memory matchingActions = new Action[](terapieLog.length);  // Inizializza l'array con la dimensione di terapieLog
+    Action[] memory matchingActions = new Action[](terapieLog.length);  // Inizializza l'array
     uint counter = 0;
     for (uint i = 0; i < terapieLog.length; i++) {
         if (terapieLog[i].primaryKey == pk) {
@@ -103,7 +105,7 @@ contract ChainLog {
 
 
      function getPrestazioneByKey(uint pk) public view returns (Action[] memory) {
-        Action[] memory matchingActions = new Action[](prestazioniLog.length);  // Inizializza l'array con la dimensione di terapieLog
+        Action[] memory matchingActions = new Action[](prestazioniLog.length);  // Inizializza l'array
         uint counter = 0;
         for (uint i = 0; i < prestazioniLog.length; i++) {
             if (prestazioniLog[i].primaryKey == pk) {
