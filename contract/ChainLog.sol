@@ -61,8 +61,8 @@ contract ChainLog {
         if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
             for (uint i = 0; i < terapieLog.length; i++) {
                 if (terapieLog[i].primaryKey == pk) {
-                    delete terapieLog[i];
-                    return;
+                terapieLog[i].hashedData = ""; // Rimuovo l'hash
+                return;
                 }
             }
         } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
