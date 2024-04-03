@@ -103,15 +103,13 @@ class Terapia(models.Model):
         '''
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
-                                                        key_medico, hashed_data, "Terapia")
+                                                     key_medico, hashed_data, "Terapia")
 
         # Log testing
 
         logger = logging.getLogger(__name__)
         logging.basicConfig(filename="actions.log", level=logging.INFO)
         logger.info(contract_interactions.get_action_log("Terapia"))
-
-
 
     def object_to_json_string(self):
         """ metodo per la conversione in json"""
@@ -123,7 +121,6 @@ class Terapia(models.Model):
             'note': self.note,
         }
         return json.dumps(filtered_object, sort_keys=True)
-
 
     '''
     def to_encrypted_json(self):
@@ -148,7 +145,6 @@ class Terapia(models.Model):
         hashed_json = hashlib.md5(json_str.encode()).hexdigest()
 
         return hashed_json
-
 
     def check_json_integrity(self):
 
@@ -182,37 +178,16 @@ class Terapia(models.Model):
         else:
             raise IntegrityError('Nessun dato trovato per questa terapia')
 
-
-    def check_json_integrity_nicola(self):
+    def delete(self, *args, **kwargs):
+        ''' metodo per l'eliminazione'''
         contract_interactions = ContractInteractions()
-        logger = logging.getLogger(__name__)
-        logging.basicConfig(filename="actions_ceck.log", level=logging.INFO)
+        address_medico = self.prescrittore.wallet_address
+        address_paziente = self.utente.wallet_address
+        key_medico = self.prescrittore.private_key
+        hashed_data= self.to_hashed_json()
 
-        # Decrypts the json object and checks if it's been altered
-        stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")
-        logger.info("ID: %s", self.id)
-        logger.info("Utente: %s", self.utente)
-        logger.info("Prescrittore: %s", self.prescrittore)
-        logger.info("File: %s", self.file)
-        logger.info("Note: %s", self.note)
-        # Verifica se stored_data non è vuoto prima di accedere all'ultimo elemento
-        if stored_data:
-            last_tuple = stored_data[-1]  # Ottieni l'ultimo elemento della lista
-            last_piece = last_tuple[-1]  # Ottieni l'ultimo elemento di quella tupla
-
-            encrypted_json_local = self.to_encrypted_json()
-
-            # Stampa le informazioni nel file di log
-            logger.info("Stored data: %s", stored_data)
-            logger.info("Encrypted JSON local: %s", encrypted_json_local)
-            logger.info("Last piece: %s", last_piece)
-
-            if last_piece != encrypted_json_local:
-                raise IntegrityError('Il json è stato alterato')
-
-            return True
-        else:
-            raise IntegrityError('Nessun dato trovato per questa terapia')
+        contract_interactions.log_action(self.id, address_paziente, address_medico, "Delete", key_medico, hashed_data, "Terapia")
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         ''' il ritorno della stringa'''
