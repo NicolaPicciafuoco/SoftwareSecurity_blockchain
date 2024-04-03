@@ -68,7 +68,7 @@ contract ChainLog {
         } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
            for (uint i = 0; i < prestazioniLog.length; i++) {
                 if (prestazioniLog[i].primaryKey == pk) {
-                    delete prestazioniLog[i];
+                     prestazioniLog[i].hashedData = "";
                     return;
                 }
             }
@@ -103,27 +103,18 @@ contract ChainLog {
 
 
      function getPrestazioneByKey(uint pk) public view returns (Action[] memory) {
-    Action[] memory matchingActions = new Action[](prestazioniLog.length);  // Inizializza l'array con la dimensione di terapieLog
-    uint counter = 0;
-    for (uint i = 0; i < prestazioniLog.length; i++) {
-        if (prestazioniLog[i].primaryKey == pk) {
-            matchingActions[counter] = prestazioniLog[i];  // Aggiungi l'azione corrispondente all'array
-            counter++;
-        }
-    }
-    // Ridimensiona l'array per rimuovere gli spazi vuoti non utilizzati
-    assembly { mstore(matchingActions, counter) }
-    return matchingActions;
-}
-
-  /* I hate Solidity so much
-    function getPrestazioneByKey(uint pk) public view returns (Action memory){
+        Action[] memory matchingActions = new Action[](prestazioniLog.length);  // Inizializza l'array con la dimensione di terapieLog
+        uint counter = 0;
         for (uint i = 0; i < prestazioniLog.length; i++) {
             if (prestazioniLog[i].primaryKey == pk) {
-                return prestazioniLog[i];
+                matchingActions[counter] = prestazioniLog[i];  // Aggiungi l'azione corrispondente all'array
+                counter++;
             }
-        } return false;
+        }
+        // Ridimensiona l'array per rimuovere gli spazi vuoti non utilizzati
+        assembly { mstore(matchingActions, counter) }
+        return matchingActions;
     }
 
-    */
+
 }

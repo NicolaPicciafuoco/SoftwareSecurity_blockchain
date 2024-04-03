@@ -1,13 +1,9 @@
-import web3
 from django.core.exceptions import ValidationError
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
-from dotenv import load_dotenv
-from cryptography import fernet
 import hashlib
 import json
-import base64
 import logging
 import os
 from django.db import IntegrityError
@@ -81,30 +77,11 @@ class Terapia(models.Model):
         address_paziente = self.utente.wallet_address
         key_medico = self.prescrittore.private_key
 
-        # Encrypts the json object
-
-        # encrypted_data = self.to_encrypted_json()
-
-        # Hashes the data
-
         hashed_data = self.to_hashed_json()
-
-        # Checks if the data has been altered
-
-        ''' Commentato finché non decidiamo come gestire la faccenda dell'integrità dei dati
-
-        stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")[4]
-
-
-
-        if not stored_data:
-            self.check_json_integrity(stored_data)
-
-        '''
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
                                                      key_medico, hashed_data, "Terapia")
-
+        super().save(*args, **kwargs)
         # Log testing
 
         logger = logging.getLogger(__name__)
@@ -121,21 +98,6 @@ class Terapia(models.Model):
             'note': self.note,
         }
         return json.dumps(filtered_object, sort_keys=True)
-
-    '''
-    def to_encrypted_json(self):
-        # Encrypts the json object
-
-        json_object = self.object_to_json()
-
-        load_dotenv()
-
-        key = os.getenv('FERNET_KEY')
-
-        encrypted_json = fernet.Fernet(key).encrypt(json_object.encode())
-
-        return encrypted_json
-    '''
 
     def to_hashed_json(self):
         # Makes a md5 hash of the json object
@@ -184,9 +146,10 @@ class Terapia(models.Model):
         address_medico = self.prescrittore.wallet_address
         address_paziente = self.utente.wallet_address
         key_medico = self.prescrittore.private_key
-        hashed_data= self.to_hashed_json()
+        hashed_data = self.to_hashed_json()
 
-        contract_interactions.log_action(self.id, address_paziente, address_medico, "Delete", key_medico, hashed_data, "Terapia")
+        contract_interactions.log_action(self.id, address_paziente, address_medico, "Delete", key_medico, hashed_data,
+                                         "Terapia")
         super().delete(*args, **kwargs)
 
     def __str__(self):
