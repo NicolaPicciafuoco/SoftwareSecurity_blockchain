@@ -14,6 +14,8 @@ from Management_User.models import HealthCareUser
 import os
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
+
+
 class TerapiaAdmin(admin.ModelAdmin):
     ''' Classe per strutturare la vista admin'''
     model = Terapia
