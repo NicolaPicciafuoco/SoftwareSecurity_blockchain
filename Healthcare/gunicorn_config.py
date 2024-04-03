@@ -10,4 +10,4 @@ bind = "0.0.0.0:8000"
 #
 #certfile = "/etc/letsencrypt/live/healthcareapp.xyz/fullchain.pem"
 #keyfile = "/etc/letsencrypt/live/healthcareapp.xyz/privkey.pem"
-cert_reqs = 1;
+cert_reqs = 1

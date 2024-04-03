@@ -8,9 +8,9 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/
 """
 
 import os
-from contract.deploy import ContractInteractions as Deploy
-
 from django.core.wsgi import get_wsgi_application
+
+from contract.deploy import ContractInteractions as Deploy
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Healthcare.settings')
 

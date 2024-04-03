@@ -2,11 +2,10 @@ import json
 
 from web3 import Web3
 
-# from solcx import compile_standard
 from solcx import compile_standard, install_solc
 import os
 from dotenv import load_dotenv
-from web3.middleware import geth_poa_middleware
+# from web3.middleware import geth_poa_middleware
 import time
 
 
@@ -89,15 +88,17 @@ class ContractInteractions:
             time.sleep(1)  # Attendi 1 secondo prima di riprovare la connessione
         print("Il nodo si è connesso")
 
+
+        ''' Non ci serve il PoA middleware
+        
         if self.chain_id == 4:
             self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
             print(self.w3.client_version)
+            
+        '''
 
         # Added print statement to ensure connection succeeded as per
         # https://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority
-
-        # my_address = "0x6aABE487828603b6f0a3E1C7DAcF7F42bA42A9B2"
-        # private_key = "8a63f5a3608d032ba652a323d62f333f71a895d253d6aa9f5defc16a43e4d7f1"
 
         # Create the contract in Python
         ChainLog = self.w3.eth.contract(abi=abi, bytecode=bytecode)
