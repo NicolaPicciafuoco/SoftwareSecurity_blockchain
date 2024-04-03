@@ -378,6 +378,8 @@ services:
     - '5432:5432'
     volumes:
     - pg_data:/var/lib/postgresql/data
+    networks:
+      quorum-dev-quickstart:
 
   web:
     build: .

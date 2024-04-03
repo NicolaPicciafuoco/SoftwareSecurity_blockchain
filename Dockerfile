@@ -12,6 +12,5 @@ COPY ./core .
 COPY ./Healthcare .
 COPY ./Management_Prestazioni .
 COPY ./Management_User .
-COPY db.sqlite3 .
 COPY manage.py .
 

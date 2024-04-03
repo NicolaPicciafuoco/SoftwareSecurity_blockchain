@@ -21,14 +21,16 @@ class ContractInteractions:
 
         # Loads the already-compiled contract
 
-        with open("./contract/compiled_code.json", "r") as file:
-            compiled_sol = json.load(file)
-        abi = json.loads(compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["metadata"])["output"]["abi"]
-        self.ChainLog = self.w3.eth.contract(abi=abi)
-        with open("./contract/contract_address.txt", "r") as file:
-            contract_address = file.read()
-        self.ChainLog = self.w3.eth.contract(address=contract_address, abi=abi)
-        return self.ChainLog
+        if os.path.exists("./contract/compiled_code.json"):
+            with open("./contract/compiled_code.json", "r") as file:
+                compiled_sol = json.load(file)
+            abi = json.loads(compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["metadata"])["output"]["abi"]
+            self.ChainLog = self.w3.eth.contract(abi=abi)
+        if os.path.exists("./contract/contract_address.txt"):
+            with open("./contract/contract_address.txt", "r") as file:
+                contract_address = file.read()
+            self.ChainLog = self.w3.eth.contract(address=contract_address, abi=abi)
+            return self.ChainLog
 
     def __init__(self):
         load_dotenv()
