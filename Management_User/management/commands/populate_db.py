@@ -13,13 +13,13 @@ fake = Faker()
 # Imposta la password comune per tutti gli utenti
 COMMON_PASSWORD = 'asd123bnm456'
 
+
 class Command(BaseCommand):
     help = 'Popola il database con utenti di esempio'
 
     def handle(self, fake=None, *args, **kwargs):
         # Crea due dottori
         for i in range(2):
-
             nome_dottore = f'NOME_dottore_{i}'
             HealthCareUser.objects.create_user(
                 email=f'EMAIL_dottore_{i}@dottore{i}.it',
@@ -50,7 +50,7 @@ class Command(BaseCommand):
                 wallet_address="",
                 private_key="",
                 # is_staff=True
-            ).groups.add(2) # definito un gruppo per i caregiver
+            ).groups.add(2)  # definito un gruppo per i caregiver
             # HealthCareUser.objects.create_user(
             #     email=f'NOME_dottore_{i}@dottore{i}.it',
             #     nome=f'assistito_{i}',
@@ -79,7 +79,7 @@ class Command(BaseCommand):
                 # is_staff=True
             ).groups.add(1)
 
-        # Crea un dottore specialista
+            # Crea un dottore specialista
             HealthCareUser.objects.create_user(
                 email=f'EMAIL_dottore_specialista{i}@dottorespecialista{i}.it',
                 nome=f'NOME_dottore_specialista{i}',
@@ -97,29 +97,49 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Utenti creati con successo'))
 
 
+# PERMESSI
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from Management_Terapia.models import Terapia
+from Management_Prestazioni.models import Prestazione
 
-# #PERMESSI
-# from django.contrib.auth.models import Group, Permission
-# from django.contrib.contenttypes.models import ContentType
-#
-# dottori_group = Group.objects.get(name=GROUP_DOTTORE)
-#
-# # Ottieni i permessi delle terapie e delle prestazioni
-# content_type_terapia = ContentType.objects.get(app_label='Management_Terapia', model='Terapia')
-# content_type_prestazione = ContentType.objects.get(app_label='Management_Prestazione', model='Prestazione')
-#
-# permission_add_terapia = Permission.objects.get(content_type=content_type_terapia, codename='add_terapia')
-# permission_change_terapia = Permission.objects.get(content_type=content_type_terapia, codename='change_terapia')
-# permission_delete_terapia = Permission.objects.get(content_type=content_type_terapia, codename='delete_terapia')
-# permission_view_terapia = Permission.objects.get(content_type=content_type_terapia, codename='view_terapia')
-#
-# permission_add_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='add_prestazione')
-# permission_change_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='change_prestazione')
-# permission_delete_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='delete_prestazione')
-# permission_view_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='view_prestazione')
-#
-# # Assegna i permessi ai dottori
-# dottori_group.permissions.add(
-#     permission_add_terapia, permission_change_terapia, permission_delete_terapia, permission_view_terapia,
-#     permission_add_prestazione, permission_change_prestazione, permission_delete_prestazione, permission_view_prestazione
-# )
+# Assegna i permessi ai dottori
+dottori_group = Group.objects.get(id=3)
+pazienti_group = Group.objects.get(id=1)
+caregiver_group = Group.objects.get(id=2)
+dottori_specialisti_group = Group.objects.get(id=4)
+
+# TERAPIA
+content_type_terapia = ContentType.objects.get_for_model(Terapia)
+permission_add_terapia = Permission.objects.get(content_type=content_type_terapia, codename='add_terapia')
+permission_change_terapia = Permission.objects.get(content_type=content_type_terapia, codename='change_terapia')
+permission_delete_terapia = Permission.objects.get(content_type=content_type_terapia, codename='delete_terapia')
+permission_view_terapia = Permission.objects.get(content_type=content_type_terapia, codename='view_terapia')
+
+# PRESTAZIONE
+content_type_prestazione = ContentType.objects.get_for_model(Prestazione)
+permission_add_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='add_prestazione')
+permission_change_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='change_prestazione')
+permission_delete_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='delete_prestazione')
+permission_view_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='view_prestazione')
+
+
+
+
+#DOTTORI
+dottori_group.permissions.add(
+    permission_add_terapia,permission_change_terapia,permission_delete_terapia,permission_view_terapia,
+    permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione,permission_view_prestazione
+)
+
+#PAZIENTI
+pazienti_group.permissions.add(permission_view_terapia,permission_view_prestazione)
+
+#CAREGIVER
+caregiver_group.permissions.add(permission_view_terapia,permission_view_prestazione,permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione)
+
+#DOTTORI SPECIALISTI
+dottori_specialisti_group.permissions.add(
+    permission_add_terapia,permission_change_terapia,permission_delete_terapia,permission_view_terapia,
+    permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione,permission_view_prestazione
+)

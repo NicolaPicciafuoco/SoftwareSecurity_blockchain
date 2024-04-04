@@ -150,13 +150,6 @@ class HealthCareUserAdmin(UserAdmin):
         # Salva l'oggetto
         super().save_model(request, obj, form, change)
 
-    def get_wallet_address(self, request, obj=None):
-        account = Account.create()  # Crea un nuovo account usando la classe Account
 
-        # Stampa il contenuto dell'account
-
-        # Ottieni l'indirizzo del portafoglio generato
-        wallet_address = account.address
-        return wallet_address
 
 admin.site.register(HealthCareUser, HealthCareUserAdmin)
