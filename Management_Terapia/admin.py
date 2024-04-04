@@ -51,16 +51,6 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     visualizza_file.short_description = "File"
 
-    # def change_view(self, request, object_id, form_url='', extra_context=None):
-    #     obj = self.get_object(request, object_id)
-    #     if obj:
-    #         try:
-    #             obj.check_json_integrity_nicola()
-    #             messages.success(request, f"Terapia {obj} verificata.")
-    #         except ValidationError as e:
-    #             messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")
-    #     return super().change_view(request, object_id, form_url, extra_context)
-
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         obj = self.get_object(request, object_id)

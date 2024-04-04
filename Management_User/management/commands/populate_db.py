@@ -2,10 +2,6 @@ import random
 
 from django.core.management.base import BaseCommand
 from faker import Faker
-from core.group_name import (GROUP_DOTTORE,
-                             GROUP_DOTTORE_SPECIALISTA,
-                             GROUP_AMMINISTRATORE,
-                             GROUP_PAZIENTE, GROUP_CAREGIVER)
 from Management_User.models import HealthCareUser  # Importa il tuo modello personalizzato
 
 fake = Faker()
@@ -51,20 +47,9 @@ class Command(BaseCommand):
                 private_key="",
                 # is_staff=True
             ).groups.add(2)  # definito un gruppo per i caregiver
-            # HealthCareUser.objects.create_user(
-            #     email=f'NOME_dottore_{i}@dottore{i}.it',
-            #     nome=f'assistito_{i}',
-            #     cognome='',
-            #     password=COMMON_PASSWORD,
-            #     sesso=random.choice([HealthCareUser.MALE, HealthCareUser.FEMALE]),
-            #     data_nascita="1990-01-01",
-            #     luogo_nascita="Ancona",
-            #     indirizzo_residenza="Via Primo Maggio 156",
-            #     is_staff=True
-            # ).groups.add(GROUP_PAZIENTE)
 
         # Crea tre pazienti
-        for i in range(3):  # Modifica la linea interessata
+        for i in range(5):  # Modifica la linea interessata
             HealthCareUser.objects.create_user(
                 email=f'EMAIL_paziente_{i}@paziente{i}.it',
                 nome=f'NOME_paziente_{i}',
@@ -79,6 +64,7 @@ class Command(BaseCommand):
                 # is_staff=True
             ).groups.add(1)
 
+        for i in range(3):
             # Crea un dottore specialista
             HealthCareUser.objects.create_user(
                 email=f'EMAIL_dottore_specialista{i}@dottorespecialista{i}.it',
@@ -93,6 +79,28 @@ class Command(BaseCommand):
                 private_key="",
                 # is_staff=True
             ).groups.add(4)
+        # Ottieni i medici
+        medici_group = Group.objects.get(id=3)
+        medici = HealthCareUser.objects.filter(groups=medici_group)
+
+        # Ottieni i pazienti
+        pazienti_group = Group.objects.get(id=1)
+        pazienti = HealthCareUser.objects.filter(groups=pazienti_group)
+
+        # Assegna i pazienti ai medici
+        for paziente in pazienti:
+            medico = random.choice(medici)
+            paziente.in_cura_da.add(medico)
+
+        # Ottieni i caregiver
+        caregiver_group = Group.objects.get(id=2)
+        caregiver = HealthCareUser.objects.filter(groups=caregiver_group)
+
+        # Assegna i pazienti ai caregiver
+        for paziente in pazienti:
+            caregiver_person = random.choice(caregiver)
+            paziente.assistito = caregiver_person
+            paziente.save()
 
         self.stdout.write(self.style.SUCCESS('Utenti creati con successo'))
 
@@ -123,6 +131,9 @@ permission_change_prestazione = Permission.objects.get(content_type=content_type
 permission_delete_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='delete_prestazione')
 permission_view_prestazione = Permission.objects.get(content_type=content_type_prestazione, codename='view_prestazione')
 
+# user
+content_type_utente = ContentType.objects.get_for_model(HealthCareUser)
+permission_view_utente = Permission.objects.get(content_type=content_type_utente, codename='view_healthcareuser')
 
 
 
@@ -133,7 +144,7 @@ dottori_group.permissions.add(
 )
 
 #PAZIENTI
-pazienti_group.permissions.add(permission_view_terapia,permission_view_prestazione)
+pazienti_group.permissions.add(permission_view_terapia,permission_view_prestazione,permission_view_utente)
 
 #CAREGIVER
 caregiver_group.permissions.add(permission_view_terapia,permission_view_prestazione,permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione)

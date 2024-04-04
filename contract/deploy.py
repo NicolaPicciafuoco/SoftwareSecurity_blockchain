@@ -172,7 +172,7 @@ class ContractInteractions:
             'gas': 1000000,  # Definisci il limite di gas
             'data': call_data,
         }
-        
+
         # Firma la transazione
         signed_transaction = self.w3.eth.account.sign_transaction(transaction, private_key=medic_key)
 
