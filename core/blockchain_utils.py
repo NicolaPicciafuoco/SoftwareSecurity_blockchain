@@ -2,14 +2,12 @@
 Raccoglitore di funzioni e classi che servono per la gestione degli smart contract
 """
 from web3.auto import w3
+from web3 import Account
 
 
-def create_ethereum_wallet():
-    account = w3.eth.account.create()
-    return {
-        'address': account.address,
-        'private_key': account.privateKey.hex(),
-    }
+def create_wallet():
+    account = Account.create()
+    return account.address, account._privateKey.hex()
 
 
 def compile_smart_contract() -> str:
