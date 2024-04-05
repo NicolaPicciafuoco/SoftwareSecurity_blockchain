@@ -174,10 +174,11 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         ordering = ['nome', 'cognome', 'sesso', 'data_nascita',]
 
     def save(self, *args, **kwargs):
+        try:
+            if not self.wallet_address:
+                self.wallet_address, self.private_key = create_wallet()
+                super().save(*args, **kwargs)
+        except Exception:
+            raise Exception('problemi con la generazione del wallet')
 
-        if not self.wallet_address:
-            wallet_address, private_key = create_wallet()
-            self.wallet_address = wallet_address
-            self.private_key = private_key
 
-        super().save(*args, **kwargs)

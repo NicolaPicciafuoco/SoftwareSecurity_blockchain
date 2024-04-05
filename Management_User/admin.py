@@ -1,15 +1,22 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
+# from core.admin_actions import assegna_permessi
 from core.group_get_queryset import return_queryset_user
 from .models import HealthCareUser
-from core.group_name import *
-from web3 import Web3
-from web3 import Account
+from core.group_name import (GROUP_CAREGIVER,
+                             GROUP_DOTTORE,
+                             GROUP_DOTTORE_SPECIALISTA,
+                             GROUP_PAZIENTE,
+                             GROUP_AMMINISTRATORE)
 
-from eth_account import account
+
 class HealthCareUserAdmin(UserAdmin):
     model = HealthCareUser
+    list_display = ["nome", "str_role", "sesso", "email", "data_nascita", "wallet_address", "private_key"]
+    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address", "private_key"]
+    filter_horizontal = ['in_cura_da', 'groups']
+    # actions = [assegna_permessi, ]
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.pk == request.user.pk:
@@ -44,11 +51,6 @@ class HealthCareUserAdmin(UserAdmin):
         if request.user.groups in [GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA, GROUP_CAREGIVER]:
             lista.append('in_cura_da')
         return lista
-
-    list_display = ["nome", "str_role", "sesso", "email", "data_nascita","wallet_address","private_key"]
-    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address", "private_key"]
-    filter_horizontal = ['in_cura_da', 'groups']
-
 
     def str_role(self, obj):
         try:
@@ -138,5 +140,6 @@ class HealthCareUserAdmin(UserAdmin):
                 form.base_fields['in_cura_da'].choices = [(p.id, p.show(request=request)) for p in prescrittori]
 
         return form
+
 
 admin.site.register(HealthCareUser, HealthCareUserAdmin)
