@@ -382,15 +382,16 @@ services:
       quorum-dev-quickstart:
 
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug
     container_name: django
     expose:
       - 8000
     volumes:
-      - .:/app
-     # - /var/certbot/conf:/etc/letsencrypt/:ro
       - ./static/:/app/static
+      - ./media/:/app/media
     environment:
       - DJANGO_ENV=${DJANGO_ENV}
       - DATABASE_NAME=${DATABASE_NAME}
