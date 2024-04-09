@@ -14,5 +14,5 @@ COPY Management_Prestazioni /app/Management_Prestazioni
 COPY Management_Terapia /app/Management_Terapia
 COPY Management_User /app/Management_User
 COPY templates /app/templates
-COPY manage.py ./app/
+COPY manage.py .
 

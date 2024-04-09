@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
-# from core.admin_actions import assegna_permessi
 from core.group_get_queryset import return_queryset_user
 from .models import HealthCareUser
 from core.group_name import (GROUP_CAREGIVER,
@@ -16,7 +15,6 @@ class HealthCareUserAdmin(UserAdmin):
     list_display = ["nome", "str_role", "sesso", "email", "data_nascita", "wallet_address", "private_key"]
     ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address", "private_key"]
     filter_horizontal = ['in_cura_da', 'groups']
-    # actions = [assegna_permessi, ]
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.pk == request.user.pk:
