@@ -59,18 +59,6 @@ x-ethsignerProxy-def:
     - 8545
 
 services:
-
-  #  Commentata finché SSL non decide di funzionare (o mi danno un server)
-#
- # certbot:
- #     image: certbot/certbot:latest
- #     volumes:
- #       - /var/certbot/conf:/etc/letsencrypt/:rw
- #       - /var/certbot/www/:/var/www/certbot/:rw
- #     depends_on:
- #       - nginx
-
-
 # Hyperledger Besu
 
   validator1:
@@ -390,17 +378,20 @@ services:
     - '5432:5432'
     volumes:
     - pg_data:/var/lib/postgresql/data
+    networks:
+      quorum-dev-quickstart:
 
   web:
-    build: .
-    command: sh -c "python3 ./contract/deploy.py && gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn Healthcare.wsgi:application --config ./Healthcare/gunicorn_config.py --log-level debug
     container_name: django
     expose:
       - 8000
     volumes:
-      - .:/app
-     # - /var/certbot/conf:/etc/letsencrypt/:ro
       - ./static/:/app/static
+      - ./media/:/app/media
     environment:
       - DJANGO_ENV=${DJANGO_ENV}
       - DATABASE_NAME=${DATABASE_NAME}

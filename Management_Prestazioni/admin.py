@@ -2,7 +2,7 @@
 Gestione della pagina admin del modello Prestazione e connessi
 """
 import os
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.html import format_html
 from django.contrib.auth.models import Group
 from Management_User.models import HealthCareUser
@@ -13,7 +13,8 @@ from core.group_name import (GROUP_PAZIENTE,
                              GROUP_AMMINISTRATORE)
 from core.group_get_queryset import return_queryset_prestazione
 from .models import Prestazione
-
+from django.db import IntegrityError
+from django.http import HttpResponseRedirect
 
 class PrestazioneAdmin(admin.ModelAdmin):
     """Classe admin per la gestione delle prestazioni"""
@@ -30,7 +31,18 @@ class PrestazioneAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return return_queryset_prestazione(self, request, PrestazioneAdmin)
-
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj:
+            try:
+                # obj.check_json_integrity_nicola()
+                obj.check_json_integrity()
+                messages.success(request, f"Terapia {obj} verificata.")
+            except IntegrityError as e:
+                messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")
+                form_url_prec= request.META.get('HTTP_REFERER')
+                return HttpResponseRedirect(form_url_prec)
+        return super().change_view(request, object_id, form_url, extra_context)
     def get_form(self, request, obj=None, **kwargs):
         """ sovrascrivere form"""
         form = super().get_form(request, obj, **kwargs)

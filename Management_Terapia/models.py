@@ -2,7 +2,12 @@ from django.core.exceptions import ValidationError
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
+import hashlib
+import json
+import logging
 import os
+from django.db import IntegrityError
+from contract.deploy import ContractInteractions
 
 
 def get_upload_path(instance, filename):
@@ -25,6 +30,7 @@ class Terapia(models.Model):
                                      on_delete=models.SET_NULL, default=None, null=True, blank=True)
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.CharField('note', max_length=100, null=True, blank=True)
+    hash = models.CharField('hash', max_length=66, null=True, blank=True)
 
     def clean(self):
         """Sovrascrittura del metodo clean per mostrare errori nella form"""
@@ -42,7 +48,11 @@ class Terapia(models.Model):
 
     def save(self, request=None, *args, **kwargs):
         """ metodo save per il salvataggio"""
+
+        action_type = "Create"
+
         if self.pk:
+            action_type = "Update"
             try:
                 old_instance = Terapia.objects.get(pk=self.pk)
                 if old_instance.file and self.file != old_instance.file:
@@ -57,7 +67,90 @@ class Terapia(models.Model):
                         new_path = get_upload_path(self, os.path.basename(self.file.name))
                         os.rename(old_file_path, new_path)
                         self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
+
+        # Part that interacts with the blockchain
+
         super().save(*args, **kwargs)
+
+        contract_interactions = ContractInteractions()
+        address_medico = self.prescrittore.wallet_address
+        address_paziente = self.utente.wallet_address
+        key_medico = self.prescrittore.private_key
+
+        hashed_data = self.to_hashed_json()
+
+        self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
+                                                     key_medico, hashed_data, "Terapia")
+        super().save(*args, **kwargs)
+        # Log testing
+
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="actions.log", level=logging.INFO)
+        logger.info(contract_interactions.get_action_log("Terapia"))
+
+    def object_to_json_string(self):
+        """ metodo per la conversione in json"""
+        filtered_object = {
+            'id': self.id,
+            'utente': self.utente.id,
+            'prescrittore': self.prescrittore.id,
+            'file': self.file.url if self.file else None,
+            'note': self.note,
+        }
+        return json.dumps(filtered_object, sort_keys=True)
+
+    def to_hashed_json(self):
+        # Makes a md5 hash of the json object
+
+        json_str = self.object_to_json_string()
+
+        hashed_json = hashlib.md5(json_str.encode()).hexdigest()
+
+        return hashed_json
+
+    def check_json_integrity(self):
+
+        contract_interactions = ContractInteractions()
+        logger = logging.getLogger(__name__)
+        logging.basicConfig(filename="integrity.log", level=logging.INFO)
+
+        # Decrypts the json object and checks if it's been altered
+        stored_data = contract_interactions.get_action_by_key(self.id, "Terapia")
+        logger.info("ID: %s", self.id)
+        logger.info("Utente: %s", self.utente)
+        logger.info("Prescrittore: %s", self.prescrittore)
+        logger.info("File: %s", self.file)
+        logger.info("Note: %s", self.note)
+        # Verifica se stored_data non è vuoto prima di accedere all'ultimo elemento
+        if stored_data:
+            last_tuple = stored_data[-1]  # Ottieni l'ultimo elemento della lista
+            last_piece = last_tuple[-1]  # Ottieni l'ultimo elemento di quella tupla
+
+            hashed_json_local = self.to_hashed_json()
+
+            # Stampa le informazioni nel file di log
+            logger.info("Stored data: %s", stored_data)
+            logger.info("Encrypted JSON local: %s", hashed_json_local)
+            logger.info("Last piece: %s", last_piece)
+
+            if last_piece != hashed_json_local:
+                raise IntegrityError('Il json è stato alterato')
+
+            return True
+        else:
+            raise IntegrityError('Nessun dato trovato per questa terapia')
+
+    def delete(self, *args, **kwargs):
+        ''' metodo per l'eliminazione'''
+        contract_interactions = ContractInteractions()
+        address_medico = self.prescrittore.wallet_address
+        address_paziente = self.utente.wallet_address
+        key_medico = self.prescrittore.private_key
+        hashed_data = self.to_hashed_json()
+
+        contract_interactions.log_action(self.id, address_paziente, address_medico, "Delete", key_medico, hashed_data,
+                                         "Terapia")
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         ''' il ritorno della stringa'''

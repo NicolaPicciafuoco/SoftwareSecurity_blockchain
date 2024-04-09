@@ -142,4 +142,6 @@ class HealthCareUserAdmin(UserAdmin):
         return form
 
 
+
+
 admin.site.register(HealthCareUser, HealthCareUserAdmin)
