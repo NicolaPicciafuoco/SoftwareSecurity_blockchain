@@ -5,7 +5,7 @@ x-besu-def:
   restart: "on-failure"
   image: hyperledger/besu:${BESU_VERSION:-latest}
   env_file:
-    - ./besu-network/config/besu/.env
+    - ./.env
   entrypoint:
     - /bin/bash
     - -c
@@ -399,6 +399,8 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_HOST=${DATABASE_HOST}
       - DATABASE_PORT=${DATABASE_PORT}
+      - ADMIN_ADDRESS=${ADMIN_ADDRESS}
+      - ADMIN_PRIVATE_KEY=${ADMIN_PRIVATE_KEY}
     depends_on:
       - my-postgres
       - rpcnode
