@@ -28,7 +28,6 @@ class Command(BaseCommand):
                 indirizzo_residenza="Via Primo Maggio 156",
                 wallet_address="",
                 private_key="",
-                # is_staff=True
             ).groups.add(3)
 
         # Crea due caregiver
@@ -45,7 +44,6 @@ class Command(BaseCommand):
                 indirizzo_residenza="Via Primo Maggio 156",
                 wallet_address="",
                 private_key="",
-                # is_staff=True
             ).groups.add(2)  # definito un gruppo per i caregiver
 
         # Crea tre pazienti
@@ -61,11 +59,10 @@ class Command(BaseCommand):
                 indirizzo_residenza="Via Primo Maggio 156",
                 wallet_address="",
                 private_key="",
-                # is_staff=True
             ).groups.add(1)
 
+        # Crea un dottore specialista
         for i in range(3):
-            # Crea un dottore specialista
             HealthCareUser.objects.create_user(
                 email=f'EMAIL_dottore_specialista{i}@dottorespecialista{i}.it',
                 nome=f'NOME_dottore_specialista{i}',
@@ -77,7 +74,6 @@ class Command(BaseCommand):
                 indirizzo_residenza="Via Primo Maggio 156",
                 wallet_address="",
                 private_key="",
-                # is_staff=True
             ).groups.add(4)
         # Ottieni i medici
         medici_group = Group.objects.get(id=3)
@@ -139,18 +135,51 @@ permission_view_utente = Permission.objects.get(content_type=content_type_utente
 
 #DOTTORI
 dottori_group.permissions.add(
-    permission_add_terapia,permission_change_terapia,permission_delete_terapia,permission_view_terapia,
-    permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione,permission_view_prestazione
+    permission_add_terapia,
+    permission_change_terapia,
+    permission_delete_terapia,
+    permission_view_terapia,
+
+    permission_add_prestazione,
+    permission_change_prestazione,
+    permission_delete_prestazione,
+    permission_view_prestazione,
+
+    permission_view_utente
 )
 
 #PAZIENTI
-pazienti_group.permissions.add(permission_view_terapia,permission_view_prestazione,permission_view_utente)
+pazienti_group.permissions.add(
+    permission_view_terapia,
+
+    permission_view_prestazione,
+
+    permission_view_utente,
+)
 
 #CAREGIVER
-caregiver_group.permissions.add(permission_view_terapia,permission_view_prestazione,permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione)
+caregiver_group.permissions.add(
+    permission_view_terapia,
+
+    permission_view_prestazione,
+    permission_add_prestazione,
+    permission_change_prestazione,
+    permission_delete_prestazione,
+
+    permission_view_utente
+)
 
 #DOTTORI SPECIALISTI
 dottori_specialisti_group.permissions.add(
-    permission_add_terapia,permission_change_terapia,permission_delete_terapia,permission_view_terapia,
-    permission_add_prestazione,permission_change_prestazione,permission_delete_prestazione,permission_view_prestazione
+    permission_add_terapia,
+    permission_change_terapia,
+    permission_delete_terapia,
+    permission_view_terapia,
+
+    permission_add_prestazione,
+    permission_change_prestazione,
+    permission_delete_prestazione,
+    permission_view_prestazione,
+
+    permission_view_utente
 )
