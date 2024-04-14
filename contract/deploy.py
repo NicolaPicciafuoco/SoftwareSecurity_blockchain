@@ -26,10 +26,10 @@ class ContractInteractions:
                 compiled_sol = json.load(file)
             abi = json.loads(compiled_sol["contracts"]["ChainLog.sol"]["ChainLog"]["metadata"])["output"]["abi"]
             self.ChainLog = self.w3.eth.contract(abi=abi)
-        if os.path.exists("./contract/contract_address.txt"):
-            with open("./contract/contract_address.txt", "r", encoding="utf-8") as file:
-                contract_address = file.read()
-            self.ChainLog = self.w3.eth.contract(address=contract_address, abi=abi)
+            if os.path.exists("./contract/contract_address.txt"):
+                with open("./contract/contract_address.txt", "r", encoding="utf-8") as file:
+                    contract_address = file.read()
+                self.ChainLog = self.w3.eth.contract(address=contract_address, abi=abi)
 
     def __init__(self):
         load_dotenv()
