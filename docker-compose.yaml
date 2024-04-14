@@ -316,55 +316,6 @@ services:
       quorum-dev-quickstart:
         ipv4_address: 172.16.239.31
 
-  prometheus:
-    image: "prom/prometheus:v2.46.0"
-    volumes:
-      - ./besu-network/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus:/prometheus
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-    ports:
-      - 9090:9090/tcp
-    networks:
-      quorum-dev-quickstart:
-        ipv4_address: 172.16.239.32
-
-  grafana:
-    image: "grafana/grafana:10.1.0"
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_USERS_VIEWERS_CAN_EDIT=true
-    volumes:
-      - ./besu-network/config/grafana/provisioning/:/etc/grafana/provisioning/
-      - grafana:/var/lib/grafana
-    ports:
-      - 3000:3000/tcp
-    networks:
-      quorum-dev-quickstart:
-        ipv4_address: 172.16.239.33
-
-  loki:
-    image: "grafana/loki:2.8.4"
-    volumes:
-      - ./besu-network/loki/loki.yml:/etc/loki/local-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
-    ports:
-      - 3100:3100/tcp
-    networks:
-      quorum-dev-quickstart:
-        ipv4_address: 172.16.239.34
-
-  promtail:
-    image: "grafana/promtail:2.8.4"
-    volumes:
-      - ./besu-network/logs:/var/log
-      - ./besu-network/promtail/promtail.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      quorum-dev-quickstart:
-        ipv4_address: 172.16.239.35
-
-
 # Servizi web buildati per ultimi
 
   my-postgres:
@@ -423,13 +374,6 @@ services:
 
 volumes:
   pg_data:
-  static_volume:
-  public-keys:
-  prometheus:
-  grafana:
-  splunk:
-  ethlogger:
-  blockscoutpostgres:
 
 networks:
   quorum-dev-quickstart:
