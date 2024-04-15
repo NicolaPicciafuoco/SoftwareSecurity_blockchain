@@ -46,36 +46,18 @@ class Prestazione(models.Model):
         return f"{self.pk}, {self.filename()}, {self.utente}"
 
     def clean(self):
-        """Metodo per la gestione degli input della form"""
+        """Sovrascrittura del metodo clean per mostrare errori nella form"""
         super().clean()
-        if self.file and self.utente:
+        if self.file and self.pk:
+            old_instance = Prestazione.objects.get(pk=self.pk)
+            if old_instance.file and self.file.name == old_instance.file.name:
+                return
+        if self.file:
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazioni', str(paziente_id)))
-
             if os.path.basename(new_file_path) in existing_files:
                 raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
-
-    # def save(self, request=None, *args, **kwargs):
-    #     """Metodo per salvare il file nel path personalizzato per utente"""
-    #     if self.pk:
-    #         try:
-    #             old_instance = Prestazione.objects.get(pk=self.pk)
-    #             if old_instance.file and self.file != old_instance.file:
-    #                 if os.path.isfile(old_instance.file.path):
-    #                     os.remove(old_instance.file.path)
-    #         except Prestazione.DoesNotExist:
-    #             pass
-    #         if old_instance.utente != self.utente:
-    #             if old_instance.file:
-    #                 old_file_path = old_instance.file.path
-    #                 if os.path.exists(old_file_path):
-    #                     new_path = upload_to_prestazione(self, os.path.basename(self.file.name))
-    #                     os.rename(old_file_path, new_path)
-    #                     self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
-    #
-    #
-    #     super().save(*args, **kwargs)
 
     def save(self, request=None, *args, **kwargs):
         """ metodo save per il salvataggio"""
