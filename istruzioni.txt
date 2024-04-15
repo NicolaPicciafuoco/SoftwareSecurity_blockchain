@@ -1,8 +1,10 @@
--------- per creare il SUPERUSER -------
-python manage.py createsuperuser --email admin@admin.it --nome nome_superuser --cognome cognome_superuser --sesso 1 --data_nascita 2000-1-1 --luogo_nascita ancona --indirizzo_residenza ancona
-----------------------------------------
+---------( 1 *opzionale* )--- per creare il SUPERUSER
 
----------- PER FARE I SEEDS ------------
+python manage.py createsuperuser --email admin@admin.it --nome nome_superuser --cognome cognome_superuser --sesso 1 --data_nascita 2000-1-1 --luogo_nascita ancona --indirizzo_residenza ancona
+
+
+---------( 2 )--- per fare il SEEDS
+
 python manage.py populate_db
-----------------------------------------
+
 

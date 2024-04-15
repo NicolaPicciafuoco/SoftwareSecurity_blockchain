@@ -13,11 +13,16 @@ from django.core.wsgi import get_wsgi_application
 from contract.deploy import ContractInteractions as Deploy
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Healthcare.settings')
+makemigrations: str = "python manage.py makemigrations"
+migrate: str = "python manage.py migrate"
 
 # Smart contract creation and deployment, ran once on startup
-
 deploy_instance = Deploy()
 deploy_instance.deploy()
+
+# inizializza il db
+os.system(makemigrations)
+os.system(migrate)
 
 
 application = get_wsgi_application()
