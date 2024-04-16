@@ -184,7 +184,7 @@ When the server has finished the deploy process and is ready to go, you need to 
 To run database migrations, you need to access the terminal in the `web` container:
 
 ```bash
-docker-compose exec web bash 
+docker-compose -p NAME exec web bash 
 ```
 
 Once you've accessed the container terminal, you can proceed to run the commands.
