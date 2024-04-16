@@ -26,18 +26,17 @@
 
 ## Introduction
 
-This Healthcare applications has been developed to harness the power of blockchain technology, especially for the
-security, privacy, and integrity of the data.
+This Healthcare application has been developed to harness the power of blockchain technology, more specifically
+to ensure data integrity, security and privacy.
 
 ### Main Features
 
 The application is designed to be used both by healthcare professionals and patients and/or their caregivers.
 Some of the main features include:
 
-- Check the patient's medical history.
-- Save and modify medical reports securely
-- Save and modify medical services securely
-- Check the integrity of the saved data
+- Checking the patient's medical history.
+- Saving and modifying medical reports and services securely
+- Checking the integrity of the saved data
 
 All of this is achieved through the use of a private blockchain network and a smart contract, to ensure maximum security
 and guarantee data integrity and safety for the end user.
@@ -75,7 +74,7 @@ In order to run a local copy of the application, you need to follow the steps be
 ### Prerequisites
 
 The only real prerequisite needed for the project is to have a working installation of Docker and Docker Compose.
-Based on your operating system, you can install Docker Desktop following [this link](https://www.docker.com/get-started/).
+Based on your operating system, you can install Docker following [this link](https://www.docker.com/get-started/).
 
 Otherwise, you can always install [Docker Desktop](https://www.docker.com/products/docker-desktop) for the GUI version.
 
@@ -84,13 +83,15 @@ To install Docker Compose, you can follow the instructions [here](https://docs.d
 As far as hardware requirements go, running the blockchain network can be quite resource-intensive.
 The application has been successfully tested on a machine with 8 GB of RAM and 4 cores, but performances may vary.
 
-It is recommended to run the application on a server machine with better specs.
+> :warning: **NOTE**: The official Quorum Dev article recommends to limit Docker's memory usage to 6GB when
+> working with the blockhain. The method for doing this varies greatly based on the operating system.
+> It is up to the user to decide whether to limit Docker's memory usage or not.
 
 ### Installation
 
 The easiest way to install the application is to clone the repository on your local machine:
 
-```
+```bash
 git clone https://github.com/NicolaPicciafuoco/SoftwareSecurity_blockchain
 cd SoftwareSecurity_blockchain
 ```
@@ -123,7 +124,7 @@ Default path should be `/config/log-config.xml`.
 
 #### Linux
 
-The application has been tested and has been designed to be ran on Linux machines, and it is recommended to use a Linux distribution 
+The application has been tested and has been designed to run on Linux machines, and it is recommended to use a Linux distribution 
 to run it.
 
 More specifically, the application has been tested on [EndeavourOS](https://endeavouros.com/) and [Ubuntu](https://ubuntu.com/).
@@ -134,7 +135,7 @@ The application has been tested both on Windows 10 and Windows 11, and it should
 
 However, several problems may arise if you choose to run it on a Windows machine, especially with the blockchain network.
 
-> :warning: **NOTE**: It is **heavily** recommended to have [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) installed on your Windows machine
+> :warning: **NOTE**: It is **heavily** recommended to have the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) installed on your machine
 > and to have Docker configured to use WSL2 as the default engine.
 
 > :warning: **NOTE**: The official Besu Docker image should not run on Windows, as per its [documentation](https://besu.hyperledger.org/private-networks/get-started/install/run-docker-image).
@@ -145,7 +146,7 @@ However, several problems may arise if you choose to run it on a Windows machine
 
 The application has **NOT** been tested on macOS machines, neither on Intel architecture nor ARM chips.
 
-Despite this, the application **should** run on macOS machines, if the prerequisites are met.
+Despite this, the application **should** still run on Mac, if the prerequisites are met.
 
 ## Usage
 
@@ -159,20 +160,20 @@ To run the application, simply run the respective Docker command:
 docker-compose -p NAME up 
 ```
 
-where `NAME` is the name you want to give to the containers.
+where `NAME` is the name you want to give to the project containers.
 
-When the application is ran for the first time, before you can access the Django application, 
+When you run the application for the first time, before you can access the application proper, 
 you will need to wait for the deployment of the smart contract on the blockchain 
-by waiting for the first blocks to be mined.
+by waiting for the first blocks to be mined. This process can take up to a few minutes to complete.
 
-> :warning: **NOTE**: Sometimes the Smart Contract is deployed twice on two separate adresses.
+> :warning: **NOTE**: Sometimes the smart contract is deployed twice on two separate adresses.
 > This is harmless, as one of the two contract will never get used by the application.
 
 After the contract setup is complete, you should be able to access the application landing page on `http://localhost:1337`.
 
 > :warning: **NOTE**: It is recommended to use Firefox as the preferred browser to access the application.
 > This is due to some quirks with the request handling on Safari and Chromium-based browsers.
-> All other features still work on the aforementioned browsers.
+> Aside from that, all other features still work perfectly fine on the aforementioned browsers.
 
 #### Database Setup
 
@@ -219,7 +220,7 @@ you can follow the steps below to troubleshoot the application.
 
 #### Creating a Super User
 
-In order to troubleshoot the server, you might want to create a Django super user to better debug the application.
+In order to test out the server, you might want to create a Django super user to better debug the application.
 
 To do so, access the `web` shell like in the above section and run the following command:
 
@@ -248,8 +249,8 @@ To access the Hyperledger Besu node explorer, you can access the following URL:
 http://localhost:25000
 ```
 
-If you want to check the status of the blocks, transaction and deployed contracts, 
-Explorer has an appropriate section using this URL:
+If you want to check the status of the blocks, transactions and deployed contracts, 
+Explorer has an appropriate section, available at the following URL:
 
 ```
 http://localhost:25000/explorer/explorer
