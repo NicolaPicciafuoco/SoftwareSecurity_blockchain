@@ -17,10 +17,18 @@ from django.http import HttpResponseRedirect
 
 
 class TerapiaAdmin(admin.ModelAdmin):
-    ''' Classe per strutturare la vista admin'''
+    ''' Classe per strutturare la vista admin '''
     model = Terapia
-    list_display = ['note', 'user_name', 'prescrittore_name', 'visualizza_file', ]
+    list_display = ['user_name', 'note', 'prescrittore_name', 'visualizza_file', ]
+    search_fields = ['prescrittore_name', 'note', 'hash']
+    readonly_fields = ['hash']
     actions = ['delete_model']
+
+    def get_list_display(self, request):
+        if request.user.groups.all().first().name == GROUP_PAZIENTE:
+            return ['prescrittore_name', 'note', 'visualizza_file', 'hash']
+        else:
+            return ['user_name', 'note', 'prescrittore_name', 'visualizza_file']
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.prescrittore == request.user:
@@ -35,12 +43,14 @@ class TerapiaAdmin(admin.ModelAdmin):
         if obj.utente:
             return obj.utente.nome
         return "Nessun utente"
+    user_name.short_description = 'Paziente'
 
     def prescrittore_name(self, obj):
         ''' Funzione per restituire lo username dell'prescrittore'''
         if obj.prescrittore:
             return obj.prescrittore.nome
         return "Nessun operatore"
+    prescrittore_name.short_description = 'Prescrittore'
 
     def visualizza_file(self, obj):
         ''' Funzione per visualizzare i file'''
@@ -51,20 +61,17 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     visualizza_file.short_description = "File"
 
-
     def change_view(self, request, object_id, form_url='', extra_context=None):
         obj = self.get_object(request, object_id)
         if obj:
             try:
-                # obj.check_json_integrity_nicola()
                 obj.check_json_integrity()
                 messages.success(request, f"Terapia {obj} verificata.")
             except IntegrityError as e:
-                messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")
+                messages.error(request, f"Errore durante la verifica della {obj}: {e}")
                 form_url_prec= request.META.get('HTTP_REFERER')
                 return HttpResponseRedirect(form_url_prec)
         return super().change_view(request, object_id, form_url, extra_context)
-
 
     def get_form(self, request, obj=None, **kwargs):
         """ sovrascrivere form"""
@@ -114,28 +121,34 @@ class TerapiaAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
+        if request.user.groups.all().first().name == GROUP_PAZIENTE:
+            del actions['delete_model']
         return actions
 
     def delete_model(self, request, obj):
-        ''' funzione sovrascritta per eliminare le terapie'''
-        if hasattr(obj, '__iter__'):
-            for terapia in obj:
-                if terapia.file:
-                    if os.path.isfile(terapia.file.path):
-                        os.remove(terapia.file.path)
-                terapia.delete()
+        ''' Funzione sovrascritta per eliminare le terapie'''
+        if request.user.groups.all().first().name == GROUP_PAZIENTE:
             self.message_user(request,
-                              "Le prestazioni selezionate sono"
-                              " state eliminate con successo con i file associati.")
+                              "il paziente non può compiere questa azione ")
         else:
-            if obj.file:
-                if os.path.isfile(obj.file.path):
-                    os.remove(obj.file.path)
-            obj.delete()
-            self.message_user(request,
-                              "La prestazione è stata eliminata con successo "
-                              "con il file associato.")
-    delete_model.short_description = "Elimina le prestazioni selezionate con i file associati"
+            if hasattr(obj, '__iter__'):
+                for terapia in obj:
+                    if terapia.file:
+                        if os.path.isfile(terapia.file.path):
+                            os.remove(terapia.file.path)
+                    terapia.delete()
+                self.message_user(request,
+                                  "Le terapie selezionate sono"
+                                  " state eliminate con successo con i file associati.")
+            else:
+                if obj.file:
+                    if os.path.isfile(obj.file.path):
+                        os.remove(obj.file.path)
+                obj.delete()
+                self.message_user(request,
+                                  "La Terapia è stata eliminata con successo "
+                                  "con il file associato.")
+    delete_model.short_description = "Elimina le terapie selezionate con i file associati"
 
 
 admin.site.register(Terapia, TerapiaAdmin)

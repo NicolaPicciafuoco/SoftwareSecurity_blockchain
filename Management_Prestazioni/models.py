@@ -1,6 +1,8 @@
 """ORM delle prestazioni"""
 import os
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
 from Healthcare.settings import MEDIA_ROOT
 from Management_User.models import HealthCareUser as User
 from django.db import models
@@ -26,7 +28,8 @@ def upload_to_prestazione(instance, filename):
 class Prestazione(models.Model):
     """Modello Prestazione"""
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
-    note = models.TextField('Note', max_length=100, null=True, blank=True)
+    note = models.TextField('Note', max_length=100, null=True, blank=True,
+                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$', message='solo lettere, numeri e spazzi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute',
                                on_delete=models.SET_NULL, null=True, blank=False)
     operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
@@ -39,11 +42,6 @@ class Prestazione(models.Model):
         if self.file:
             return os.path.basename(self.file.name)
         return ''
-
-    # Metodo per stampare a schermo le istanze create
-    def __str__(self):
-        """ritorno della stringa"""
-        return f"{self.pk}, {self.filename()}, {self.utente}"
 
     def clean(self):
         """Sovrascrittura del metodo clean per mostrare errori nella form"""
@@ -151,7 +149,7 @@ class Prestazione(models.Model):
 
             return True
         else:
-            raise IntegrityError('Nessun dato trovato per questa Prestazione')
+            raise IntegrityError('Integrità compromessa')
 
     def delete(self, *args, **kwargs):
         ''' metodo per l'eliminazione'''
@@ -165,8 +163,6 @@ class Prestazione(models.Model):
                                          "Prestazione")
         super().delete(*args, **kwargs)
 
-
-
     class Meta:
         """Definizione dei verbose"""
         verbose_name = 'Prestazione'
@@ -174,4 +170,4 @@ class Prestazione(models.Model):
 
     def __str__(self):
         """ritorno della stringa"""
-        return f"{self.pk}, {self.filename()}, {self.utente}"
+        return f"Prestazione {self.operatore} -> {self.utente} hash[{str(self.hash)[:10] if self.hash else None}...]"

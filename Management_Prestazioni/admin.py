@@ -16,13 +16,14 @@ from .models import Prestazione
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 
+
 class PrestazioneAdmin(admin.ModelAdmin):
     """Classe admin per la gestione delle prestazioni"""
     model = Prestazione
-    list_display = ('pk', 'user_name', 'operator_name', 'short_note', 'file_display')
-    list_filter = ('note',)
-    search_fields = ('note',)
+    list_display = ['user_name', 'operator_name', 'short_note', 'file_display']
+    search_fields = ['operator_name', 'note', 'hash']
     actions = ['delete_model']
+    readonly_fields = ['hash']
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.operatore == request.user:
@@ -31,18 +32,19 @@ class PrestazioneAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return return_queryset_prestazione(self, request, PrestazioneAdmin)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         obj = self.get_object(request, object_id)
         if obj:
             try:
-                # obj.check_json_integrity_nicola()
                 obj.check_json_integrity()
-                messages.success(request, f"Terapia {obj} verificata.")
+                messages.success(request, f"Prestazione {obj} verificata.")
             except IntegrityError as e:
-                messages.error(request, f"Errore durante la verifica della terapia {obj}: {e}")
+                messages.error(request, f"Errore durante la verifica della {obj}: {e}")
                 form_url_prec= request.META.get('HTTP_REFERER')
                 return HttpResponseRedirect(form_url_prec)
         return super().change_view(request, object_id, form_url, extra_context)
+
     def get_form(self, request, obj=None, **kwargs):
         """ sovrascrivere form"""
         form = super().get_form(request, obj, **kwargs)
@@ -103,7 +105,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
         if obj.utente:
             return obj.utente.nome
         return "Nessun utente"
-    user_name.short_description = 'Utente'
+    user_name.short_description = 'Paziente'
 
     def operator_name(self, obj):
         """Metodo che restituisce il nome utente dell'operatore sanitario"""
@@ -131,29 +133,35 @@ class PrestazioneAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
+        if request.user.groups.all().first().name == GROUP_PAZIENTE:
+            del actions['delete_model']
         return actions
 
     def delete_model(self, request, obj):
         """Metodo che elimina le istanze selezionate personalizzato"""
-        if hasattr(obj, '__iter__'):
-            for prestazione in obj:
-                if prestazione.file:
-                    if os.path.isfile(prestazione.file.path):
-                        os.remove(prestazione.file.path)
-                prestazione.delete()
-            self.message_user(
-                request,
-                "Le prestazioni selezionate sono state eliminate con successo con i file associati."
-            )
+        if request.user.groups.all().first().name == GROUP_PAZIENTE:
+            self.message_user(request,
+                              "il paziente non può compiere questa azione ")
         else:
-            if obj.file:
-                if os.path.isfile(obj.file.path):
-                    os.remove(obj.file.path)
-            obj.delete()
-            self.message_user(
-                request,
-                "La prestazione è stata eliminata con successo con il file associato."
-            )
+            if hasattr(obj, '__iter__'):
+                for prestazione in obj:
+                    if prestazione.file:
+                        if os.path.isfile(prestazione.file.path):
+                            os.remove(prestazione.file.path)
+                    prestazione.delete()
+                self.message_user(
+                    request,
+                    "Le prestazioni selezionate sono state eliminate con successo con i file associati."
+                )
+            else:
+                if obj.file:
+                    if os.path.isfile(obj.file.path):
+                        os.remove(obj.file.path)
+                obj.delete()
+                self.message_user(
+                    request,
+                    "La prestazione è stata eliminata con successo con il file associato."
+                )
     delete_model.short_description = "Elimina le prestazioni selezionate con i file associati"
 
 

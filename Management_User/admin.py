@@ -29,12 +29,16 @@ class HealthCareUserAdmin(UserAdmin):
         return [
             'data_modifica',
             'data_creazione',
+            'wallet_address',
+            'private_key',
             'last_login',
         ] if request.user.groups.all().first().name == GROUP_AMMINISTRATORE \
             else [
             'data_modifica',
             'data_creazione',
             'last_login',
+            'wallet_address',
+            'private_key',
             'is_active',
             'is_staff',
             'is_superuser',

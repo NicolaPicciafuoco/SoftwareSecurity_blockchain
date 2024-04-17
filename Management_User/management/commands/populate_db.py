@@ -71,6 +71,8 @@ class Command(BaseCommand):
                                                        codename='add_healthcareuser')
         permission_change_utente = Permission.objects.get(content_type=content_type_utente,
                                                           codename='change_healthcareuser')
+        permission_delete_utente = Permission.objects.get(content_type=content_type_utente,
+                                                          codename='delete_healthcareuser')
 
         # DOTTORI
         g_dottore.permissions.add(
@@ -92,6 +94,8 @@ class Command(BaseCommand):
             permission_view_terapia,
 
             permission_view_prestazione,
+            permission_add_prestazione,
+            permission_delete_prestazione,
 
             permission_view_utente,
         )
@@ -130,6 +134,7 @@ class Command(BaseCommand):
             permission_view_utente,
             permission_add_utente,
             permission_change_utente,
+            permission_delete_utente,
         )
 
         # crea un admin
@@ -227,23 +232,7 @@ class Command(BaseCommand):
         # Assegna i pazienti ai caregiver
         for paziente in pazienti:
             caregiver_person = random.choice(caregiver)
-            paziente.assistito = caregiver_person
-            paziente.save()
+            caregiver_person.assistito = paziente
+            caregiver_person.save()
 
         self.stdout.write(self.style.SUCCESS('Utenti creati con successo'))
-
-
-# # PERMESSI
-# from django.contrib.auth.models import Group, Permission
-# from django.contrib.contenttypes.models import ContentType
-# from Management_Terapia.models import Terapia
-# from Management_Prestazioni.models import Prestazione
-#
-# g_pazienti = Group.objects.get_or_create(name=GROUP_PAZIENTE, description="gruppo dei pazienti")
-# g_caregiver = Group.objects.get_or_create(name=GROUP_CAREGIVER, description="gruppo dei caregiver")
-# g_dottore = Group.objects.get_or_create(name=GROUP_DOTTORE, description="gruppo dei dottori")
-# g_specialista = Group.objects.get_or_create(name=GROUP_DOTTORE_SPECIALISTA, description="gruppo dei dottori specialisti")
-# g_admin = Group.objects.get_or_create(name=GROUP_AMMINISTRATORE, description="gruppo degli amministratori")
-#
-#
-
