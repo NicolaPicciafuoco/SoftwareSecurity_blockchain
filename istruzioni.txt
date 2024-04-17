@@ -18,3 +18,16 @@ python manage.py createsuperuser --email su@admin.it --nome nome_superuser --cog
 python manage.py populate_db
 
 
+---------( alcune email di utenti )--- per accedere
+
+--(pwd)--> asd123bnm456
+
+EMAIL_caregiver_0@caregiver0.it
+
+EMAIL_caregiver_1@caregiver1.it
+
+EMAIL_dottore_0@dottore0.it
+
+EMAIL_dottore_specialista1@dottorespecialista1.it
+
+EMAIL_paziente_0@paziente0.it

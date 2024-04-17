@@ -1,6 +1,8 @@
 """ORM delle prestazioni"""
 import os
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
 from Healthcare.settings import MEDIA_ROOT
 from Management_User.models import HealthCareUser as User
 from django.db import models
@@ -26,7 +28,8 @@ def upload_to_prestazione(instance, filename):
 class Prestazione(models.Model):
     """Modello Prestazione"""
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
-    note = models.TextField('Note', max_length=100, null=True, blank=True)
+    note = models.TextField('Note', max_length=100, null=True, blank=True,
+                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$', message='solo lettere, numeri e spazzi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute',
                                on_delete=models.SET_NULL, null=True, blank=False)
     operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
@@ -40,11 +43,6 @@ class Prestazione(models.Model):
             return os.path.basename(self.file.name)
         return ''
 
-    # Metodo per stampare a schermo le istanze create
-    def __str__(self):
-        """ritorno della stringa"""
-        return f"{self.pk}, {self.filename()}, {self.utente}"
-
     def clean(self):
         """Metodo per la gestione degli input della form"""
         super().clean()
@@ -55,27 +53,6 @@ class Prestazione(models.Model):
 
             if os.path.basename(new_file_path) in existing_files:
                 raise ValidationError({'file': ['Il file con lo stesso nome esiste già. Scegli un nome diverso.']})
-
-    # def save(self, request=None, *args, **kwargs):
-    #     """Metodo per salvare il file nel path personalizzato per utente"""
-    #     if self.pk:
-    #         try:
-    #             old_instance = Prestazione.objects.get(pk=self.pk)
-    #             if old_instance.file and self.file != old_instance.file:
-    #                 if os.path.isfile(old_instance.file.path):
-    #                     os.remove(old_instance.file.path)
-    #         except Prestazione.DoesNotExist:
-    #             pass
-    #         if old_instance.utente != self.utente:
-    #             if old_instance.file:
-    #                 old_file_path = old_instance.file.path
-    #                 if os.path.exists(old_file_path):
-    #                     new_path = upload_to_prestazione(self, os.path.basename(self.file.name))
-    #                     os.rename(old_file_path, new_path)
-    #                     self.file.name = os.path.relpath(new_path, MEDIA_ROOT)
-    #
-    #
-    #     super().save(*args, **kwargs)
 
     def save(self, request=None, *args, **kwargs):
         """ metodo save per il salvataggio"""
@@ -169,7 +146,7 @@ class Prestazione(models.Model):
 
             return True
         else:
-            raise IntegrityError('Nessun dato trovato per questa Prestazione')
+            raise IntegrityError('Integrità compromessa')
 
     def delete(self, *args, **kwargs):
         ''' metodo per l'eliminazione'''
@@ -183,8 +160,6 @@ class Prestazione(models.Model):
                                          "Prestazione")
         super().delete(*args, **kwargs)
 
-
-
     class Meta:
         """Definizione dei verbose"""
         verbose_name = 'Prestazione'
@@ -192,4 +167,4 @@ class Prestazione(models.Model):
 
     def __str__(self):
         """ritorno della stringa"""
-        return f"{self.pk}, {self.filename()}, {self.utente}"
+        return f"Prestazione {self.operatore} -> {self.utente} hash[{str(self.hash)[:10] if self.hash else None}...]"

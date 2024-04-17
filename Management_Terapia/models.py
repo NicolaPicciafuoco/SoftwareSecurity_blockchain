@@ -1,4 +1,6 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
@@ -24,12 +26,13 @@ def get_upload_path(instance, filename):
 
 class Terapia(models.Model):
     ''' Crea il modello sulla tabella di terapia'''
+    file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
+    note = models.TextField('note', max_length=100, null=True, blank=True,
+                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$', message='solo lettere, numeri e spazzi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='terapie',
                                on_delete=models.SET_NULL, default=None, null=True, blank=True)
     prescrittore = models.ForeignKey(User, verbose_name='prescrittore', related_name='terapie_prescritte',
                                      on_delete=models.SET_NULL, default=None, null=True, blank=True)
-    file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
-    note = models.CharField('note', max_length=100, null=True, blank=True)
     hash = models.CharField('hash', max_length=66, null=True, blank=True)
 
     def clean(self):
@@ -138,7 +141,7 @@ class Terapia(models.Model):
 
             return True
         else:
-            raise IntegrityError('Nessun dato trovato per questa terapia')
+            raise IntegrityError('Integrità compromessa')
 
     def delete(self, *args, **kwargs):
         ''' metodo per l'eliminazione'''
@@ -153,8 +156,8 @@ class Terapia(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-        ''' il ritorno della stringa'''
-        return f"Terapia {self.pk}: {self.note}"
+        ''' Il ritorno della stringa'''
+        return f"Terapia {self.prescrittore} -> {self.utente} hash[{str(self.hash)[:10] if self.hash else None}...]"
 
     class Meta:
         ''' per il nome plurale'''

@@ -23,6 +23,16 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         (MALE,   'Maschio'),
         (FEMALE, 'Femmina'),
     ]
+    nome_validator = RegexValidator(
+        regex=r'^[a-zA-Z0-9_]*$',
+        message='Il nome può contenere solo lettere, numeri e il carattere underscore.',
+        code='invalid_nome'
+    )
+    cognome_validator = RegexValidator(
+        regex=r'^[a-zA-Z0-9_]*$',
+        message='Il cognome può contenere solo lettere, numeri e il carattere underscore.',
+        code='invalid_cognome'
+    )
     telefono_validator = RegexValidator(
         regex=r'^[\d\s-]+$',
         message='Telefono number can only contain digits, dashes, and spaces.',
@@ -43,8 +53,8 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         unique=True,
         error_messages={'unique': 'Questa e-mail è già in uso'}
     )
-    nome = models.CharField('Nome', max_length=150)
-    cognome = models.CharField('Cognome', max_length=150, null=True, blank=True)
+    nome = models.CharField('Nome', max_length=150, validators=[nome_validator])
+    cognome = models.CharField('Cognome', max_length=150, null=True, blank=True, validators=[cognome_validator])
     sesso = models.SmallIntegerField(choices=SESSO_SCELTE, default=MALE)
     data_nascita = models.DateField('Data di nascita')
 
