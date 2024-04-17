@@ -8,6 +8,7 @@ from core.group_name import (GROUP_CAREGIVER,
                              GROUP_DOTTORE_SPECIALISTA,
                              GROUP_PAZIENTE,
                              GROUP_AMMINISTRATORE)
+from web3 import Account
 
 
 class HealthCareUserAdmin(UserAdmin):
@@ -139,7 +140,13 @@ class HealthCareUserAdmin(UserAdmin):
 
         return form
 
-
+    # save model whit private key e addres wallet
+    def save_model(self, request, obj, form, change):
+        if not change:
+            account = Account.create()
+            obj.wallet_address = account.address
+            obj.private_key = account._private_key.hex()
+            super().save_model(request, obj, form, change)
 
 
 admin.site.register(HealthCareUser, HealthCareUserAdmin)
