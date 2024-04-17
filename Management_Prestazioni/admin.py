@@ -30,6 +30,11 @@ class PrestazioneAdmin(admin.ModelAdmin):
             return True
         return super().has_change_permission(request, obj)
 
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None and obj.operatore == request.user:
+            return True
+        return super().has_change_permission(request, obj)
+
     def get_queryset(self, request):
         return return_queryset_prestazione(self, request, PrestazioneAdmin)
 
