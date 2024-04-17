@@ -69,7 +69,7 @@ class TerapiaAdmin(admin.ModelAdmin):
                 messages.success(request, f"Terapia {obj} verificata.")
             except IntegrityError as e:
                 messages.error(request, f"Errore durante la verifica della {obj}: {e}")
-                form_url_prec= request.META.get('HTTP_REFERER')
+                form_url_prec = request.META.get('HTTP_REFERER')
                 return HttpResponseRedirect(form_url_prec)
         return super().change_view(request, object_id, form_url, extra_context)
 

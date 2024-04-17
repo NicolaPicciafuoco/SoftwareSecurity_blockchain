@@ -67,7 +67,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
             gruppi_operatori = [
                 GROUP_DOTTORE,
                 GROUP_DOTTORE_SPECIALISTA,
-                GROUP_CAREGIVER
+
             ]
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
@@ -79,6 +79,15 @@ class PrestazioneAdmin(admin.ModelAdmin):
             elif user_group == GROUP_PAZIENTE:
                 form.base_fields['operatore'].widget.attrs['style'] = 'display: none;'
 
+            elif user_group == GROUP_CAREGIVER:
+                form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
+                form.base_fields['operatore'].initial = request.user
+                if request.user.assistito is not None:
+                    form.base_fields['utente'].choices = [
+                        (request.user.assistito.id, request.user.assistito.show(request=request)),
+                    ]
+                else:
+                    form.base_fields['utente'].choices = None
             elif user_group in gruppi_operatori:
                 form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
