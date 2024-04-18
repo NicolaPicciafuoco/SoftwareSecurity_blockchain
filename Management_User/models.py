@@ -53,12 +53,20 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         unique=True,
         error_messages={'unique': 'Questa e-mail è già in uso'}
     )
+    luogo_nascita_validator = RegexValidator(
+        regex=r'^[0-9]+$',
+        message='solo caratteri.',
+        code='invalid_luogo_nascita'
+    )
     nome = models.CharField('Nome', max_length=150, validators=[nome_validator])
     cognome = models.CharField('Cognome', max_length=150, null=True, blank=True, validators=[cognome_validator])
     sesso = models.SmallIntegerField(choices=SESSO_SCELTE, default=MALE)
     data_nascita = models.DateField('Data di nascita')
 
-    luogo_nascita = models.CharField('Luogo nascita', max_length=200, null=True, blank=True)
+    luogo_nascita = models.CharField(
+        'Luogo nascita',
+        max_length=200, null=True, blank=True,
+        validators=[luogo_nascita_validator])
 
     telefono = models.CharField(
         'Numero di telefono',
