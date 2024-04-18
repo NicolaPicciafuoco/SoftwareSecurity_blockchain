@@ -80,13 +80,9 @@ class Command(BaseCommand):
             # DOTTORI
             g_dottore.permissions.add(
                 permission_add_terapia,
-                permission_change_terapia,
-                permission_delete_terapia,
                 permission_view_terapia,
 
                 permission_add_prestazione,
-                permission_change_prestazione,
-                permission_delete_prestazione,
                 permission_view_prestazione,
 
                 permission_view_utente
@@ -98,7 +94,6 @@ class Command(BaseCommand):
 
                 permission_view_prestazione,
                 permission_add_prestazione,
-                permission_delete_prestazione,
 
                 permission_view_utente,
             )
@@ -109,8 +104,6 @@ class Command(BaseCommand):
 
                 permission_view_prestazione,
                 permission_add_prestazione,
-                permission_change_prestazione,
-                permission_delete_prestazione,
 
                 permission_view_utente
             )

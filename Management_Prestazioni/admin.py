@@ -60,7 +60,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
         utenti.filter(id__in=[ i.id for i in request.user.in_cura_da.all()]
                       
                       )
-        utenti_d_s = utenti.filter(in_cura_da__id=request.user.id)
+        utenti_f = utenti.filter(in_cura_da__id=request.user.id)
         operatori = HealthCareUser.objects.filter(
             groups__in=[
                 Group.objects.get(name=GROUP_CAREGIVER).id,
@@ -93,12 +93,12 @@ class PrestazioneAdmin(admin.ModelAdmin):
             elif user_group in GROUP_DOTTORE:
                 form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti_f]
 
             elif user_group in GROUP_DOTTORE_SPECIALISTA:
                 form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
-                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti_d_s]
+                form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti_f]
 
         else:
             # la terapia è stata creata => è un UPDATE

@@ -69,11 +69,14 @@ def return_queryset_terapia(self, request, modello_admin):
         )
 
     elif user_group.name == GROUP_DOTTORE:
-        qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+        qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
+                           # prescrittore__id=request.user.id
+                           )
 
     elif user_group.name == GROUP_DOTTORE_SPECIALISTA:
         qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
-                           prescrittore__id=request.user.id)
+                           # prescrittore__id=request.user.id
+                           )
 
     else:
         raise PermissionDenied()
@@ -102,13 +105,16 @@ def return_queryset_prestazione(self, request, modello_admin):
         )
 
     elif user_group.name == GROUP_DOTTORE:
-        qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+        qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
+                           # operatore__id=request.user.id
+                           )
 
     elif user_group.name == GROUP_DOTTORE_SPECIALISTA:
         qs = all_qs.filter(utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
-                           operatore__id=request.user.id)
+                           # operatore__id=request.user.id
+                           )
 
     else:
-        raise PermissionDenied()
+        raise PermissionDenied("Gruppo non assegnato all\'utente corrente")
 
     return qs
