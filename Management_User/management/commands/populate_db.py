@@ -218,21 +218,20 @@ class Command(BaseCommand):
                     pbar.update(1)
 
                 # Ottieni i medici
-                medici_group = g_dottore
-                medici = HealthCareUser.objects.filter(groups=medici_group)
+
+                medici = HealthCareUser.objects.filter(groups=g_dottore)
+                medici_sp = HealthCareUser.objects.filter(groups=g_specialista)
 
                 # Ottieni i pazienti
-                pazienti_group = g_pazienti
-                pazienti = HealthCareUser.objects.filter(groups=pazienti_group)
+                pazienti = HealthCareUser.objects.filter(groups=g_pazienti)
 
                 # Assegna i pazienti ai medici
                 for paziente in pazienti:
-                    medico = random.choice(medici)
-                    paziente.in_cura_da.add(medico)
+                    paziente.in_cura_da.add(random.choice(medici))
+                    paziente.in_cura_da.add(random.choice(medici_sp))
 
                 # Ottieni i caregiver
-                caregiver_group = g_caregiver
-                caregiver = HealthCareUser.objects.filter(groups=caregiver_group)
+                caregiver = HealthCareUser.objects.filter(groups=g_caregiver)
 
                 # Assegna i pazienti ai caregiver
                 for paziente in pazienti:
