@@ -156,9 +156,9 @@ class Command(BaseCommand):
                 pbar.update(1)
 
                 for i in range(2):
-                    nome_dottore = f'NOME_dottore_{i}'
+                    nome_dottore = f'dottore{i}'
                     HealthCareUser.objects.create_user(
-                        email=f'EMAIL_dottore_{i}@dottore{i}.it',
+                        email=f'dottore{i}@dottore.it',
                         nome=nome_dottore,
                         cognome='',
                         password=COMMON_PASSWORD,
@@ -172,9 +172,9 @@ class Command(BaseCommand):
                     pbar.update(1)
 
                 for i in range(2):
-                    nome_caregiver = f'nome_caregiver_{i}'
+                    nome_caregiver = f'caregiver{i}'
                     caregiver = HealthCareUser.objects.create_user(
-                        email=f'EMAIL_caregiver_{i}@caregiver{i}.it',
+                        email=f'caregiver{i}@caregiver.it',
                         nome=nome_caregiver,
                         cognome='',
                         password=COMMON_PASSWORD,
@@ -189,8 +189,8 @@ class Command(BaseCommand):
 
                 for i in range(5):  # Modifica la linea interessata
                     HealthCareUser.objects.create_user(
-                        email=f'EMAIL_paziente_{i}@paziente{i}.it',
-                        nome=f'NOME_paziente_{i}',
+                        email=f'paziente{i}@paziente.it',
+                        nome=f'paziente{i}',
                         cognome="",
                         password=COMMON_PASSWORD,
                         sesso=random.choice([HealthCareUser.MALE, HealthCareUser.FEMALE]),
@@ -204,8 +204,8 @@ class Command(BaseCommand):
 
                 for i in range(3):
                     HealthCareUser.objects.create_user(
-                        email=f'EMAIL_dottore_specialista{i}@dottorespecialista{i}.it',
-                        nome=f'NOME_dottore_specialista{i}',
+                        email=f'specialista{i}@specialista.it',
+                        nome=f'specialista{i}',
                         cognome="",
                         password=COMMON_PASSWORD,
                         sesso=random.choice([HealthCareUser.MALE, HealthCareUser.FEMALE]),
