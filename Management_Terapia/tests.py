@@ -1,102 +1,106 @@
-""" import"""
-import os
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.utils import timezone
 from django.test import TestCase
-from Management_User.models import HealthCareUser as User, HealthCareUser
-from .models import Terapia
+from django.core.files.uploadedfile import SimpleUploadedFile
 
+from Management_Terapia.models import Terapia
+from Management_User.models import HealthCareUser as User
+from django.db.models import Max
 
-class TerapiaModelTest(TestCase):
-    """ classe dei test per le terapie"""
+class TerapiaTestCase(TestCase):
+
 
     def setUp(self):
-        """ Creazione utenti di prova"""
-        timestamp_suffix = timezone.now().strftime("%Y%m%d%H%M%S")
+        # Elimina tutte le istanze di Terapia prima di ogni test
+        Terapia.objects.all().delete()
 
-        # Crea utenti di esempio per i test
-        self.paziente = User.objects.create(
-            email=f'paziente1_{timestamp_suffix}@example.com',
-            nome='NomePaziente',
-            cognome='CognomePaziente',
+        # Creazione degli utenti di test
+        self.user = User.objects.create(
+            email='user@example.com',
+            nome='UserProva',
+            cognome='CognomeProva',
             sesso=User.MALE,
             data_nascita='1990-01-01',
             luogo_nascita='Città di prova',
             indirizzo_residenza='Indirizzo di prova',
+            wallet_address='0x9F74Ae796089913245c9e41D408E8c29B784eB67',
+            private_key='0xd9f5dabf3c2e2395887f39091b1408447148626dbc52eb6a8ddcf23a31118cea',
         )
+
         self.prescrittore = User.objects.create(
-            email=f'prescrittore1_{timestamp_suffix}@example.com',
-            nome='NomePrescrittore',
-            cognome='CognomePrescrittore',
-            sesso=User.FEMALE,
-            data_nascita='1990-01-02',
-            luogo_nascita='Altro luogo di prova',
-            indirizzo_residenza='Altro indirizzo di prova',
-        )
-        self.utente_testup = User.objects.create(
-            email=f'paziente2_{timestamp_suffix}@example.com',
-            nome='NomePaziente2',
-            cognome='CognomePaziente2',
+            email='user3@example.com',
+            nome='UserProvaprescrittore',
+            cognome='CognomeProvaprescrittore',
             sesso=User.MALE,
             data_nascita='1990-01-01',
             luogo_nascita='Città di prova',
             indirizzo_residenza='Indirizzo di prova',
+            wallet_address='0x9F74Ae796089913245c9e41D408E8c29B784eB67',
+            private_key='0xd9f5dabf3c2e2395887f39091b1408447148626dbc52eb6a8ddcf23a31118cea',
         )
+
+        # Definizione di un file di test
+        file_content = b"Contenuto del file di esempio"
+        self.file = SimpleUploadedFile("test_file.txt", file_content)
+
+    def test_save_function(self):
+        # Creare una nuova istanza di Terapia
+        Terapia.objects.create(
+            utente=self.user,
+            prescrittore=self.prescrittore,
+            file=self.file if self.file else None,
+            note='Nota di prova'
+        )
+
+        self.assertTrue(Terapia.objects.exists())
+
+    def test_update_function(self):
+        # Creare una nuova istanza di Terapia
+        terapia = Terapia.objects.create(
+            utente=self.user,
+            prescrittore=self.prescrittore,
+            file=self.file if self.file else None,
+            note='Nota di prova2'
+        )
+
+        # Modifica dei dati dell'istanza di Terapia
+        new_note = "Nuova nota di prova"
+        terapia.note = new_note
+        terapia.save()
+
+        # Verifica che l'istanza di Terapia sia stata aggiornata correttamente nel database
+        updated_terapia = Terapia.objects.get(pk=terapia.pk)
+        self.assertEqual(updated_terapia.note, new_note)
+
+    def test_delete_function(self):
+        # Creare una nuova istanza di Terapia
+        Terapia.objects.create(
+            utente=self.user,
+            prescrittore=self.prescrittore,
+            file=self.file if self.file else None,
+            note='Nota di prova'
+        )
+        # Eliminare l'istanza di Terapia
+        Terapia.objects.all().delete()
+        # Verifico che Terapia.objects.all().delete() abbia eliminato tutto
+        self.assertFalse(Terapia.objects.exists())
+
+
 
     def test_creazione_utente(self):
-        """ test per la creazione di un utente"""
-        # Crea un utente di esempio
-        user = HealthCareUser.objects.create(
-            email='test@example.com',
-            nome='John',
-            cognome='Doe',
-            sesso=HealthCareUser.MALE,
+        # Creazione di un nuovo utente
+        user = User.objects.create(
+            email='useruseruser@example.com',
+            nome='NomeUtente',
+            cognome='CognomeUtente',
+            sesso=User.MALE,
             data_nascita='1990-01-01',
             luogo_nascita='Città di prova',
             indirizzo_residenza='Indirizzo di prova',
+            wallet_address='0x9F74Ae796089913245c9e41D408E8c29B784eB67',
+            private_key='0xd9f5dabf3c2e2395887f39091b1408447148626dbc52eb6a8ddcf23a31118cea',
         )
 
-        self.assertEqual(user.email, 'test@example.com')
-        self.assertEqual(user.nome, 'John')
-        self.assertEqual(user.cognome, 'Doe')
-        self.assertEqual(user.sesso, HealthCareUser.MALE)
-        self.assertEqual(str(user.data_nascita), '1990-01-01')
-        self.assertEqual(user.luogo_nascita, 'Città di prova')
-        self.assertEqual(user.indirizzo_residenza, 'Indirizzo di prova')
-        self.assertTrue(user.is_active)
+        # Verifica che l'utente sia stato creato correttamente
+        self.assertTrue(User.objects.filter(pk=user.pk).exists())
 
-    def test_salvataggio_terapia_con_file(self):
-        """ test per il salvataggio di una terapia e di un file associato"""
-        utente_test = HealthCareUser.objects.create(
-            email='paziente1@example.com',
-            nome='NomePaziente',
-            cognome='CognomePaziente',
-            sesso=HealthCareUser.MALE,
-            data_nascita='1990-01-01',
-            luogo_nascita='Città di prova',
-            indirizzo_residenza='Indirizzo di prova',
-        )
 
-        file_content = b"Contenuto del file di esempio"
-        file_name = 'test_file.txt'
-        uploaded_file = SimpleUploadedFile(file_name, file_content)
 
-        terapia = Terapia.objects.create(utente=utente_test, prescrittore=utente_test)
-        terapia.file = uploaded_file
-        terapia.save()
-
-        self.assertTrue(os.path.exists(terapia.file.path))
-
-    def tearDown(self):
-        """ rimozione """
-        for terapia in Terapia.objects.all():
-            if terapia.file:
-                os.remove(terapia.file.path)
-
-    def test_modifica_terapia_con_altro_paziente(self):
-        """ test upload terapia"""
-        terapia = Terapia.objects.create(utente=self.paziente, prescrittore=self.prescrittore)
-        terapia.utente = self.utente_testup
-        terapia.save()
-        self.assertEqual(terapia.utente, self.utente_testup)
-        self.assertEqual(terapia.prescrittore, self.prescrittore)

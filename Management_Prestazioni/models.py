@@ -95,9 +95,6 @@ class Prestazione(models.Model):
         super().save(*args, **kwargs)
         # Log testing
 
-        logger = logging.getLogger(__name__)
-        logging.basicConfig(filename="actions.log", level=logging.INFO)
-        logger.info(contract_interactions.get_action_log("Prestazione"))
 
     def object_to_json_string(self):
         """ metodo per la conversione in json"""
@@ -122,27 +119,16 @@ class Prestazione(models.Model):
     def check_json_integrity(self):
 
         contract_interactions = ContractInteractions()
-        logger = logging.getLogger(__name__)
-        logging.basicConfig(filename="integrity.log", level=logging.INFO)
 
         # Decrypts the json object and checks if it's been altered
         stored_data = contract_interactions.get_action_by_key(self.id, "Prestazione")
-        logger.info("ID: %s", self.id)
-        logger.info("Utente: %s", self.utente)
-        logger.info("Operatore: %s", self.operatore)
-        logger.info("File: %s", self.file)
-        logger.info("Note: %s", self.note)
+
         # Verifica se stored_data non è vuoto prima di accedere all'ultimo elemento
         if stored_data:
             last_tuple = stored_data[-1]  # Ottieni l'ultimo elemento della lista
             last_piece = last_tuple[-1]  # Ottieni l'ultimo elemento di quella tupla
 
             hashed_json_local = self.to_hashed_json()
-
-            # Stampa le informazioni nel file di log
-            logger.info("Stored data: %s", stored_data)
-            logger.info("Encrypted JSON local: %s", hashed_json_local)
-            logger.info("Last piece: %s", last_piece)
 
             if last_piece != hashed_json_local:
                 raise IntegrityError('Il json è stato alterato')
