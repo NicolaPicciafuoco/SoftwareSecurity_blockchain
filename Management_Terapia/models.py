@@ -52,6 +52,7 @@ class Terapia(models.Model):
         """ metodo save per il salvataggio"""
 
         action_type = "Create"
+        old_instance = None
 
         if self.pk:
             action_type = "Update"
@@ -83,7 +84,9 @@ class Terapia(models.Model):
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
                                                      key_medico, hashed_data, "Terapia")
-        super().save(*args, **kwargs)
+        #salvami solo la il campo hash
+        super().save(update_fields=['hash'])
+
 
     def object_to_json_string(self):
         """ metodo per la conversione in json"""
