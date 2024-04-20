@@ -9,7 +9,6 @@ from django.db import models
 from contract.deploy import ContractInteractions
 import hashlib
 import json
-import logging
 from django.db import IntegrityError
 
 
@@ -29,13 +28,13 @@ class Prestazione(models.Model):
     """Modello Prestazione"""
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
     note = models.TextField('Note', max_length=100, null=True, blank=True,
-                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$', message='solo lettere, numeri e spazzi sono consentiti')])
+                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$',
+                                                       message='solo lettere, numeri e spazzi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute',
                                on_delete=models.SET_NULL, null=True, blank=False)
     operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
                                   on_delete=models.SET_NULL, null=True, blank=False)
     hash = models.CharField('hash', max_length=66, null=True, blank=True)
-
 
     def filename(self):
         """Metodo per leggere il nome del file"""
@@ -92,9 +91,8 @@ class Prestazione(models.Model):
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_operatore, action_type,
                                                      key_operatore, hashed_data, "Prestazione")
-        super().save(*args, **kwargs)
-        # Log testing
-
+        # salvami solo la il campo hash
+        super().save(update_fields=['hash'])
 
     def object_to_json_string(self):
         """ metodo per la conversione in json"""
@@ -145,7 +143,8 @@ class Prestazione(models.Model):
         key_operatore = self.operatore.private_key
         hashed_data = self.to_hashed_json()
 
-        contract_interactions.log_action(self.id, address_paziente, address_operatore, "Delete", key_operatore, hashed_data,
+        contract_interactions.log_action(self.id, address_paziente, address_operatore, "Delete", key_operatore,
+                                         hashed_data,
                                          "Prestazione")
         super().delete(*args, **kwargs)
 

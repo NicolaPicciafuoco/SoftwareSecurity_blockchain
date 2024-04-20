@@ -27,7 +27,8 @@ class Terapia(models.Model):
     ''' Crea il modello sulla tabella di terapia'''
     file = models.FileField('Terapia', upload_to=get_upload_path, null=True, blank=True)
     note = models.TextField('note', max_length=100, null=True, blank=True,
-                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$', message='solo lettere, numeri e spazzi sono consentiti')])
+                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$',
+                                                       message='solo lettere, numeri e spazzi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='terapie',
                                on_delete=models.SET_NULL, default=None, null=True, blank=True)
     prescrittore = models.ForeignKey(User, verbose_name='prescrittore', related_name='terapie_prescritte',
@@ -84,9 +85,8 @@ class Terapia(models.Model):
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_medico, action_type,
                                                      key_medico, hashed_data, "Terapia")
-        #salvami solo la il campo hash
+        # salvami solo la il campo hash
         super().save(update_fields=['hash'])
-
 
     def object_to_json_string(self):
         """ metodo per la conversione in json"""

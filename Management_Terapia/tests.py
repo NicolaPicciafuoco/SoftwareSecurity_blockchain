@@ -3,10 +3,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from Management_Terapia.models import Terapia
 from Management_User.models import HealthCareUser as User
-from django.db.models import Max
+
 
 class TerapiaTestCase(TestCase):
-
 
     def setUp(self):
         # Elimina tutte le istanze di Terapia prima di ogni test
@@ -83,8 +82,6 @@ class TerapiaTestCase(TestCase):
         # Verifico che Terapia.objects.all().delete() abbia eliminato tutto
         self.assertFalse(Terapia.objects.exists())
 
-
-
     def test_creazione_utente(self):
         # Creazione di un nuovo utente
         user = User.objects.create(
@@ -101,6 +98,3 @@ class TerapiaTestCase(TestCase):
 
         # Verifica che l'utente sia stato creato correttamente
         self.assertTrue(User.objects.filter(pk=user.pk).exists())
-
-
-
