@@ -1,6 +1,6 @@
+"""Testing delle principali funzionalità del codice"""
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-
 from Management_Prestazioni.models import Prestazione
 from Management_User.models import HealthCareUser as User
 

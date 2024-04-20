@@ -1,14 +1,13 @@
 """ORM delle prestazioni"""
 import os
+import hashlib
+import json
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-
 from Healthcare.settings import MEDIA_ROOT
 from Management_User.models import HealthCareUser as User
 from django.db import models
 from contract.deploy import ContractInteractions
-import hashlib
-import json
 from django.db import IntegrityError
 
 
