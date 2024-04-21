@@ -1,15 +1,13 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.core.exceptions import ValidationError
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import RegexValidator
 from django.db import models
 from .manager import HealthCareUserManager
 from core.group_name import (GROUP_DOTTORE,
-                               GROUP_DOTTORE_SPECIALISTA,
-                               GROUP_AMMINISTRATORE,
-                               GROUP_PAZIENTE)
-from web3 import Web3
+                             GROUP_DOTTORE_SPECIALISTA,
+                             GROUP_AMMINISTRATORE,
+                             GROUP_PAZIENTE)
 
 
 class HealthCareUser(AbstractBaseUser, PermissionsMixin):
@@ -20,7 +18,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     FEMALE = 2
 
     SESSO_SCELTE = [
-        (MALE,   'Maschio'),
+        (MALE, 'Maschio'),
         (FEMALE, 'Femmina'),
     ]
     nome_validator = RegexValidator(
@@ -35,27 +33,22 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     )
     telefono_validator = RegexValidator(
         regex=r'^[\d\s-]+$',
-        message='Telefono number can only contain digits, dashes, and spaces.',
+        message='Telefono può contenere solo numeri, trattini e spazi.',
         code='invalid_telefono'
     )
     codice_fiscale_validator = RegexValidator(
         regex=r'^[a-zA-Z0-9]+$',
-        message='Codice fiscale can only contain alphanumeric characters.',
+        message='Codice fiscale può contenere solo caratteri alfanumerici.',
         code='invalid_codice_fiscale'
     )
     indirizzo_validator = RegexValidator(
         regex=r'^[a-zA-Z0-9\s]+$',
-        message='Indirizzo can only contain alphanumeric characters and spaces.',
+        message='Indirizzo può contenere solo caratteri alfanumerici e spazi.',
         code='invalid_indirizzo'
     )
-    email = models.EmailField(
-        'indirizzo e-mail',
-        unique=True,
-        error_messages={'unique': 'Questa e-mail è già in uso'}
-    )
     luogo_nascita_validator = RegexValidator(
-        regex=r'^[0-9]+$',
-        message='solo caratteri.',
+        regex=r'^[a-zA-Z]+$',
+        message='Luogo di nascita può contenere solo caratteri.',
         code='invalid_luogo_nascita'
     )
     nome = models.CharField('Nome', max_length=150, validators=[nome_validator])
@@ -63,6 +56,11 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     sesso = models.SmallIntegerField(choices=SESSO_SCELTE, default=MALE)
     data_nascita = models.DateField('Data di nascita')
 
+    email = models.EmailField(
+        'indirizzo e-mail',
+        unique=True,
+        error_messages={'unique': 'Questa e-mail è già in uso'}
+    )
     luogo_nascita = models.CharField(
         'Luogo nascita',
         max_length=200, null=True, blank=True,
@@ -188,4 +186,4 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Utente'
         verbose_name_plural = 'Utenti'
-        ordering = ['nome', 'cognome', 'sesso', 'data_nascita',]
+        ordering = ['nome', 'cognome', 'sesso', 'data_nascita', ]
