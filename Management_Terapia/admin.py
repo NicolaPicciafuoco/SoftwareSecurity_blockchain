@@ -20,7 +20,6 @@ class TerapiaAdmin(admin.ModelAdmin):
     ''' Classe per strutturare la vista admin '''
     model = Terapia
     list_display = ['user_name', 'note', 'prescrittore_name', 'visualizza_file', ]
-    search_fields = ['prescrittore_name', 'note', 'hash']
     readonly_fields = ['hash']
     actions = ['delete_model']
 
