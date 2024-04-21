@@ -21,7 +21,6 @@ class PrestazioneAdmin(admin.ModelAdmin):
     """Classe admin per la gestione delle prestazioni"""
     model = Prestazione
     list_display = ['user_name', 'operator_name', 'short_note', 'file_display']
-    # search_fields = ['operator_name', 'note', 'hash']
     actions = ['delete_model']
     readonly_fields = ['hash']
 
