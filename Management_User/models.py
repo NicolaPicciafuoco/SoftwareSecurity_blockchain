@@ -1,13 +1,14 @@
+"""File di definizione del modello per l'utente"""
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, Permission, Group
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from .manager import HealthCareUserManager
 from core.group_name import (GROUP_DOTTORE,
                              GROUP_DOTTORE_SPECIALISTA,
                              GROUP_AMMINISTRATORE,
                              GROUP_PAZIENTE)
+from .manager import HealthCareUserManager
 
 
 class HealthCareUser(AbstractBaseUser, PermissionsMixin):
@@ -145,7 +146,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         default=None
     )
     private_key = models.CharField(
-        max_length=255,
+        max_length=100,
         null=True,
         blank=True,
         default=None
@@ -162,12 +163,15 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     ]
 
     def get_sesso(self):
+        """Ritorna una stringa in base al sesso del utente"""
         return f" {self.SESSO_SCELTE[0][1]:>8}" if self.sesso == 1 else f" {self.SESSO_SCELTE[1][1]:>8}"
 
     def __str__(self):
+        """str del oggetto"""
         return f"{self.nome} {self.cognome if self.cognome else ''}"
 
     def clean(self):
+        """Controllo sul numero di gruppi a cui appartiene un utente"""
         try:
             if self.groups and self.groups.count() > 1:
                 raise ValidationError({'groups': ['Selezionare un gruppo per utente.']})
@@ -176,6 +180,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         super().clean()
 
     def show(self, request):
+        """Mostra stinghe diverse in base al gruppo del richiedente"""
         lista_check = [GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA, GROUP_AMMINISTRATORE]
         if request.user.groups is None:
             return self.__str__()
@@ -184,6 +189,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
         return self.__str__()
 
     class Meta:
+        """Classe per i metadati"""
         verbose_name = 'Utente'
         verbose_name_plural = 'Utenti'
         ordering = ['nome', 'cognome', 'sesso', 'data_nascita', ]
