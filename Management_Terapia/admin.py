@@ -47,8 +47,8 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     def prescrittore_name(self, obj):
         ''' Funzione per restituire lo username dell'prescrittore'''
-        if obj.prescrittore:
-            return obj.prescrittore.nome
+        if obj.operatore:
+            return obj.operatore.nome
         return "Nessun operatore"
     prescrittore_name.short_description = 'Prescrittore'
 
@@ -109,13 +109,13 @@ class TerapiaAdmin(admin.ModelAdmin):
         else:
             # la terapia è stata creata => è un UPDATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [(obj.prescrittore.id, obj.prescrittore.show(request=request)),]
-                form.base_fields['prescrittore'].initial = obj.prescrittore
+                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [(obj.operatore.id, obj.operatore.show(request=request)), ]
+                form.base_fields['prescrittore'].initial = obj.operatore
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
             else:
                 try:
-                    form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore.show(request=request)), ]
+                    form.base_fields['prescrittore'].choices = [(obj.operatore.id, obj.operatore.show(request=request)), ]
                     form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
                 except Exception:
                     pass

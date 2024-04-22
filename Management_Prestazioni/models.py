@@ -1,15 +1,13 @@
 """ORM delle prestazioni"""
 import os
+import hashlib
+import json
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-
 from Healthcare.settings import MEDIA_ROOT
 from Management_User.models import HealthCareUser as User
 from django.db import models
 from contract.deploy import ContractInteractions
-import hashlib
-import json
-import logging
 from django.db import IntegrityError
 
 
@@ -29,13 +27,13 @@ class Prestazione(models.Model):
     """Modello Prestazione"""
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
     note = models.TextField('Note', max_length=100, null=True, blank=True,
-                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$', message='solo lettere, numeri e spazzi sono consentiti')])
+                            validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$',
+                                                       message='solo lettere, numeri e spazzi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute',
                                on_delete=models.SET_NULL, null=True, blank=False)
     operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
                                   on_delete=models.SET_NULL, null=True, blank=False)
     hash = models.CharField('hash', max_length=66, null=True, blank=True)
-
 
     def filename(self):
         """Metodo per leggere il nome del file"""
@@ -92,12 +90,8 @@ class Prestazione(models.Model):
 
         self.hash = contract_interactions.log_action(self.id, address_paziente, address_operatore, action_type,
                                                      key_operatore, hashed_data, "Prestazione")
-        super().save(*args, **kwargs)
-        # Log testing
-
-        logger = logging.getLogger(__name__)
-        logging.basicConfig(filename="actions.log", level=logging.INFO)
-        logger.info(contract_interactions.get_action_log("Prestazione"))
+        # salvami solo la il campo hash
+        super().save(update_fields=['hash'])
 
     def object_to_json_string(self):
         """ metodo per la conversione in json"""
@@ -122,27 +116,16 @@ class Prestazione(models.Model):
     def check_json_integrity(self):
 
         contract_interactions = ContractInteractions()
-        logger = logging.getLogger(__name__)
-        logging.basicConfig(filename="integrity.log", level=logging.INFO)
 
         # Decrypts the json object and checks if it's been altered
         stored_data = contract_interactions.get_action_by_key(self.id, "Prestazione")
-        logger.info("ID: %s", self.id)
-        logger.info("Utente: %s", self.utente)
-        logger.info("Operatore: %s", self.operatore)
-        logger.info("File: %s", self.file)
-        logger.info("Note: %s", self.note)
+
         # Verifica se stored_data non è vuoto prima di accedere all'ultimo elemento
         if stored_data:
             last_tuple = stored_data[-1]  # Ottieni l'ultimo elemento della lista
             last_piece = last_tuple[-1]  # Ottieni l'ultimo elemento di quella tupla
 
             hashed_json_local = self.to_hashed_json()
-
-            # Stampa le informazioni nel file di log
-            logger.info("Stored data: %s", stored_data)
-            logger.info("Encrypted JSON local: %s", hashed_json_local)
-            logger.info("Last piece: %s", last_piece)
 
             if last_piece != hashed_json_local:
                 raise IntegrityError('Il json è stato alterato')
@@ -159,7 +142,8 @@ class Prestazione(models.Model):
         key_operatore = self.operatore.private_key
         hashed_data = self.to_hashed_json()
 
-        contract_interactions.log_action(self.id, address_paziente, address_operatore, "Delete", key_operatore, hashed_data,
+        contract_interactions.log_action(self.id, address_paziente, address_operatore, "Delete", key_operatore,
+                                         hashed_data,
                                          "Prestazione")
         super().delete(*args, **kwargs)
 

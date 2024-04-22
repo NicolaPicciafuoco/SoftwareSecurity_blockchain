@@ -22,8 +22,8 @@ class PrestazioneAdmin(admin.ModelAdmin):
     model = Prestazione
     list_display = ['user_name', 'operator_name', 'short_note', 'file_display']
     search_fields = ['hash']
-    actions = ['delete_model']
     readonly_fields = ['hash']
+    actions = ['delete_model']
 
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.operatore == request.user:
@@ -46,19 +46,19 @@ class PrestazioneAdmin(admin.ModelAdmin):
                 messages.success(request, f"Prestazione {obj} verificata.")
             except IntegrityError as e:
                 messages.error(request, f"Errore durante la verifica della {obj}: {e}")
-                form_url_prec= request.META.get('HTTP_REFERER')
+                form_url_prec = request.META.get('HTTP_REFERER')
                 return HttpResponseRedirect(form_url_prec)
         return super().change_view(request, object_id, form_url, extra_context)
 
     def get_form(self, request, obj=None, **kwargs):
-        """ sovrascrivere form"""
+        """Metodo per sovrascrivere la form"""
         form = super().get_form(request, obj, **kwargs)
         user_group = request.user.groups.all().first().name
         utenti = HealthCareUser.objects.filter(
             groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
-        utenti.filter(id__in=[ i.id for i in request.user.in_cura_da.all()]
-                      
+        utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()]
+
                       )
         utenti_f = utenti.filter(in_cura_da__id=request.user.id)
         operatori = HealthCareUser.objects.filter(
@@ -73,7 +73,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
                                                             (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(request.user.id, request.user.show(request=request)),]
+                                                        ] + [(request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
@@ -108,7 +108,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
                                                             (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(obj.operatore.id, obj.operatore.show(request=request)),]
+                                                        ] + [(obj.operatore.id, obj.operatore.show(request=request)), ]
                 form.base_fields['operatore'].initial = obj.operatore
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
@@ -121,31 +121,35 @@ class PrestazioneAdmin(admin.ModelAdmin):
         return form
 
     def user_name(self, obj):
-        """Metodo che restituisce il nome utente"""
+        """Metodo per restituire il nome utente"""
         if obj.utente:
             return obj.utente.nome
         return "Nessun utente"
+
     user_name.short_description = 'Paziente'
 
     def operator_name(self, obj):
-        """Metodo che restituisce il nome utente dell'operatore sanitario"""
+        """Metodo per restituire il nome utente dell'operatore sanitario"""
         if obj.operatore:
             return obj.operatore.nome
         return "Nessun operatore"
+
     operator_name.short_description = 'Operatore'
 
     def short_note(self, obj):
-        """Metodo che restituisce la nota"""
+        """Metodo per restituire la nota associato all'istanza"""
         return obj.note[:20] if obj.note else 'Nessuna nota'
+
     short_note.short_description = 'Note'
 
     def file_display(self, obj):
-        """Metodo che restituisce il file associato"""
+        """Metodo per restituire il file associato all'istanza"""
         if obj.file:
             file_url = obj.file.url
             return format_html(
                 '<a href="{}" target="_blank">Visualizza</a>', file_url)
         return "Nessun file"
+
     file_display.short_description = 'File'
 
     def get_actions(self, request):
@@ -158,7 +162,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
         return actions
 
     def delete_model(self, request, obj):
-        """Metodo che elimina le istanze selezionate personalizzato"""
+        """Metodo personalizzato per eliminare le istanze selezionate"""
         if request.user.groups.all().first().name == GROUP_PAZIENTE:
             self.message_user(request,
                               "il paziente non può compiere questa azione ")
@@ -182,6 +186,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
                     request,
                     "La prestazione è stata eliminata con successo con il file associato."
                 )
+
     delete_model.short_description = "Elimina le prestazioni selezionate con i file associati"
 
 
