@@ -23,14 +23,12 @@ class HealthCareUserAdmin(UserAdmin):
                     'sesso',
                     'email',
                     'data_nascita',
-                    'wallet_address',
-                    'private_key']
+                    'wallet_address']
     ordering = ['nome',
                 'cognome',
                 'sesso',
                 'data_nascita',
-                'wallet_address',
-                'private_key']
+                'wallet_address']
     search_fields = ['nome']
     filter_horizontal = ['in_cura_da', 'groups']
 
@@ -51,6 +49,7 @@ class HealthCareUserAdmin(UserAdmin):
             'data_creazione',
             'wallet_address',
             'is_superuser',
+            'is_staff',
             'private_key',
             'last_login',
         ] if request.user.groups.all().first().name == GROUP_AMMINISTRATORE \
@@ -92,6 +91,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Gestione Accessi", {
                 "fields": ('password', 'last_login',
                            ('data_modifica', 'data_creazione'),),
+                "classes": ("collapse",)
             }
         ),
         (
@@ -101,13 +101,14 @@ class HealthCareUserAdmin(UserAdmin):
                            'telefono', 'codice_fiscale',
                            'indirizzo_residenza', 'indirizzo_domicilio',
                            'assistito', 'in_cura_da',
-                           'wallet_address', 'private_key'),
+                           'wallet_address',),
             }
         ),
         (
             "Permessi", {
                 'fields': ('is_active', 'is_staff',
-                           'is_superuser', 'groups')
+                           'is_superuser', 'groups'),
+                "classes": ("collapse",)
             }
         ),
     )
@@ -116,6 +117,7 @@ class HealthCareUserAdmin(UserAdmin):
         (
             "Gestione Accessi", {
                 "fields": ('email', 'password1', 'password2'),
+
             }
         ),
         (
@@ -124,14 +126,14 @@ class HealthCareUserAdmin(UserAdmin):
                            ('data_nascita', 'luogo_nascita'),
                            'codice_fiscale', 'telefono',
                            'indirizzo_residenza', 'indirizzo_domicilio',
-                           'assistito', 'in_cura_da',
-                           'wallet_address', 'private_key'),
+                           'assistito', 'in_cura_da',),
             }
         ),
         (
             "Permessi", {
                 'fields': ('is_active', 'is_staff',
-                           'is_superuser', 'groups',)
+                           'is_superuser', 'groups',),
+
             }
         ),
     )
@@ -158,7 +160,7 @@ class HealthCareUserAdmin(UserAdmin):
                     (Group.objects.get(name=GROUP_AMMINISTRATORE).id,
                      Group.objects.get(name=GROUP_AMMINISTRATORE)),
                 ]
-                form.base_fields['assistito'].choices = [
+                form.base_fields['assistito'].choices = [('', "--------")] + [
                     (u.id, u.show(request=request)) for u in pazienti]
                 form.base_fields['in_cura_da'].choices = [
                     (p.id, p.show(request=request)) for p in prescrittori]
@@ -170,14 +172,14 @@ class HealthCareUserAdmin(UserAdmin):
                      (Group.objects.get(name=GROUP_AMMINISTRATORE).id,
                       Group.objects.get(name=GROUP_AMMINISTRATORE)),
                 ]
-                form.base_fields['assistito'].choices = [
+                form.base_fields['assistito'].choices = [('', "--------")] + [
                     (u.id, u.show(request=request)) for u in pazienti]
                 form.base_fields['in_cura_da'].choices = [
                     (p.id, p.show(request=request)) for p in prescrittori]
         return form
 
     def save_model(self, request, obj, form, change):
-        if not change and obj is None:
+        if not change:
             account = Account.create()
             obj.wallet_address = account.address
             obj.private_key = account._private_key.hex()
