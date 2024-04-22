@@ -1,25 +1,29 @@
+"""file del seed"""
 import random
 from tqdm import tqdm
 from django.core.management.base import BaseCommand
-from faker import Faker
-from Management_User.models import HealthCareUser  # Importa il tuo modello personalizzato
-from core.group_name import GROUP_PAZIENTE, GROUP_CAREGIVER, GROUP_DOTTORE, GROUP_DOTTORE_SPECIALISTA, GROUP_AMMINISTRATORE
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from core.group_name import (GROUP_PAZIENTE,
+                             GROUP_CAREGIVER,
+                             GROUP_DOTTORE,
+                             GROUP_DOTTORE_SPECIALISTA,
+                             GROUP_AMMINISTRATORE)
+from Management_User.models import HealthCareUser
 from Management_Terapia.models import Terapia
 from Management_Prestazioni.models import Prestazione
 
-fake = Faker()
-
-# Imposta la password comune per tutti gli utenti
 COMMON_PASSWORD = 'asd123bnm456'
 
 
 class Command(BaseCommand):
+    """classe per il comando del seed"""
     help = 'Popola il database con utenti di esempio'
 
-    def handle(self, fake=None, *args, **kwargs):
-        self.stdout.write(self.style.SUCCESS('Inizio operazione popolamento db con utenti di esempio'))
+    def handle(self, *args):
+        """Funzione per il seed"""
+        self.stdout.write(
+            self.style.SUCCESS('Inizio operazione popolamento db con utenti di esempio'))
         try:
             if not Group.objects.filter(name=GROUP_PAZIENTE).exists():
                 g_pazienti = Group.objects.create(name=GROUP_PAZIENTE)
@@ -50,32 +54,28 @@ class Command(BaseCommand):
 
             # TERAPIA
             content_type_terapia = ContentType.objects.get_for_model(Terapia)
-            permission_add_terapia = Permission.objects.get(content_type=content_type_terapia, codename='add_terapia')
-            permission_change_terapia = Permission.objects.get(content_type=content_type_terapia, codename='change_terapia')
-            permission_delete_terapia = Permission.objects.get(content_type=content_type_terapia, codename='delete_terapia')
-            permission_view_terapia = Permission.objects.get(content_type=content_type_terapia, codename='view_terapia')
+            permission_add_terapia = Permission.objects.get(
+                content_type=content_type_terapia, codename='add_terapia')
+            permission_view_terapia = Permission.objects.get(
+                content_type=content_type_terapia, codename='view_terapia')
 
             # PRESTAZIONE
             content_type_prestazione = ContentType.objects.get_for_model(Prestazione)
-            permission_add_prestazione = Permission.objects.get(content_type=content_type_prestazione,
-                                                                codename='add_prestazione')
-            permission_change_prestazione = Permission.objects.get(content_type=content_type_prestazione,
-                                                                   codename='change_prestazione')
-            permission_delete_prestazione = Permission.objects.get(content_type=content_type_prestazione,
-                                                                   codename='delete_prestazione')
-            permission_view_prestazione = Permission.objects.get(content_type=content_type_prestazione,
-                                                                 codename='view_prestazione')
+            permission_add_prestazione = Permission.objects.get(
+                content_type=content_type_prestazione, codename='add_prestazione')
+            permission_view_prestazione = Permission.objects.get(
+                content_type=content_type_prestazione, codename='view_prestazione')
 
             # user
             content_type_utente = ContentType.objects.get_for_model(HealthCareUser)
-            permission_view_utente = Permission.objects.get(content_type=content_type_utente,
-                                                            codename='view_healthcareuser')
-            permission_add_utente = Permission.objects.get(content_type=content_type_utente,
-                                                           codename='add_healthcareuser')
-            permission_change_utente = Permission.objects.get(content_type=content_type_utente,
-                                                              codename='change_healthcareuser')
-            permission_delete_utente = Permission.objects.get(content_type=content_type_utente,
-                                                              codename='delete_healthcareuser')
+            permission_view_utente = Permission.objects.get(
+                content_type=content_type_utente, codename='view_healthcareuser')
+            permission_add_utente = Permission.objects.get(
+                content_type=content_type_utente, codename='add_healthcareuser')
+            permission_change_utente = Permission.objects.get(
+                content_type=content_type_utente, codename='change_healthcareuser')
+            permission_delete_utente = Permission.objects.get(
+                content_type=content_type_utente, codename='delete_healthcareuser')
 
             # DOTTORI
             g_dottore.permissions.add(

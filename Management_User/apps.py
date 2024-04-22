@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from core.group_name import *
 
 
 class ManagementUserConfig(AppConfig):
