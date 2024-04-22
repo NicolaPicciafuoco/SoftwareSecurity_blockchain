@@ -14,7 +14,8 @@ from web3 import Account
 class HealthCareUserAdmin(UserAdmin):
     model = HealthCareUser
     list_display = ["nome", "str_role", "sesso", "email", "data_nascita", "wallet_address", "private_key"]
-    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', "wallet_address", "private_key"]
+    ordering = ['nome', 'cognome', 'sesso', 'data_nascita', 'wallet_address', 'private_key']
+    search_fields = ['nome']
     filter_horizontal = ['in_cura_da', 'groups']
 
     def has_change_permission(self, request, obj=None):
@@ -30,6 +31,7 @@ class HealthCareUserAdmin(UserAdmin):
             'data_modifica',
             'data_creazione',
             'wallet_address',
+            'is_superuser',
             'private_key',
             'last_login',
         ] if request.user.groups.all().first().name == GROUP_AMMINISTRATORE \
@@ -74,7 +76,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': ('email', ('nome', 'cognome', 'sesso'),
                            'data_nascita', 'luogo_nascita', 'telefono', 'codice_fiscale',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da',"wallet_address",'private_key'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da', 'wallet_address', 'private_key'),
             }
         ),
         (
@@ -94,7 +96,7 @@ class HealthCareUserAdmin(UserAdmin):
             "Informazione Personali", {
                 'fields': (('nome', 'cognome', 'sesso'),
                            ('data_nascita', 'luogo_nascita'), 'codice_fiscale', 'telefono',
-                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da','wallet_address','private_key'),
+                           'indirizzo_residenza', 'indirizzo_domicilio', 'assistito', 'in_cura_da', 'wallet_address', 'private_key'),
             }
         ),
         (

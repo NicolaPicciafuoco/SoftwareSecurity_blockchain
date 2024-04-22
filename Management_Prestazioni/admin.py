@@ -21,7 +21,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
     """Classe admin per la gestione delle prestazioni"""
     model = Prestazione
     list_display = ['user_name', 'operator_name', 'short_note', 'file_display']
-    search_fields = ['operator_name', 'note', 'hash']
+    search_fields = ['hash']
     actions = ['delete_model']
     readonly_fields = ['hash']
 
@@ -69,7 +69,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
             ]
         )
         if obj is None:
-            # la terapia non è ancora stata creata => è una CREATE
+            # la prestazioni non è ancora stata creata => è una CREATE
             if user_group == GROUP_AMMINISTRATORE:
                 form.base_fields['operatore'].choices = [
                                                             (p.id, p.show(request=request)) for p in operatori
@@ -78,7 +78,10 @@ class PrestazioneAdmin(admin.ModelAdmin):
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
             elif user_group == GROUP_PAZIENTE:
-                form.base_fields['operatore'].widget.attrs['style'] = 'display: none;'
+                form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
+                form.base_fields['operatore'].initial = request.user
+                form.base_fields['utente'].choices = [(request.user.id, request.user.show(request=request)), ]
+                form.base_fields['utente'].initial = request.user.id
 
             elif user_group == GROUP_CAREGIVER:
                 form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]

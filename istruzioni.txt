@@ -15,12 +15,16 @@ python manage.py createsuperuser --email su@admin.it --nome nome_superuser --cog
 
 --(pwd)--> asd123bnm456
 
-EMAIL_caregiver_0@caregiver0.it
-
-EMAIL_caregiver_1@caregiver1.it
-
-EMAIL_dottore_0@dottore0.it
-
-EMAIL_dottore_specialista1@dottorespecialista1.it
-
-EMAIL_paziente_0@paziente0.it
+caregiver0@caregiver.it
+caregiver1@caregiver.it
+dottore0@dottore.it
+dottore1@dottore.it
+paziente0@paziente.it
+paziente1@paziente.it
+paziente2@paziente.it
+paziente3@paziente.it
+paziente4@paziente.it
+specialista0@specialista.it
+specialista1@specialista.it
+specialista2@specialista.it
+admin@admin.it
