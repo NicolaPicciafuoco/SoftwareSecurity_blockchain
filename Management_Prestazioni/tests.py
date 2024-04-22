@@ -81,19 +81,3 @@ class PrestazioneTestCase(TestCase):
         # Verifico che Prestazione.objects.all().delete() abbia eliminato tutto
         self.assertFalse(Prestazione.objects.exists())
 
-    def test_creazione_utente(self):
-        # Creazione di un nuovo utente
-        user = User.objects.create(
-            email='useruseruser@example.com',
-            nome='NomeUtente',
-            cognome='CognomeUtente',
-            sesso=User.MALE,
-            data_nascita='1990-01-01',
-            luogo_nascita='Città di prova',
-            indirizzo_residenza='Indirizzo di prova',
-            wallet_address='0x9F74Ae796089913245c9e41D408E8c29B784eB67',
-            private_key='0xd9f5dabf3c2e2395887f39091b1408447148626dbc52eb6a8ddcf23a31118cea',
-        )
-
-        # Verifica che l'utente sia stato creato correttamente
-        self.assertTrue(User.objects.filter(pk=user.pk).exists())

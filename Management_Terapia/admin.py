@@ -47,8 +47,8 @@ class TerapiaAdmin(admin.ModelAdmin):
 
     def prescrittore_name(self, obj):
         ''' Funzione per restituire lo username dell'prescrittore'''
-        if obj.operatore:
-            return obj.operatore.nome
+        if obj.prescrittore:
+            return obj.prescrittore.nome
         return "Nessun operatore"
     prescrittore_name.short_description = 'Prescrittore'
 
