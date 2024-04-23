@@ -25,6 +25,12 @@ class PrestazioneAdmin(admin.ModelAdmin):
     readonly_fields = ['hash']
     actions = ['delete_model']
 
+    def get_list_display(self, request):
+        if request.user.groups.all().first().name == GROUP_PAZIENTE:
+            return ['operator_name', 'short_note', 'file_display', 'hash']
+        else:
+            return ['user_name', 'short_note', 'operator_name', 'file_display']
+
     def has_change_permission(self, request, obj=None):
         if obj is not None and obj.operatore.id == request.user.id:
             return True
