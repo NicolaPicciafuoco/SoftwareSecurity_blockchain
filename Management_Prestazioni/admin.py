@@ -111,10 +111,9 @@ class PrestazioneAdmin(admin.ModelAdmin):
 
         else:
             # la terapia è stata creata => è un UPDATE
-            if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['operatore'].choices = [
-                                                            (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(obj.operatore.id, obj.operatore.show(request=request)), ]
+            if user_group == GROUP_AMMINISTRATORE and request.user.is_superuser:
+                form.base_fields['operatore'].choices = [(p.id, p.show(request=request)) for p in operatori] + [
+                    (obj.operatore.id, obj.operatore.show(request=request)), ]
                 form.base_fields['operatore'].initial = obj.operatore
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
@@ -177,7 +176,8 @@ class PrestazioneAdmin(admin.ModelAdmin):
                 for prestazione in obj:
                     if request.user != prestazione.operatore:
                         self.message_user(request,
-                                          "Non hai creato questa prestazione")
+                                          "Non hai creato questa prestazione",
+                                          level=messages.ERROR)
                         return
                     else:
                         if prestazione.file:

@@ -114,10 +114,10 @@ class TerapiaAdmin(admin.ModelAdmin):
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti_f]
         else:
             # la terapia è stata creata => è un UPDATE
-            if user_group == GROUP_AMMINISTRATORE:
+            if user_group == GROUP_AMMINISTRATORE and request.user.is_superuser:
                 form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [
-                    (obj.operatore.id, obj.operatore.show(request=request)), ]
-                form.base_fields['prescrittore'].initial = obj.operatore
+                    (obj.prescrittore.id, obj.prescrittore.show(request=request)), ]
+                form.base_fields['prescrittore'].initial = obj.prescrittore
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
             else:
@@ -149,7 +149,8 @@ class TerapiaAdmin(admin.ModelAdmin):
                 for terapia in obj:
                     if request.user != terapia.prescrittore:
                         self.message_user(request,
-                                          "Non hai creato questa terapia")
+                                          "Non hai creato questa terapia",
+                                          level=messages.ERROR)
                         return
                     else:
                         if terapia.file:
