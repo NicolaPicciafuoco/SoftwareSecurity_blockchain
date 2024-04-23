@@ -19,7 +19,7 @@ from django.http import HttpResponseRedirect
 class TerapiaAdmin(admin.ModelAdmin):
     ''' Classe per strutturare la vista admin '''
     model = Terapia
-    list_display = ['user_name', 'note', 'prescrittore_name', 'visualizza_file', ]
+    list_display = ['user_name', 'prescrittore_name', 'note', 'visualizza_file', ]
     search_fields = ['hash']
     readonly_fields = ['hash']
     actions = ['delete_model']
