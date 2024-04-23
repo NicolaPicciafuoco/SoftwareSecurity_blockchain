@@ -31,7 +31,12 @@ class TerapiaAdmin(admin.ModelAdmin):
             return ['user_name', 'note', 'prescrittore_name', 'visualizza_file']
 
     def has_change_permission(self, request, obj=None):
-        if obj is not None and obj.prescrittore == request.user:
+        if obj is not None and obj.prescrittore.id == request.user.id:
+            return True
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None and obj.prescrittore.id == request.user.id:
             return True
         return super().has_change_permission(request, obj)
 
