@@ -60,18 +60,18 @@ def return_queryset_terapia(self, request, modello_admin):
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
     elif user_group.name == GROUP_DOTTORE:
+        queryset_dottore = request.user.in_cura_da.all()
+        id_list = [obj.id for obj in queryset_dottore]
         qs = all_qs.filter(
-            utente__id__in=[
-                request.user.in_cura_da.all() if request.user.in_cura_da else None
-            ],
+            utente__id__in=id_list,
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
             # prescrittore__id=request.user.id
         )
     elif user_group.name == GROUP_DOTTORE_SPECIALISTA:
+        queryset_dottore_s = request.user.in_cura_da.all()
+        id_list = [obj.id for obj in queryset_dottore_s]
         qs = all_qs.filter(
-            utente__id__in=[
-                request.user.in_cura_da.all() if request.user.in_cura_da else None
-            ],
+            utente__id__in=id_list,
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
             # prescrittore__id=request.user.id
         )
@@ -97,20 +97,20 @@ def return_queryset_prestazione(self, request, modello_admin):
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
     elif user_group.name == GROUP_DOTTORE:
+        queryset_dottore = request.user.in_cura_da.all()
+        id_list = [obj.id for obj in queryset_dottore]
         qs = all_qs.filter(
-            utente__id__in=[
-                request.user.in_cura_da.all() if request.user.in_cura_da else None
-            ],
+            utente__id__in=id_list,
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
-            # operatore__id=request.user.id
+            # prescrittore__id=request.user.id
         )
     elif user_group.name == GROUP_DOTTORE_SPECIALISTA:
+        queryset_dottore_s = request.user.in_cura_da.all()
+        id_list = [obj.id for obj in queryset_dottore_s]
         qs = all_qs.filter(
-            utente__id__in=[
-                request.user.in_cura_da.all() if request.user.in_cura_da else None
-            ],
+            utente__id__in=id_list,
             utente__groups=Group.objects.get(name=GROUP_PAZIENTE).id,
-            # operatore__id=request.user.id
+            # prescrittore__id=request.user.id
         )
     else:
         raise PermissionDenied("Gruppo non assegnato all\'utente corrente")
