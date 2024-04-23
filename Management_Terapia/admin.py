@@ -1,7 +1,5 @@
-from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib import admin, messages
-from django.core.exceptions import ValidationError
 from django.utils.html import format_html
 from core.group_get_queryset import return_queryset_terapia
 from core.group_name import (GROUP_PAZIENTE,
@@ -48,6 +46,7 @@ class TerapiaAdmin(admin.ModelAdmin):
         if obj.utente:
             return obj.utente.nome
         return "Nessun utente"
+
     user_name.short_description = 'Paziente'
 
     def prescrittore_name(self, obj):
@@ -55,6 +54,7 @@ class TerapiaAdmin(admin.ModelAdmin):
         if obj.prescrittore:
             return obj.prescrittore.nome
         return "Nessun operatore"
+
     prescrittore_name.short_description = 'Prescrittore'
 
     def visualizza_file(self, obj):
@@ -95,7 +95,8 @@ class TerapiaAdmin(admin.ModelAdmin):
         if obj is None:
             # la terapia non è ancora stata creata => è una CREATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [(request.user.id, request.user.show(request=request)),]
+                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [
+                    (request.user.id, request.user.show(request=request)), ]
                 form.base_fields['prescrittore'].initial = request.user
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
@@ -114,13 +115,15 @@ class TerapiaAdmin(admin.ModelAdmin):
         else:
             # la terapia è stata creata => è un UPDATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [(obj.operatore.id, obj.operatore.show(request=request)), ]
+                form.base_fields['prescrittore'].choices = [(p.id, p.show(request=request)) for p in prescrittori] + [
+                    (obj.operatore.id, obj.operatore.show(request=request)), ]
                 form.base_fields['prescrittore'].initial = obj.operatore
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
                 form.base_fields['utente'].initial = obj.utente
             else:
                 try:
-                    form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore.show(request=request)), ]
+                    form.base_fields['prescrittore'].choices = [
+                        (obj.prescrittore.id, obj.prescrittore.show(request=request)), ]
                     form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
                 except Exception:
                     pass
@@ -140,13 +143,18 @@ class TerapiaAdmin(admin.ModelAdmin):
         ''' Funzione sovrascritta per eliminare le terapie'''
         if request.user.groups.all().first().name == GROUP_PAZIENTE:
             self.message_user(request,
-                              "il paziente non può compiere questa azione ")
+                              "Il paziente non può compiere questa azione ")
         else:
             if hasattr(obj, '__iter__'):
                 for terapia in obj:
-                    if terapia.file:
-                        if os.path.isfile(terapia.file.path):
-                            os.remove(terapia.file.path)
+                    if request.user != terapia.prescrittore:
+                        self.message_user(request,
+                                          "Non hai creato questa terapia")
+                        return
+                    else:
+                        if terapia.file:
+                            if os.path.isfile(terapia.file.path):
+                                os.remove(terapia.file.path)
                     terapia.delete()
                 self.message_user(request,
                                   "Le terapie selezionate sono"
@@ -157,8 +165,9 @@ class TerapiaAdmin(admin.ModelAdmin):
                         os.remove(obj.file.path)
                 obj.delete()
                 self.message_user(request,
-                                  "La Terapia è stata eliminata con successo "
+                                  "La terapia è stata eliminata con successo "
                                   "con il file associato.")
+
     delete_model.short_description = "Elimina le terapie selezionate con i file associati"
 
 

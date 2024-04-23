@@ -171,13 +171,18 @@ class PrestazioneAdmin(admin.ModelAdmin):
         """Metodo personalizzato per eliminare le istanze selezionate"""
         if request.user.groups.all().first().name == GROUP_PAZIENTE:
             self.message_user(request,
-                              "il paziente non può compiere questa azione ")
+                              "Il paziente non può compiere questa azione ")
         else:
             if hasattr(obj, '__iter__'):
                 for prestazione in obj:
-                    if prestazione.file:
-                        if os.path.isfile(prestazione.file.path):
-                            os.remove(prestazione.file.path)
+                    if request.user != prestazione.operatore:
+                        self.message_user(request,
+                                          "Non hai creato questa prestazione")
+                        return
+                    else:
+                        if prestazione.file:
+                            if os.path.isfile(prestazione.file.path):
+                                os.remove(prestazione.file.path)
                     prestazione.delete()
                 self.message_user(
                     request,
