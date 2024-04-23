@@ -4,7 +4,7 @@ GROUP_PAZIENTE
     CRUD
     _X__ terapie
     __X_ le info del utente
-    _X__ prestazioni che gli sono state fatte
+    XXXX prestazioni [solo per quelle create da lui le altre le può solo leggere]
 
 GROUP_CAREGIVER
     è un utente svolge le prestazioni solo per un paziente che gli viene assegnato
@@ -12,29 +12,29 @@ GROUP_CAREGIVER
     CRUD
     _X__ terapie
     _X__ le info del paziente
-    XX__ prestazioni
+    XXXX prestazioni [solo per quelle create da lui le altre le può solo leggere]
 
 GROUP_DOTTORE
     è un utente prescrive una terapia per tutti i pazienti
     CRUD
-    XX__ terapie
+    XXXX terapie [solo per quelle create da lui le altre le può solo leggere]
     _X__ le info del paziente
-    XX__ prestazioni
+    XXXX prestazioni [solo per quelle create da lui le altre le può solo leggere]
 
 GROUP_DOTTORE_SPECIALISTA
     è un utente prescrive una terapia per tutti i pazienti
     CRUD
-    XX__ terapie
+    XXXX terapie [solo per quelle create da lui le altre le può solo leggere]
     _X__ le info del paziente
-    XX__ prestazioni
+    XXXX prestazioni [solo per quelle create da lui le altre le può solo leggere]
 
 GROUP_AMMINISTRATORE
     è un utente che gestisce la piattaforma ed eventuali problemi
     CRUD
-    XXXX terapie
+    XXXX terapie [solo superuser]
     XXXX le info del utente
-    XXXX prestazioni
-    XXXX gruppi
+    XXXX prestazioni [solo superuser]
+    XXXX gruppi [solo superuser]
 
 """
 GROUP_PAZIENTE: str = 'Paziente'
