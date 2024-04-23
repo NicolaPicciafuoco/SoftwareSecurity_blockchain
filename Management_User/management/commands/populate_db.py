@@ -20,7 +20,7 @@ class Command(BaseCommand):
     """classe per il comando del seed"""
     help = 'Popola il database con utenti di esempio'
 
-    def handle(self, *args):
+    def handle(self, fake=None, *args, **kwargs):
         """Funzione per il seed"""
         self.stdout.write(
             self.style.SUCCESS('Inizio operazione popolamento db con utenti di esempio'))
@@ -142,8 +142,8 @@ class Command(BaseCommand):
                     data_nascita="1990-01-01",
                     luogo_nascita="Ancona",
                     indirizzo_residenza="Via Primo Maggio 156",
-                    wallet_address="",
-                    private_key="",
+                    # wallet_address="",
+                    # private_key="",
                 ).groups.add(g_admin)
 
                 pbar.update(1)
@@ -159,8 +159,8 @@ class Command(BaseCommand):
                         data_nascita="1990-01-01",
                         luogo_nascita="Ancona",
                         indirizzo_residenza="Via Primo Maggio 156",
-                        wallet_address="",
-                        private_key="",
+                        # wallet_address="",
+                        # private_key="",
                     ).groups.add(g_dottore)
                     pbar.update(1)
 
@@ -175,8 +175,8 @@ class Command(BaseCommand):
                         data_nascita="1990-01-01",
                         luogo_nascita="Ancona",
                         indirizzo_residenza="Via Primo Maggio 156",
-                        wallet_address="",
-                        private_key="",
+                        # wallet_address="",
+                        # private_key="",
                     ).groups.add(g_caregiver)
                     pbar.update(1)
 
@@ -190,8 +190,8 @@ class Command(BaseCommand):
                         data_nascita="1990-01-01",
                         luogo_nascita="Ancona",
                         indirizzo_residenza="Via Primo Maggio 156",
-                        wallet_address="",
-                        private_key="",
+                        # wallet_address="",
+                        # private_key="",
                     ).groups.add(g_pazienti)
                     pbar.update(1)
 
@@ -205,8 +205,8 @@ class Command(BaseCommand):
                         data_nascita="1990-01-01",
                         luogo_nascita="Ancona",
                         indirizzo_residenza="Via Primo Maggio 156",
-                        wallet_address="",
-                        private_key="",
+                        # wallet_address="",
+                        # private_key="",
                     ).groups.add(g_specialista)
                     pbar.update(1)
 
