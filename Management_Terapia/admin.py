@@ -115,7 +115,7 @@ class TerapiaAdmin(admin.ModelAdmin):
                 form.base_fields['utente'].initial = obj.utente
             else:
                 try:
-                    form.base_fields['prescrittore'].choices = [(obj.operatore.id, obj.operatore.show(request=request)), ]
+                    form.base_fields['prescrittore'].choices = [(obj.prescrittore.id, obj.prescrittore.show(request=request)), ]
                     form.base_fields['utente'].choices = [(obj.utente.id, obj.utente.show(request=request)), ]
                 except Exception:
                     pass
