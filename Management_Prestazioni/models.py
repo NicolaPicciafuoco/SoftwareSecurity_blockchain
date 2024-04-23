@@ -28,7 +28,7 @@ class Prestazione(models.Model):
     file = models.FileField('Referto', upload_to=upload_to_prestazione, null=True, blank=True)
     note = models.TextField('Note', max_length=100, null=True, blank=True,
                             validators=[RegexValidator(regex=r'^[a-zA-Z0-9\s]*$',
-                                                       message='solo lettere, numeri e spazzi sono consentiti')])
+                                                       message='solo lettere, numeri e spazi sono consentiti')])
     utente = models.ForeignKey(User, verbose_name='paziente', related_name='prestazioni_ricevute',
                                on_delete=models.SET_NULL, null=True, blank=False)
     operatore = models.ForeignKey(User, verbose_name='operatore', related_name='prestazioni_fornite',
