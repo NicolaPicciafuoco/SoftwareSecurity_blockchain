@@ -21,13 +21,19 @@ contract ChainLog {
     Action[] private terapieLog;             // Array to store all the actions on terapie
     Action[] private prestazioniLog;         // Array to store all the actions on terapie
 
+    // For some reason Solidity does not support string comparison out of the box
+
+    function strCompare(string memory a, string memory b) public pure returns (bool) {
+        return (keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b)));
+    }
+
     // Stores a creation action on the chain
 
     function createAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice)
     public {
-        if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
+        if (strCompare(choice, "Terapia")) {
             terapieLog.push(Action(pk, patient, medic, ActionType.Create, hashedData));
-        } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
+        } else if (strCompare(choice, "Prestazione")) {
             prestazioniLog.push(Action(pk, patient, medic, ActionType.Create, hashedData));
         }
     }
@@ -36,7 +42,7 @@ contract ChainLog {
 
     function updateAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice)
     public {
-        if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
+        if (strCompare(choice, "Terapia")) {
             for (uint i = 0; i < terapieLog.length; i++) {
                 if (terapieLog[i].primaryKey == pk) {
                     terapieLog[i].latestAction = ActionType.Update;
@@ -45,7 +51,7 @@ contract ChainLog {
                 }
             }
 
-        } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
+        } else if (strCompare(choice, "Prestazione")) {
             for (uint i = 0; i < prestazioniLog.length; i++) {
                 if (prestazioniLog[i].primaryKey == pk) {
                     prestazioniLog[i].latestAction = ActionType.Update;
@@ -60,14 +66,14 @@ contract ChainLog {
 
     function deleteAction(address patient, address medic, uint pk, string calldata hashedData, string calldata choice)
     public {
-        if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Terapia"))) {
+        if (strCompare(choice, "Terapia")) {
             for (uint i = 0; i < terapieLog.length; i++) {
                 if (terapieLog[i].primaryKey == pk) {
                 terapieLog[i].hashedData = ""; // Rimuovo l'hash
                 return;
                 }
             }
-        } else if (keccak256(abi.encodePacked(choice)) == keccak256(abi.encodePacked("Prestazione"))) {
+        } else if (strCompare(choice, "Prestazione")) {
            for (uint i = 0; i < prestazioniLog.length; i++) {
                 if (prestazioniLog[i].primaryKey == pk) {
                      prestazioniLog[i].hashedData = "";
