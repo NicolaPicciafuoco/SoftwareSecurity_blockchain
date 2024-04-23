@@ -26,12 +26,12 @@ class PrestazioneAdmin(admin.ModelAdmin):
     actions = ['delete_model']
 
     def has_change_permission(self, request, obj=None):
-        if obj is not None and obj.operatore == request.user:
+        if obj is not None and obj.operatore.id == request.user.id:
             return True
         return super().has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        if obj is not None and obj.operatore == request.user:
+        if obj is not None and obj.operatore.id == request.user.id:
             return True
         return super().has_change_permission(request, obj)
 
