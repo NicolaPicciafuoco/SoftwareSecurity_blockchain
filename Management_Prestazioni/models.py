@@ -42,6 +42,7 @@ class Prestazione(models.Model):
         return ''
 
     def clean(self):
+        max_size = 2 * 1024 * 1024  # 2 megabyte in byte
         """Sovrascrittura del metodo clean per mostrare errori nella form"""
         super().clean()
         if self.file and self.pk:
@@ -49,6 +50,12 @@ class Prestazione(models.Model):
             if old_instance.file and self.file.name == old_instance.file.name:
                 return
         if self.file:
+            if isinstance(self.file.size, int):
+                dim_file = self.file.size
+                if dim_file > max_size:
+                    raise ValidationError('Il file è troppo grande. La dimensione massima consentita è 2 MB.')
+            else:
+                raise ValidationError('La dimensione del file non è un valore numerico valido.')
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazioni', str(paziente_id)))

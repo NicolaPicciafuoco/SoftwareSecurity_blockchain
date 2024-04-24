@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-
 from Management_User.models import HealthCareUser as User
 from Healthcare.settings import MEDIA_ROOT
 from django.db import models
@@ -38,11 +37,18 @@ class Terapia(models.Model):
     def clean(self):
         """Sovrascrittura del metodo clean per mostrare errori nella form"""
         super().clean()
+        max_size = 2 * 1024 * 1024  # 2 megabyte in byte
         if self.file and self.pk:
             old_instance = Terapia.objects.get(pk=self.pk)
             if old_instance.file and self.file.name == old_instance.file.name:
                 return
         if self.file:
+            if isinstance(self.file.size, int):
+                dim_file = self.file.size
+                if dim_file > max_size:
+                    raise ValidationError('Il file è troppo grande. La dimensione massima consentita è 2 MB.')
+            else:
+                raise ValidationError('La dimensione del file non è un valore numerico valido.')
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = get_upload_path(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapie', str(paziente_id)))
