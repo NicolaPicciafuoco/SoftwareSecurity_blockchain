@@ -42,8 +42,8 @@ class TerapiaAdmin(admin.ModelAdmin):
         user_group = request.user.groups.all().first().name
         if user_group == GROUP_CAREGIVER and request.user.assistito is None:
             return False
-        elif (user_group == GROUP_DOTTORE and request.user.in_cura_da is None
-              or user_group == GROUP_DOTTORE_SPECIALISTA and request.user.in_cura_da is None):
+        elif (user_group == GROUP_DOTTORE and request.user.in_cura_da.count() == 0
+              or user_group == GROUP_DOTTORE_SPECIALISTA and request.user.in_cura_da.count() == 0):
             return False
         return super().has_add_permission(request)
 
