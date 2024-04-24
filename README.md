@@ -128,7 +128,11 @@ Default path should be `/config/log-config.xml`.
 The application has been tested and has been designed to run on Linux machines, and it is recommended to use a Linux distribution 
 to run it.
 
-More specifically, the application has been tested on [EndeavourOS](https://endeavouros.com/) and [Ubuntu](https://ubuntu.com/).
+More specifically, the application has been tested on these distributions:
+
+- [EndeavourOS](https://endeavouros.com/)
+- [Arch Linux](https://archlinux.org)
+- [Ubuntu](https://ubuntu.com/).
 
 #### Windows
 
@@ -140,12 +144,12 @@ However, several problems may arise if you choose to run it on a Windows machine
 > and to have Docker configured to use WSL2 as the default engine.
 
 > :warning: **NOTE**: The official Besu Docker image should not run on Windows, as per its [documentation](https://besu.hyperledger.org/private-networks/get-started/install/run-docker-image).
-> Despite this, tests have been successfully run on Windows machines.
+> Despite this, all tests have worked succesfully on Windows machines.
 > It is **still** recommended not to run the application on Windows.
 
 #### macOS
 
-The application has **NOT** been tested on macOS machines, neither on Intel architecture nor ARM chips.
+The application has **NOT** been tested on macOS machines, neither on Intel nor ARM architectures.
 
 Despite this, the application **should** still run on Mac, if the prerequisites are met.
 
@@ -164,11 +168,11 @@ docker-compose -p NAME up
 where `NAME` is the name you want to give to the project containers.
 
 When you run the application for the first time, before you can access the application proper, 
-you will need to wait for the deployment of the smart contract on the blockchain 
-by waiting for the first blocks to be mined. This process can take up to a few minutes to complete.
+you will need to wait for the deployment of the smart contract on the blockchain. 
+This process can take up to a few minutes to complete.
 
 > :warning: **NOTE**: Sometimes the smart contract is deployed twice on two separate adresses.
-> This is harmless, as one of the two contract will never get used by the application.
+> This is harmless, as one of the two contracts will never get used by the application.
 
 After the contract setup is complete, you should be able to access the application landing page on `http://localhost:1337`.
 
@@ -204,8 +208,8 @@ python manage.py migrate
 
 ##### Seeding
 
-It is recommended to seed the database to setup the appropriate role permission.
-Seeding also sets a few default users up to test the application with.
+It is recommended to seed the database to setup the appropriate role permissions.
+Seeding also sets up a few default users to test the application with.
 
 ```bash
 python manage.py populate_db
@@ -217,7 +221,7 @@ by using`docker-compose exec web <command>`.
 ### Troubleshooting
 
 If you encounter any problems while running the application, 
-you can follow the steps below to troubleshoot the application.
+you can follow the steps below to troubleshoot it.
 
 #### Creating a Super User
 
@@ -258,7 +262,7 @@ where `MODULE_NAME` is the name of the Django module (folder) you want to test.
 
 #### Node Explorer
 
-To access the Hyperledger Besu node explorer, you can access the following URL:
+To access the Hyperledger Besu node explorer, you can use the following URL:
 
 ```
 http://localhost:25000
@@ -278,7 +282,7 @@ They contain information about the various instances of the blockchain and the s
 
 ## Credits
 
-This project has been developed as a part of the Software Security and Blockchain course, held by Prof. Luca Spalazzi 
+This project has been developed as part of the Software Security and Blockchain course, held by Prof. Luca Spalazzi 
 at the Università Politecnica delle Marche in Ancona, Italy.
 
 The project has been developed by the following students:

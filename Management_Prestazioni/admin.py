@@ -60,12 +60,8 @@ class PrestazioneAdmin(admin.ModelAdmin):
         """Metodo per sovrascrivere la form"""
         form = super().get_form(request, obj, **kwargs)
         user_group = request.user.groups.all().first().name
-        utenti = HealthCareUser.objects.filter(
-            groups=Group.objects.get(name=GROUP_PAZIENTE).id
-        )
-        utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()]
-
-                      )
+        utenti = HealthCareUser.objects.filter(groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+        utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()])
         utenti_f = utenti.filter(in_cura_da__id=request.user.id)
         operatori = HealthCareUser.objects.filter(
             groups__in=[
@@ -77,9 +73,8 @@ class PrestazioneAdmin(admin.ModelAdmin):
         if obj is None:
             # la prestazioni non è ancora stata creata => è una CREATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['operatore'].choices = [
-                                                            (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(request.user.id, request.user.show(request=request)), ]
+                form.base_fields['operatore'].choices = [(p.id, p.show(request=request)) for p in operatori] + [
+                    (request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
@@ -97,7 +92,7 @@ class PrestazioneAdmin(admin.ModelAdmin):
                         (request.user.assistito.id, request.user.assistito.show(request=request)),
                     ]
                 else:
-                    form.base_fields['utente'].choices = None
+                    form.base_fields['utente'].choices = [('', '---------')]
 
             elif user_group in GROUP_DOTTORE:
                 form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
