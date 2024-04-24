@@ -60,6 +60,7 @@ class HealthCareUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         'indirizzo e-mail',
         unique=True,
+        max_length=255,
         error_messages={'unique': 'Questa e-mail è già in uso'}
     )
     luogo_nascita = models.CharField(
