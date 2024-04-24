@@ -1,53 +1,83 @@
-"""Import"""
+"""Testing delle principali funzionalità del codice"""
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from Management_User.models import HealthCareUser as User
 from Management_Prestazioni.models import Prestazione
+from Management_User.models import HealthCareUser as User
 
-class PrestazioneSaveTestCase(TestCase):
-    """Classe di test"""
+
+class PrestazioneTestCase(TestCase):
+
     def setUp(self):
-        """Setup delle istanze per i test"""
+        # Elimina tutte le istanze di Prestazione prima di ogni test
+        Prestazione.objects.all().delete()
+        # Creazione degli utenti di test
         self.user = User.objects.create(
-            email='test@example.com',
-            nome='Test',
-            cognome='User',
+            email='user@example.com',
+            nome='UserProva',
+            cognome='CognomeProva',
             sesso=User.MALE,
             data_nascita='1990-01-01',
-            luogo_nascita='TestCity',
-            indirizzo_residenza='TestAddress'
+            luogo_nascita='Città di prova',
+            indirizzo_residenza='Indirizzo di prova',
+            wallet_address='0x9F74Ae796089913245c9e41D408E8c29B784eB67',
+            private_key='0xd9f5dabf3c2e2395887f39091b1408447148626dbc52eb6a8ddcf23a31118cea',
         )
 
-        # Simuliamo un file di test
-        file_content = b'This is a test file content'
-        self.test_file = SimpleUploadedFile("test_file.txt", file_content, content_type="text/plain")
+        self.operatore = User.objects.create(
+            email='user3@example.com',
+            nome='UserProvaoperatore',
+            cognome='CognomeProvaoperatore',
+            sesso=User.MALE,
+            data_nascita='1990-01-01',
+            luogo_nascita='Città di prova',
+            indirizzo_residenza='Indirizzo di prova',
+            wallet_address='0x9F74Ae796089913245c9e41D408E8c29B784eB67',
+            private_key='0xd9f5dabf3c2e2395887f39091b1408447148626dbc52eb6a8ddcf23a31118cea',
+        )
 
+        # Definizione di un file di test
+        file_content = b"Contenuto del file di esempio"
+        self.file = SimpleUploadedFile("test_file.txt", file_content)
 
-    def test_salvataggio_prestazione(self):
-        """Testing della funzione di save senza """
-        prestazione = Prestazione(
+    def test_save_function(self):
+        # Creare una nuova istanza di Prestazione
+        Prestazione.objects.create(
             utente=self.user,
-            operatore=self.user,
-            note='Test note'
+            operatore=self.operatore,
+            file=self.file if self.file else None,
+            note='Nota di prova'
         )
 
-        # Salviamo la Prestazione nel database
-        prestazione.save()
+        self.assertTrue(Prestazione.objects.exists())
 
-        # Verifichiamo che la Prestazione sia stata salvata correttamente
-        self.assertIsNotNone(prestazione.id, "La Prestazione non è stata salvata correttamente nel database")
-
-    def test_salvataggio_file_prestazione(self):
-        """Testing della funzione di save con il file associato"""
+    def test_update_function(self):
+        # Creare una nuova istanza di Prestazione
         prestazione = Prestazione.objects.create(
             utente=self.user,
-            operatore=self.user,
-            file=self.test_file,
-            note='Test note'
+            operatore=self.operatore,
+            file=self.file if self.file else None,
+            note='Nota di prova2'
         )
 
-        # Otteniamo il percorso del file salvato
-        file_path = prestazione.file.path
+        # Modifica dei dati dell'istanza di Prestazione
+        new_note = "Nuova nota di prova"
+        prestazione.note = new_note
+        prestazione.save()
 
-        # Verifichiamo che il file sia stato salvato correttamente
-        self.assertTrue(prestazione.file.storage.exists(file_path), "Il file non è stato salvato correttamente")
+        # Verifica che l'istanza di Prestazione sia stata aggiornata correttamente nel database
+        updated_prestazione = Prestazione.objects.get(pk=prestazione.pk)
+        self.assertEqual(updated_prestazione.note, new_note)
+
+    def test_delete_function(self):
+        # Creare una nuova istanza di Prestazione
+        Prestazione.objects.create(
+            utente=self.user,
+            operatore=self.operatore,
+            file=self.file if self.file else None,
+            note='Nota di prova'
+        )
+        # Eliminare l'istanza di Prestazione
+        Prestazione.objects.all().delete()
+        # Verifico che Prestazione.objects.all().delete() abbia eliminato tutto
+        self.assertFalse(Prestazione.objects.exists())
+

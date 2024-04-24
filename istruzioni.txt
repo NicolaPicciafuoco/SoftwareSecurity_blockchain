@@ -1,0 +1,30 @@
+---------( 1 )--- per creare le MIGRAZIONI
+python manage.py makemigrations
+
+---------( 2 )--- per attuare le MIGRAZIONI
+python manage.py migrate
+
+---------( 3 )--- per fare il SEEDS
+python manage.py populate_db
+
+---------( *opzionale* )--- per creare il SUPERUSER
+python manage.py createsuperuser --email su@admin.it --nome nome_superuser --cognome cognome_superuser --sesso 1 --data_nascita 2000-1-1 --luogo_nascita ancona --indirizzo_residenza ancona
+
+
+---------( alcune email di utenti )--- per accedere
+
+--(pwd)--> asd123bnm456
+
+caregiver0@caregiver.it
+caregiver1@caregiver.it
+dottore0@dottore.it
+dottore1@dottore.it
+paziente0@paziente.it
+paziente1@paziente.it
+paziente2@paziente.it
+paziente3@paziente.it
+paziente4@paziente.it
+specialista0@specialista.it
+specialista1@specialista.it
+specialista2@specialista.it
+admin@admin.it

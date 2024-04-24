@@ -9,6 +9,9 @@ media
 # Backup files #
 *.bak
 
+# Contract address
+contract/contract_address.txt
+
 # If you are using PyCharm #
 # User-specific stuff
 .idea/
@@ -76,6 +79,7 @@ celerybeat-schedule.*
 
 # Environments
 .env
+besu-network/config/besu/.env
 .venv
 env/
 venv/
