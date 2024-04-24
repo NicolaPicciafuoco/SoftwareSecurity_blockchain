@@ -38,6 +38,15 @@ class TerapiaAdmin(admin.ModelAdmin):
             return True
         return super().has_change_permission(request, obj)
 
+    def has_add_permission(self, request):
+        user_group = request.user.groups.all().first().name
+        if user_group == GROUP_CAREGIVER and request.user.assistito is None:
+            return False
+        elif (user_group == GROUP_DOTTORE and request.user.in_cura_da is None
+              or user_group == GROUP_DOTTORE_SPECIALISTA and request.user.in_cura_da is None):
+            return False
+        return super().has_add_permission(request)
+
     def get_queryset(self, request):
         return return_queryset_terapia(self, request, TerapiaAdmin)
 
