@@ -60,15 +60,9 @@ class PrestazioneAdmin(admin.ModelAdmin):
         """Metodo per sovrascrivere la form"""
         form = super().get_form(request, obj, **kwargs)
         user_group = request.user.groups.all().first().name
-        utenti = HealthCareUser.objects.filter(
-            groups=Group.objects.get(name=GROUP_PAZIENTE).id
-        )
-        if request.user.in_cura_da is not None:
-            utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()])
-            utenti_f = utenti.filter(in_cura_da__id=request.user.id)
-        else:
-            utenti_f = None
-
+        utenti = HealthCareUser.objects.filter(groups=Group.objects.get(name=GROUP_PAZIENTE).id)
+        utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()])
+        utenti_f = utenti.filter(in_cura_da__id=request.user.id)
         operatori = HealthCareUser.objects.filter(
             groups__in=[
                 Group.objects.get(name=GROUP_CAREGIVER).id,
@@ -91,20 +85,14 @@ class PrestazioneAdmin(admin.ModelAdmin):
                 form.base_fields['utente'].initial = request.user.id
 
             elif user_group == GROUP_CAREGIVER:
-                try:
-                    form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
-                    form.base_fields['operatore'].initial = request.user
-                    if request.user.assistito is not None:
-                        form.base_fields['utente'].choices = [
-                            (request.user.assistito.id, request.user.assistito.show(request=request)),
-                        ]
-                    else:
-                        form.base_fields['utente'].choices = None
-                except Exception as e:
-                    if request.user.assistito is None:
-                        messages.error(request, f"{request.user}: non ha un assistito", messages.ERROR)
-                        form_url_prec = request.META.get('HTTP_REFERER')
-                        return HttpResponseRedirect(form_url_prec)
+                form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
+                form.base_fields['operatore'].initial = request.user
+                if request.user.assistito is not None:
+                    form.base_fields['utente'].choices = [
+                        (request.user.assistito.id, request.user.assistito.show(request=request)),
+                    ]
+                else:
+                    form.base_fields['utente'].choices = [('', '---------')]
 
             elif user_group in GROUP_DOTTORE:
                 form.base_fields['operatore'].choices = [(request.user.id, request.user.show(request=request)), ]
