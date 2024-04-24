@@ -56,6 +56,11 @@ class Prestazione(models.Model):
                     raise ValidationError('Il file è troppo grande. La dimensione massima consentita è 2 MB.')
             else:
                 raise ValidationError('La dimensione del file non è un valore numerico valido.')
+            allowed_extensions = ['.pdf', '.doc', '.docx','.png','.jpeg']  # Estensioni consentite
+            ext = os.path.splitext(self.file.name)[1]  # Ottieni l'estensione del file
+            if ext.lower() not in allowed_extensions:
+                raise ValidationError(
+                    'Il tipo di file non è supportato. Si prega di caricare un file con estensione .pdf, .doc, .docx., pgn, jpeg')
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = upload_to_prestazione(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_prestazioni', str(paziente_id)))
