@@ -53,7 +53,7 @@ class Terapia(models.Model):
             ext = os.path.splitext(self.file.name)[1]  # Ottieni l'estensione del file
             if ext.lower() not in allowed_extensions:
                 raise ValidationError(
-                    'Il tipo di file non è supportato. Si prega di caricare un file con estensione .pdf, .doc, .docx., pgn, jpeg')
+                    'Il tipo di file non è supportato. Si prega di caricare un file con estensione .pdf, .doc, .docx., png, jpeg')
             paziente_id = getattr(self.utente, 'id', None)
             new_file_path = get_upload_path(self, os.path.basename(self.file.name))
             existing_files = os.listdir(os.path.join(MEDIA_ROOT, 'file_terapie', str(paziente_id)))
