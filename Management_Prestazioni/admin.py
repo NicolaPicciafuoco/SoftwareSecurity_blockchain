@@ -63,10 +63,12 @@ class PrestazioneAdmin(admin.ModelAdmin):
         utenti = HealthCareUser.objects.filter(
             groups=Group.objects.get(name=GROUP_PAZIENTE).id
         )
-        utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()]
+        if request.user.in_cura_da is not None:
+            utenti.filter(id__in=[i.id for i in request.user.in_cura_da.all()])
+            utenti_f = utenti.filter(in_cura_da__id=request.user.id)
+        else:
+            utenti_f = None
 
-                      )
-        utenti_f = utenti.filter(in_cura_da__id=request.user.id)
         operatori = HealthCareUser.objects.filter(
             groups__in=[
                 Group.objects.get(name=GROUP_CAREGIVER).id,
@@ -77,9 +79,8 @@ class PrestazioneAdmin(admin.ModelAdmin):
         if obj is None:
             # la prestazioni non è ancora stata creata => è una CREATE
             if user_group == GROUP_AMMINISTRATORE:
-                form.base_fields['operatore'].choices = [
-                                                            (p.id, p.show(request=request)) for p in operatori
-                                                        ] + [(request.user.id, request.user.show(request=request)), ]
+                form.base_fields['operatore'].choices = [(p.id, p.show(request=request)) for p in operatori] + [
+                    (request.user.id, request.user.show(request=request)), ]
                 form.base_fields['operatore'].initial = request.user
                 form.base_fields['utente'].choices = [(u.id, u.show(request=request)) for u in utenti]
 
