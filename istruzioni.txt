@@ -13,7 +13,9 @@ python manage.py createsuperuser --email su@admin.it --nome nome_superuser --cog
 
 ---------( alcune email di utenti )--- per accedere
 
---(pwd)--> asd123bnm456
+--(password)--> asd123bnm456
+
+--(admin@admin.it password)--> admin
 
 caregiver0@caregiver.it
 caregiver1@caregiver.it

@@ -18,8 +18,9 @@
     - [Database Setup](#db-setup)
       - [Migrations](#migrations)
       - [Seeding](#seeding)
-  - [Troubleshooting](#troubleshooting)
+  - [Troubleshooting](#troubleshooting) 
     - [Creating a Super User](#creating-a-super-user)
+    - [Module Testing](#module-testing)
     - [Node Explorer](#node-explorer)
     - [Logs](#logs)
 - [Credits](#credits)
@@ -240,6 +241,20 @@ for them gradually. The parameters are as follows:
 - `--indirizzo-residenza`: the superuser's home address.
 
 Once prompted to choose a password, you can choose not to follow the standard requirements.
+
+#### Module Testing
+
+You can run tests for the application by entering the following command in the `web` container:
+
+```bash
+python manage.py test MODULE_NAME
+```
+
+where `MODULE_NAME` is the name of the Django module (folder) you want to test.
+
+> :warning: **NOTE**: Running the tests renders the application unstable and is sure to cause unintended behaviour
+> regarding mismatched primary keys and file integrity, due to how Django handles the database during testing.
+> You should **ALWAYS** restart the blockchain after running the tests.
 
 #### Node Explorer
 
