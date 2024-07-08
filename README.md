@@ -62,11 +62,11 @@ The Healthcare application is built using the following technologies:
 - [Gunicorn](https://gunicorn.org/) as the WSGI server
 - [Nginx](https://www.nginx.com/) as the reverse proxy server
 - [Hyperledger Besu](https://www.hyperledger.org/use/besu) for the blockchain network
-- [ConsenSys Tessera](https://docs.tessera.consensys.io/) for private transact
+- [ConsenSys Tessera](https://docs.tessera.consensys.io/) for private transactions
 - [Solidity](https://soliditylang.org/) for smart contract development
 - [Web3.py](https://web3py.readthedocs.io/en/stable/) for interacting with the smart contracts
 - [Docker](https://www.docker.com/) and [Compose](https://docs.docker.com/compose/) for containerization
-- [PostgreSQL](https://www.postgresql.org/) as the database
+- [PostgreSQL](https://www.postgresql.org/) for the database
 
 ## Getting Started
 
@@ -132,7 +132,7 @@ More specifically, the application has been tested on these distributions:
 
 - [EndeavourOS](https://endeavouros.com/)
 - [Arch Linux](https://archlinux.org)
-- [Ubuntu](https://ubuntu.com/).
+- [Ubuntu](https://ubuntu.com/)
 
 #### Windows
 
@@ -240,7 +240,7 @@ for them gradually. The parameters are as follows:
 - `--nome`: the superuser's name.
 - `--cognome`: the superuser's surname.
 - `--sesso`: the superuser's sex. Can be `0` (male) or `1` (female).
-- `--data-nascita`: the superuser's birthdate. Follows the `YYYY-MM-MM` format.
+- `--data-nascita`: the superuser's birthdate. Follows the `YYYY-MM-DD` format.
 - `--luogo-nascita`: the superuser's birthplace.
 - `--indirizzo-residenza`: the superuser's home address.
 
@@ -285,7 +285,7 @@ They contain information about the various instances of the blockchain and the s
 This project has been developed as part of the Software Security and Blockchain course, held by Prof. Luca Spalazzi 
 at the Università Politecnica delle Marche in Ancona, Italy.
 
-The project has been developed by the following students:
+This application has been developed by the following students:
 
 - [Nicola Picciafuoco](https://github.com/NicolaPicciafuoco)
 - [Alessandro Rossini](https://github.com/oathbound01)
